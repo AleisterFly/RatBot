@@ -1,6 +1,6 @@
 import { Context, Markup, Telegraf } from "telegraf";
 import { IUserRepostory } from "../repositories/userRepository";
-import { IPlayerRepostory } from "../repositories/playerRepository";
+import { IPlayerRepository } from "../repositories/playerRepository";
 import { userRepository } from "../di/ratProvider";
 
 export class PlayerManager {
@@ -8,7 +8,7 @@ export class PlayerManager {
   bot: Telegraf;
   userRepository: IUserRepostory = userRepository;
 
-  constructor(private playerRepository: IPlayerRepostory, bot: Telegraf) {
+  constructor(private playerRepository: IPlayerRepository, bot: Telegraf) {
     this.nicknames = playerRepository.getAllNicknames();
     this.bot = bot;
   }

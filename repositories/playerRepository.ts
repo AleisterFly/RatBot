@@ -1,6 +1,6 @@
 import { Player } from "../models/player";
 
-export interface IPlayerRepostory {
+export interface IPlayerRepository {
   createPlayer(nickname: string): void;
 
   getByNickname(nickname: string): Player | undefined;
@@ -15,7 +15,7 @@ export interface IPlayerRepostory {
   updateIsRat(nickname: string, isRat: boolean): void;
 }
 
-export class LocalPlayerRepostory implements IPlayerRepostory {
+export class LocalPlayerRepository implements IPlayerRepository {
   readonly players: Map<string, Player> = new Map();
 
   constructor() {}
