@@ -1,17 +1,18 @@
 import { Player } from "../models/player/player";
+import {List} from "immutable";
 
 export interface IPlayerRepository {
   createPlayer(nickname: string): void;
 
   getByNickname(nickname: string): Player | undefined;
   isPlayerRat(nickname: string): boolean;
-  getRatNicknames(): string[];
-  getAllNicknames(): string[];
+  getRatNicknames(): List<string>;
+  getAllNicknames(): List<string>;
 
   updateTeamName(nickname: string, teamName: string): void;
   updateGameScores(nickname: string, gameScores: number): void;
   updateRatScores(nickname: string, ratScores: number): void;
-  updatePenalties(nickname: string, penalties: number[]): void;
+  updatePenalties(nickname: string, penalties: List<number>): void;
   updateIsRat(nickname: string, isRat: boolean): void;
 }
 
@@ -33,8 +34,8 @@ export class LocalPlayerRepository implements IPlayerRepository {
     return this.players.get(nickname)?.isRat ?? false;
   }
 
-  getRatNicknames(): string[] {
-    let ratNicknames: string[] = [];
+  getRatNicknames(): List<string> {
+    let ratNicknames: List<string> = List<string>();
 
     for (const player of this.players.values()) {
       if (player.isRat) {
@@ -44,8 +45,8 @@ export class LocalPlayerRepository implements IPlayerRepository {
     return ratNicknames;
   }
 
-  getAllNicknames(): string[] {
-    return Array.from(this.players.keys());
+  getAllNicknames(): List<string> {
+    return List(Array.from(this.players.keys()));
   }
 
   updateTeamName(nickname: string, teamName: string): void {
@@ -69,7 +70,7 @@ export class LocalPlayerRepository implements IPlayerRepository {
     }
   }
 
-  updatePenalties(nickname: string, penalties: number[]): void {
+  updatePenalties(nickname: string, penalties: List<number>): void {
     const player = this.players.get(nickname);
     if (player) {
       player.penalties = penalties;

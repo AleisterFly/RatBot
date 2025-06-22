@@ -2,9 +2,10 @@ import { Context, Markup, Telegraf } from "telegraf";
 import { IUserRepository } from "../repositories/userRepository";
 import { IPlayerRepository } from "../repositories/playerRepository";
 import { userRepository } from "../di/ratProvider";
+import {List} from "immutable";
 
 export class PlayerManager {
-  nicknames: string[];
+  nicknames: List<string>;
   bot: Telegraf;
   userRepository: IUserRepository = userRepository;
 

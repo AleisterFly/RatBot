@@ -16,7 +16,7 @@ export class LocalViewerRepository implements IViewerRepository {
     private readonly viewers: Map<string, Viewer> = new Map();
 
     createViewer(nickname: string): void {
-        const viewer = new Viewer(nickname);
+        const viewer = Viewer.createViewer(nickname);
         this.viewers.set(nickname, viewer);
     }
 
