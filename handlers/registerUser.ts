@@ -1,5 +1,5 @@
 import { Context, Markup, Telegraf } from "telegraf";
-import { IUserRepostory } from "../repositories/userRepository";
+import { IUserRepository } from "../repositories/userRepository";
 import {
   notificationManager,
   playerRepository,
@@ -22,7 +22,7 @@ export class UserManager {
   nicknames: string[];
   bot: Telegraf;
 
-  constructor(private repository: IUserRepostory, bot: Telegraf) {
+  constructor(private repository: IUserRepository, bot: Telegraf) {
     this.nicknames = repository.getUnregNicknames();
     this.bot = bot;
   }

@@ -1,6 +1,6 @@
 import { User } from "../models/user";
 
-export interface IUserRepostory {
+export interface IUserRepository {
   getReservationNumber(nickname: string): number;
   getRegChatIds(): number[];
   getRegUser(chatId: number | undefined): User | undefined;
@@ -12,7 +12,7 @@ export interface IUserRepostory {
   deleteRegUser(nickname: string): void;
 }
 
-export class LocalUserRepostory implements IUserRepostory {
+export class LocalUserRepository implements IUserRepository {
   readonly regUsers: Map<string, User> = new Map();
 
   constructor() {}

@@ -1,12 +1,12 @@
 import { Context, Markup, Telegraf } from "telegraf";
-import { IUserRepostory } from "../repositories/userRepository";
+import { IUserRepository } from "../repositories/userRepository";
 import { IPlayerRepository } from "../repositories/playerRepository";
 import { userRepository } from "../di/ratProvider";
 
 export class PlayerManager {
   nicknames: string[];
   bot: Telegraf;
-  userRepository: IUserRepostory = userRepository;
+  userRepository: IUserRepository = userRepository;
 
   constructor(private playerRepository: IPlayerRepository, bot: Telegraf) {
     this.nicknames = playerRepository.getAllNicknames();
