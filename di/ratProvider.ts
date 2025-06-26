@@ -7,6 +7,7 @@ import { PlayerManager } from "../handlers/playerManager";
 import { NotificationManager } from "../handlers/notificationManager";
 import {ViewerManager} from "../handlers/viewerManager";
 import {LocalViewerRepository} from "../repositories/viewerRepository";
+import {DBManager} from "../utils/dbManager";
 
 export const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
 export const userRepository = new LocalUserRepository();
@@ -16,3 +17,4 @@ export const playerManager = new PlayerManager(playerRepository, bot);
 export const userManager = new UserManager(userRepository, bot);
 export const viewerManager = new ViewerManager(viewerRepository, bot);
 export const notificationManager = new NotificationManager(userRepository, playerRepository, bot);
+export const dbManager = new DBManager();
