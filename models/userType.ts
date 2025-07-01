@@ -5,6 +5,8 @@ export enum UserType {
     Regular = "regular",
     Player = "player",
     Rat = "rat",
-    Viewer = "viewer"
+    Viewer = "viewer",
+    Default = "default",
+    UnregPlayer = "unregPlayer"
 }
 

@@ -5,12 +5,12 @@ import { userRepository } from "../di/ratProvider";
 import {List} from "immutable";
 
 export class PlayerManager {
-  nicknames: List<string>;
+  // nicknames: List<string>;
   bot: Telegraf;
   userRepository: IUserRepository = userRepository;
 
   constructor(private playerRepository: IPlayerRepository, bot: Telegraf) {
-    this.nicknames = playerRepository.getAllNicknames();
+    // this.nicknames = playerRepository.getAllNicknames();
     this.bot = bot;
   }
 

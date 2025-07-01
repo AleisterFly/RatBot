@@ -1,14 +1,16 @@
 import { User } from "../models/user";
+import {UserType} from "../models/userType";
+import {List} from "immutable";
 
 export interface IUserRepository {
-  getReservationNumber(nickname: string): number;
-  getRegChatIds(): number[];
+  getRegChatIds(): List<number>;
   getRegUser(chatId: number | undefined): User | undefined;
   getUser(nickname: string): User | undefined;
-  saveUser(user: User): number;
+  registerUser(user: User): number;
+  updateUser(user: User): void;
 
   getUnregUser(nickname: string): User | undefined;
-  getUnregNicknames(): string[];
+  getUnregNicknames(): List<string>;
   deleteRegUser(nickname: string): void;
 }
 
@@ -17,12 +19,12 @@ export class LocalUserRepository implements IUserRepository {
 
   constructor() {}
 
-  getReservationNumber(nickname: string): number {
-    return this.getUser(nickname)?.regNumber ?? -1;
-  }
+  updateUser(user: User): void {
+        throw new Error("Method not implemented.");
+    }
 
-  getRegChatIds(): number[] {
-    let regChatIds: number[] = [];
+  getRegChatIds(): List<number> {
+    let regChatIds: List<number> = List<number>();
     for (const user of this.regUsers.values()) {
       if (user.chatId != -1) {
         regChatIds.push(user.chatId);
@@ -48,12 +50,11 @@ export class LocalUserRepository implements IUserRepository {
     return this.regUsers.get(nickname);
   }
 
-  saveUser(user: User): number {
+  registerUser(user: User): number {
     if (this.regUsers.get(user.nickname) != undefined) {
       return -1;
     } else {
       let count = this.regUsers.size;
-      user.regNumber = count + 1;
       this.regUsers.set(user.nickname, user);
       return this.regUsers.size;
     }
@@ -63,8 +64,8 @@ export class LocalUserRepository implements IUserRepository {
     return unregUserMap.get(nickname);
   }
 
-  getUnregNicknames(): string[] {
-    return Array.from(unregUserMap.keys());
+  getUnregNicknames(): List<string> {
+    return List(Array.from(unregUserMap.keys()));
   }
 
   deleteRegUser(nickname: string): void {
@@ -73,299 +74,39 @@ export class LocalUserRepository implements IUserRepository {
 }
 
 const unregUserMap: Map<string, User> = new Map([
-  [
-    "Абрам",
-    {
-      nickname: "Абрам",
-      telegramName: "@Mikhrutka",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Адлер",
-    { nickname: "Адлер", telegramName: "@adler_ua", chatId: -1, regNumber: -1 },
-  ],
-  [
-    "Аврора",
-    { nickname: "Аврора", telegramName: "@aurosha", chatId: -1, regNumber: -1 },
-  ],
-  [
-    "Архи",
-    {
-      nickname: "Архи",
-      telegramName: "@vadimmigalenko",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Bandera",
-    {
-      nickname: "Bandera",
-      telegramName: "@khakimov_andrew",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Блукач",
-    {
-      nickname: "Блукач",
-      telegramName: "@yurivynnyk",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "f5",
-    {
-      nickname: "f5",
-      telegramName: "T.me/armasher",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "filister",
-    {
-      nickname: "filister",
-      telegramName: "@F1l1STER",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Franklin",
-    {
-      nickname: "Franklin",
-      telegramName: "https://t.me/frankl1n3",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Грильяж",
-    {
-      nickname: "Грильяж",
-      telegramName: "@grilllage",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Жирафа",
-    {
-      nickname: "Жирафа",
-      telegramName: "@stmargarita",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Инженер",
-    {
-      nickname: "Инженер",
-      telegramName: "https://t.me/andrey_teslya",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Кайфат",
-    {
-      nickname: "Кайфат",
-      telegramName: "@spleanin",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Космічна",
-    {
-      nickname: "Космічна",
-      telegramName: "mary_kos",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Комар",
-    {
-      nickname: "Комар",
-      telegramName: "@Smurfkomar",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Крис",
-    {
-      nickname: "Крис",
-      telegramName: "baranovskayanastya",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Кукла",
-    {
-      nickname: "Кукла",
-      telegramName: "Kyklamarina",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Leklerk",
-    {
-      nickname: "Leklerk",
-      telegramName: "@Leklerk_k",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Логика",
-    {
-      nickname: "Логика",
-      telegramName: "@veizgeim",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Малинити",
-    {
-      nickname: "Малинити",
-      telegramName: "@grubaya",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Марта",
-    {
-      nickname: "Марта",
-      telegramName: "https://t.me/mrs_marta",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Miracle",
-    {
-      nickname: "Miracle",
-      telegramName: "Miracleprg",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Moriarty",
-    {
-      nickname: "Moriarty",
-      telegramName: "t.me/maksimiliansm",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Негрони",
-    {
-      nickname: "Негрони",
-      telegramName: "@nazar_stt",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Певица",
-    {
-      nickname: "Певица",
-      telegramName: "https://t.me/sdaria_s",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Red",
-    { nickname: "Red", telegramName: "@chibirenny", chatId: -1, regNumber: -1 },
-  ],
-  [
-    "Sirius",
-    {
-      nickname: "Sirius",
-      telegramName: "@aldoshyn",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Сайфер",
-    { nickname: "Сайфер", telegramName: "@XXRater", chatId: -1, regNumber: -1 },
-  ],
-  [
-    "Сокрушитель",
-    {
-      nickname: "Сокрушитель",
-      telegramName: "@mit_zag",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Тони",
-    {
-      nickname: "Тони",
-      telegramName: "https://t.me/gn_t0ny",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Tommy",
-    {
-      nickname: "Tommy",
-      telegramName: "oldangrypirate",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "walle",
-    {
-      nickname: "walle",
-      telegramName: "@nikita_pitalenko",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Харюк",
-    {
-      nickname: "Харюк",
-      telegramName: "@ArturSayakhov",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Хирург",
-    {
-      nickname: "Хирург",
-      telegramName: "Highredrose",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
-  [
-    "Шахматист",
-    {
-      nickname: "Шахматист",
-      telegramName: "@platonich3",
-      chatId: -1,
-      regNumber: -1,
-    },
-  ],
+  ["Абрам", { nickname: "Абрам", telegramName: "@Mikhrutka", chatId: -1, userType: UserType.Default }],
+  ["Адлер", { nickname: "Адлер", telegramName: "@adler_ua", chatId: -1, userType: UserType.Default }],
+  ["Аврора", { nickname: "Аврора", telegramName: "@aurosha", chatId: -1, userType: UserType.Default }],
+  ["Архи", { nickname: "Архи", telegramName: "@vadimmigalenko", chatId: -1, userType: UserType.Default }],
+  ["Bandera", { nickname: "Bandera", telegramName: "@khakimov_andrew", chatId: -1, userType: UserType.Default }],
+  ["Блукач", { nickname: "Блукач", telegramName: "@yurivynnyk", chatId: -1, userType: UserType.Default }],
+  ["f5", { nickname: "f5", telegramName: "T.me/armasher", chatId: -1, userType: UserType.Default }],
+  ["filister", { nickname: "filister", telegramName: "@F1l1STER", chatId: -1, userType: UserType.Default }],
+  ["Franklin", { nickname: "Franklin", telegramName: "https://t.me/frankl1n3", chatId: -1, userType: UserType.Default }],
+  ["Грильяж", { nickname: "Грильяж", telegramName: "@grilllage", chatId: -1, userType: UserType.Default }],
+  ["Жирафа", { nickname: "Жирафа", telegramName: "@stmargarita", chatId: -1, userType: UserType.Default }],
+  ["Инженер", { nickname: "Инженер", telegramName: "https://t.me/andrey_teslya", chatId: -1, userType: UserType.Default }],
+  ["Кайфат", { nickname: "Кайфат", telegramName: "@spleanin", chatId: -1, userType: UserType.Default }],
+  ["Космічна", { nickname: "Космічна", telegramName: "mary_kos", chatId: -1, userType: UserType.Default }],
+  ["Комар", { nickname: "Комар", telegramName: "@Smurfkomar", chatId: -1, userType: UserType.Default }],
+  ["Крис", { nickname: "Крис", telegramName: "baranovskayanastya", chatId: -1, userType: UserType.Default }],
+  ["Кукла", { nickname: "Кукла", telegramName: "Kyklamarina", chatId: -1, userType: UserType.Default }],
+  ["Leklerk", { nickname: "Leklerk", telegramName: "@Leklerk_k", chatId: -1, userType: UserType.Default }],
+  ["Логика", { nickname: "Логика", telegramName: "@veizgeim", chatId: -1, userType: UserType.Default }],
+  ["Малинити", { nickname: "Малинити", telegramName: "@grubaya", chatId: -1, userType: UserType.Default }],
+  ["Марта", { nickname: "Марта", telegramName: "https://t.me/mrs_marta", chatId: -1, userType: UserType.Default }],
+  ["Miracle", { nickname: "Miracle", telegramName: "Miracleprg", chatId: -1, userType: UserType.Default }],
+  ["Moriarty", { nickname: "Moriarty", telegramName: "t.me/maksimiliansm", chatId: -1, userType: UserType.Default }],
+  ["Негрони", { nickname: "Негрони", telegramName: "@nazar_stt", chatId: -1, userType: UserType.Default }],
+  ["Певица", { nickname: "Певица", telegramName: "https://t.me/sdaria_s", chatId: -1, userType: UserType.Default }],
+  ["Red", { nickname: "Red", telegramName: "@chibirenny", chatId: -1, userType: UserType.Default }],
+  ["Sirius", { nickname: "Sirius", telegramName: "@aldoshyn", chatId: -1, userType: UserType.Default }],
+  ["Сайфер", { nickname: "Сайфер", telegramName: "@XXRater", chatId: -1, userType: UserType.Default }],
+  ["Сокрушитель", { nickname: "Сокрушитель", telegramName: "@mit_zag", chatId: -1, userType: UserType.Default }],
+  ["Тони", { nickname: "Тони", telegramName: "https://t.me/gn_t0ny", chatId: -1, userType: UserType.Default }],
+  ["Tommy", { nickname: "Tommy", telegramName: "oldangrypirate", chatId: -1, userType: UserType.Default }],
+  ["walle", { nickname: "walle", telegramName: "@nikita_pitalenko", chatId: -1, userType: UserType.Default }],
+  ["Харюк", { nickname: "Харюк", telegramName: "@ArturSayakhov", chatId: -1, userType: UserType.Default }],
+  ["Хирург", { nickname: "Хирург", telegramName: "Highredrose", chatId: -1, userType: UserType.Default }],
+  ["Шахматист", { nickname: "Шахматист", telegramName: "@platonich3", chatId: -1, userType: UserType.Default }],
 ]);

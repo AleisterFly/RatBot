@@ -7,6 +7,7 @@ export class Player {
     ratScores: number;
     penalties: List<number>;
     isRat: boolean;
+    regNumber: number;
 
     constructor(
         nickname = "",
@@ -14,7 +15,8 @@ export class Player {
         gameScores = 0,
         ratScores = 0,
         penalties: List<number> = List<number>(),
-        isRat = false
+        isRat = false,
+        regNumber = -1,
     ) {
         this.nickname = nickname;
         this.teamName = teamName;
@@ -22,6 +24,7 @@ export class Player {
         this.ratScores = ratScores;
         this.penalties = penalties;
         this.isRat = isRat;
+        this.regNumber = regNumber;
     }
 
     static createPlayer(nickname: string): Player {

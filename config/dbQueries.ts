@@ -1,10 +1,10 @@
 export const CREATE_TABLES_QUERY = `
 CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  nickname TEXT NOT NULL,
-  telegram_name TEXT,
-  chat_id INTEGER,
-  reg_number INTEGER
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nickname TEXT NOT NULL,
+    telegram_name TEXT NOT NULL,
+    chat_id INTEGER NOT NULL,
+    user_type TEXT NOT NULL DEFAULT 'Default'
 );
 
 CREATE TABLE IF NOT EXISTS players (
@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS players (
   game_scores INTEGER DEFAULT 0,
   rat_scores INTEGER DEFAULT 0,
   penalties TEXT,
-  is_rat BOOLEAN DEFAULT FALSE
+  is_rat BOOLEAN DEFAULT FALSE,
+  reg_number INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS player_scores (

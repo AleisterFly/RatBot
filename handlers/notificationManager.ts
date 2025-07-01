@@ -2,6 +2,7 @@ import {Context, Markup, Telegraf} from "telegraf";
 import {IUserRepository} from "../repositories/userRepository";
 import {UserType} from "../models/userType";
 import {IPlayerRepository} from "../repositories/playerRepository";
+import {List} from "immutable";
 
 export interface INotificationManager {
     sendMessageToAll(message: string, type?: UserType): void;
@@ -17,7 +18,7 @@ export class NotificationManager {
     }
 
     async sendMessageToAll(message: string, type: UserType = UserType.All) {
-        let ids: number[] = []
+        let ids: List<number> = List<number>();
         switch (type) {
             case UserType.All:
                 ids = this.repository.getRegChatIds();
@@ -53,7 +54,7 @@ export class NotificationManager {
     }
 
     async sendMessageWithPhotoToAll(photoUrl: string, message: string, type: UserType = UserType.All) {
-        let ids: number[] = []
+        let ids: List<number> = List<number>();
         switch (type) {
             case UserType.All:
                 ids = this.repository.getRegChatIds();

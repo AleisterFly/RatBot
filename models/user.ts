@@ -1,8 +1,15 @@
-export class User {
-  readonly nickname: string;
-  readonly telegramName: string;
-  public chatId: number;
-  public regNumber: number;
+import {UserType} from "./userType";
 
-  constructor() {}
+export class User {
+  public nickname: string;
+  public telegramName: string;
+  public chatId: number;
+  public userType: UserType = UserType.Default;
+
+  constructor(nickname: string, telegramName: string, chatId: number, userType: UserType) {
+    this.nickname = nickname;
+    this.telegramName = telegramName;
+    this.chatId = chatId;
+    this.userType = userType;
+  }
 }

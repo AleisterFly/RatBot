@@ -2,7 +2,7 @@ import { Player } from "../models/player/player";
 import {List} from "immutable";
 
 export interface IPlayerRepository {
-  createPlayer(nickname: string): void;
+  createPlayer(nickname: string): Player;
 
   getByNickname(nickname: string): Player | undefined;
   isPlayerRat(nickname: string): boolean;
@@ -21,9 +21,12 @@ export class LocalPlayerRepository implements IPlayerRepository {
 
   constructor() {}
 
-  createPlayer(nickname: string): void {
+  createPlayer(nickname: string): Player {
     let player = Player.createPlayer(nickname);
+    let regNumber = this.players.size + 1;
+    player.regNumber = regNumber;
     this.players.set(nickname, player);
+    return player;
   }
 
   getByNickname(nickname: string): Player | undefined {
