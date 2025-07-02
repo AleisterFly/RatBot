@@ -4,6 +4,7 @@ import {UserType} from "../models/userType";
 import {List} from "immutable";
 import {AdminCommand} from "../models/admin/adminCommand";
 import {ConfirmationType} from "../models/admin/confirmationType";
+import {User} from "../models/user";
 
 
 const NUMBER_OF_COLUMNS = 3;
@@ -46,9 +47,7 @@ export class AdminManager {
 
         const buttons = this.chunk(
             playerRepository
-                .getAllPlayersNicknames(UserType.Player)
-                .concat(playerRepository.getAllPlayersNicknames(UserType.Rat))
-                .concat(playerRepository.getAllPlayersNicknames(UserType.VotedOut))
+                .getAllPlayersNicknames(UserType.All)
                 .sort((a, b) => a.localeCompare(b))
                 .map((name) => Markup.button.callback(name, `select_command:${name}`))
                 .toArray(),
@@ -98,7 +97,7 @@ export class AdminManager {
                             case AdminCommand.MARK_VOTED:
                                 let user = userRepository.getUser(selectedNickname);
                                 if (user) {
-                                    await this.onSetVoted(ctx, selectedNickname, user.userType);
+                                    await this.onSetVoted(ctx, user);
                                 }
                                 break;
                             case AdminCommand.SET_RAT:
@@ -118,15 +117,16 @@ export class AdminManager {
         });
     }
 
-    async onSetVoted(ctx: Context, nickname: string, userType: UserType = UserType.Player) {
+        async onSetVoted(ctx: Context, user:User) {
         // СДЕЛАТЬ проверку на админа
 
-        const isVoted = userType !== UserType.VotedOut;
-        let user = userRepository.getUser(nickname);
+        const isVoted = user.userType !== UserType.VotedOut;
         if (user) {
+            console.log(user.nickname + (isVoted ? ": ЗАГОЛОСОВАН!" : ": опять простой Игрок!"));
+
+            await ctx.reply(user.nickname + (isVoted ? ": ЗАГОЛОСОВАН!" : ": опять простой Игрок!"));
             user.userType = isVoted ? UserType.VotedOut : UserType.Player;
             userRepository.updateUser(user);
-            await ctx.reply(nickname + isVoted ? ": ЗАГОЛОСОВАН!" : ": опять простой Игрок!");
         } else {
             await ctx.reply("User не найден");
         }
