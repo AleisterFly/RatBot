@@ -112,6 +112,7 @@ export class AdminManager {
                                 if (player) {
                                     player.isRat = !player.isRat;
                                     playerRepository.updateIsRat(player.nickname, player.isRat);
+                                    await ctx.reply(player.nickname + (player.isRat ? " - КРЫСА!" : " - Не крыса!"));
                                 }
                                 break;
                         }
