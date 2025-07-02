@@ -21,6 +21,7 @@ export class AdminManager {
 
 
         let playersNicknames = playerRepository.getAllPlayersNicknames()
+        console.log(playersNicknames);
         let text = this.formatInColumns(playersNicknames, NUMBER_OF_COLUMNS);
 
         await ctx.reply("Игроки: \n" + text, {
@@ -85,7 +86,7 @@ export class AdminManager {
                     NUMBER_OF_COLUMNS
                 );
 
-                await ctx.reply("Уверен, что хочешь выполнить: \n"  + selectedCommand + " для ИГРОКА \n" + selectedNickname + "\n?", {
+                await ctx.reply("Уверен, что хочешь выполнить: \n"  + selectedCommand + "\n для ИГРОКА \n" + selectedNickname + "\n?", {
                     parse_mode: "HTML",
                     reply_markup: Markup.inlineKeyboard(commandsButtons).reply_markup,
                 });

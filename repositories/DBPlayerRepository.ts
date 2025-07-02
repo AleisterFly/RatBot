@@ -30,7 +30,8 @@ export class DBPlayerRepository implements IPlayerRepository {
             default:
                 const playersNicknames = dbManager.getAllNicknames(UserType.Player);
                 const ratNicknames = dbManager.getAllNicknames(UserType.Rat);
-                nicknames = playersNicknames.concat(ratNicknames);
+                const votedNicknames = dbManager.getAllNicknames(UserType.VotedOut);
+                nicknames = playersNicknames.concat(ratNicknames).concat(votedNicknames);
                 break;
         }
 
