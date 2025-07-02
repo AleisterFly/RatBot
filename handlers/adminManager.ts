@@ -122,11 +122,9 @@ export class AdminManager {
 
         const isVoted = user.userType !== UserType.VotedOut;
         if (user) {
-            console.log(user.nickname + (isVoted ? ": ЗАГОЛОСОВАН!" : ": опять простой Игрок!"));
-
-            await ctx.reply(user.nickname + (isVoted ? ": ЗАГОЛОСОВАН!" : ": опять простой Игрок!"));
             user.userType = isVoted ? UserType.VotedOut : UserType.Player;
             userRepository.updateUser(user);
+            await ctx.reply(user.nickname + (isVoted ? ": ЗАГОЛОСОВАН!" : ": опять простой Игрок!"));
         } else {
             await ctx.reply("User не найден");
         }
