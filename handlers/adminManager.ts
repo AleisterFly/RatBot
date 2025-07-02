@@ -91,7 +91,7 @@ export class AdminManager {
                     NUMBER_OF_COLUMNS
                 );
 
-                await ctx.reply("Уверен, что хочешь выполнить: \n" + selectedCommand + "\n для ИГРОКА \n" + selectedNickname + "\n?", {
+                await ctx.reply("Уверен, что хочешь выполнить: \n\n" + selectedCommand + "\n\n для \n\n" + selectedNickname + "\n\n?", {
                     parse_mode: "HTML",
                     reply_markup: Markup.inlineKeyboard(commandsButtons).reply_markup,
                 });
@@ -121,6 +121,7 @@ export class AdminManager {
     }
 
     private async onSetVoted(ctx: Context, user: User | undefined = undefined) {
+        console.log("!!!!!!!!!!!!!!!!!");
         if (user) {
             const isVoted = user.userType !== UserType.VotedOut;
             user.userType = isVoted ? UserType.VotedOut : UserType.Player;
