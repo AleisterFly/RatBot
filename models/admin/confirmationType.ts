@@ -1,5 +1,6 @@
 export enum ConfirmationType {
     YES= 'ДА',
     NO = 'НЕТ',
-    CANCEL = 'ОТМЕНА'
+    CANCEL = 'ОТМЕНА',
+    DEFAULT = 'DEFAULT'
 }

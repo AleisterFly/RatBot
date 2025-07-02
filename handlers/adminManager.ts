@@ -4,8 +4,8 @@ import {UserType} from "../models/userType";
 import {List} from "immutable";
 import {AdminCommand} from "../models/admin/adminCommand";
 import {ConfirmationType} from "../models/admin/confirmationType";
-import {User} from "../models/user";
 import {deleteMessage} from "../utils/deleteMessage";
+import {User} from "../models/user";
 import {Player} from "../models/player/player";
 
 
@@ -14,6 +14,9 @@ const NUMBER_OF_COLUMNS = 3;
 
 export class AdminManager {
     bot: Telegraf;
+    private selectedCommand: AdminCommand = AdminCommand.DEFAULT;
+    private selectedNickname: string = "";
+    private selectedConfirmation: ConfirmationType = ConfirmationType.DEFAULT;
 
     constructor(bot: Telegraf) {
         this.bot = bot;
@@ -64,7 +67,7 @@ export class AdminManager {
         this.bot.action(/^select_command:(.*)$/, async (ctx) => {
             await deleteMessage(ctx);
 
-            const selectedNickname = ctx.match[1];
+            this.selectedNickname = ctx.match[1];
 
             const commandsButtons = this.chunk(
                 List.of(AdminCommand.MARK_VOTED, AdminCommand.SET_RAT)
@@ -81,8 +84,8 @@ export class AdminManager {
 
             this.bot.action(/^command_confirmation:(.*)$/, async (ctx) => {
                 await deleteMessage(ctx);
+                 this.selectedCommand = ctx.match[1] as AdminCommand;
 
-                const selectedCommand = ctx.match[1] as AdminCommand;
 
                 const commandsButtons = this.chunk(
                     List.of(ConfirmationType.YES, ConfirmationType.CANCEL)
@@ -91,7 +94,7 @@ export class AdminManager {
                     NUMBER_OF_COLUMNS
                 );
 
-                await ctx.reply("Уверен, что хочешь выполнить: \n\n" + selectedCommand + "\n\n для \n\n" + selectedNickname + "\n\n?", {
+                await ctx.reply("Уверен, что хочешь выполнить: \n\n" + this.selectedCommand + "\n\n для \n\n" + this.selectedCommand + "\n\n?", {
                     parse_mode: "HTML",
                     reply_markup: Markup.inlineKeyboard(commandsButtons).reply_markup,
                 });
@@ -99,20 +102,21 @@ export class AdminManager {
                 this.bot.action(/^do_command:(.*)$/, async (ctx) => {
                     await deleteMessage(ctx);
 
-                    const confirmation = ctx.match[1] as ConfirmationType;
-                    if (confirmation === ConfirmationType.YES) {
-                        switch (selectedCommand) {
+                    this.selectedConfirmation = ctx.match[1] as ConfirmationType;
+                    if (this.selectedConfirmation === ConfirmationType.YES) {
+                        console.log("selectedCommand " + this.selectedCommand);
+                        switch (this.selectedCommand) {
                             case AdminCommand.MARK_VOTED:
-                                let user = userRepository.getUser(selectedNickname);
+                                let user = userRepository.getUser(this.selectedNickname);
                                 await this.onSetVoted(ctx, user);
                                 break;
                             case AdminCommand.SET_RAT:
-                                let player = playerRepository.getByNickname(selectedNickname);
+                                let player = playerRepository.getByNickname(this.selectedNickname);
                                 await this.onSetRatOnOff(ctx, player);
                                 break;
                         }
                     }
-                    if (confirmation === ConfirmationType.CANCEL) {
+                    if (this.selectedConfirmation === ConfirmationType.CANCEL) {
                         await ctx.reply("Выбор отменен");
                     }
                 });
@@ -134,9 +138,10 @@ export class AdminManager {
 
     private async onSetRatOnOff(ctx: Context, player: Player | undefined = undefined) {
         if (player) {
+            await ctx.reply(player.nickname + (player.isRat ? " - КРЫСА!" : " - Не крыса!"));
             player.isRat = !player.isRat;
             playerRepository.updateIsRat(player.nickname, player.isRat);
-            await ctx.reply(player.nickname + (player.isRat ? " - КРЫСА!" : " - Не крыса!"));
+
         } else {
             await ctx.reply("Игрок не найден");
         }
