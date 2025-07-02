@@ -54,6 +54,7 @@ export class DBPlayerRepository implements IPlayerRepository {
     }
 
     updateIsRat(nickname: string, isRat: boolean): void {
+        dbManager.updatePlayerIsRat(nickname,isRat);
     }
 
     updatePenalties(nickname: string, penalties: Immutable.List<number>): void {

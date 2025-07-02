@@ -367,10 +367,10 @@ export class DBManager {
                          WHERE id = ?`).run(penalties, id);
     }
 
-    updatePlayerIsRat(id: number, isRat: boolean): void {
+    updatePlayerIsRat(nickname: string, isRat: boolean): void {
         this.db.prepare(`UPDATE players
                          SET is_rat = ?
-                         WHERE id = ?`).run(isRat, id);
+                         WHERE nickname = ?`).run(isRat, nickname);
     }
 
     // Player Scores
