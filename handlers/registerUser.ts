@@ -40,6 +40,7 @@ export class UserManager {
 
         const buttons = this.chunk(
             userRepository.getUnregNicknames()
+                .sort((a, b) => a.localeCompare(b))
                 .map((name) => Markup.button.callback(name, `register_nickname:${name}`))
                 .toArray(), // <-- ключ!
             NUMBER_OF_COLUMNS
@@ -99,12 +100,13 @@ export class UserManager {
                         //   unregUser.chatId = chatId;
                         // let newUser = new User(nickname, chatId, UserType.UnregPlayer);
 
-                        // if (unregUser.nickname != "Алиот") {
+                        if (unregUser.nickname == "Алиот") {
+                            unregUser.userType = UserType.Admin;
+                        } else {
                             unregUser.userType = UserType.Player;
-                        // }
+                        }
                         unregUser.chatId = chatId;
 
-                        console.log(unregUser);
 
                         userRepository.updateUser(unregUser);
                         let player = playerRepository.createPlayer(nickname);

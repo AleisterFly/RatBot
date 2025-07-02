@@ -16,6 +16,7 @@ bot.command('betting_registration', (ctx) => viewerManager.onRegister(ctx));
 
 //ADMIN
 bot.command("show_players", adminManager.onShowPlayers.bind(adminManager));
+bot.command("select_player", adminManager.onSelectPlayer.bind(adminManager));
 
 async function botTextHandler(ctx: Context) {
   ctx.reply("ПРИВЕТ!");

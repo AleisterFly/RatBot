@@ -1,6 +1,52 @@
 import {UserType} from "../models/userType";
 import {User} from "../models/user";
 
+
+export const unregUsers = [
+    { nickname: "Малинити", telegramName: "@grubaya" },
+    { nickname: "Певица", telegramName: "https://t.me/sdaria_s" },
+    { nickname: "Bandera", telegramName: "@khakimov_andrew" },
+    { nickname: "Логика", telegramName: "@veizgeim" },
+    { nickname: "Тони", telegramName: "https://t.me/gn_t0ny" },
+    { nickname: "Космічна", telegramName: "mary_kos" },
+    { nickname: "Архи", telegramName: "@vadimmigalenko" },
+    { nickname: "Кайфат", telegramName: "@spleanin" },
+    { nickname: "Сокрушитель", telegramName: "@mit_zag" },
+    { nickname: "f5", telegramName: "T.me/armasher" },
+    { nickname: "Leklerk", telegramName: "@Leklerk_k" },
+    { nickname: "Марта", telegramName: "https://t.me/mrs_marta" },
+    { nickname: "Крис", telegramName: "baranovskayanastya" },
+    { nickname: "Аврора", telegramName: "@aurosha" },
+    { nickname: "Инженер", telegramName: "https://t.me/andrey_teslya" },
+    { nickname: "Комар", telegramName: "@Smurfkomar" },
+    { nickname: "Sirius", telegramName: "@aldoshyn" },
+    { nickname: "Жирафа", telegramName: "@stmargarita" },
+    { nickname: "Miracle", telegramName: "Miracleprg" },
+    { nickname: "Абрам", telegramName: "@Mikhrutka" },
+    { nickname: "Кукла", telegramName: "Kyklamarina" },
+    { nickname: "Хирург", telegramName: "Highredrose" },
+    { nickname: "Адлер", telegramName: "@adler_ua" },
+    { nickname: "Шахматист", telegramName: "@platonich3" },
+    { nickname: "Tommy", telegramName: "oldangrypirate" },
+    { nickname: "filister", telegramName: "@F1l1STER" },
+    { nickname: "Харюк", telegramName: "@ArturSayakhov" },
+    { nickname: "walle", telegramName: "@nikita_pitalenko" },
+    { nickname: "Блукач", telegramName: "@yurivynnyk" },
+    { nickname: "Red", telegramName: "@chibirenny" },
+    { nickname: "Негрони", telegramName: "@nazar_stt" },
+    { nickname: "Сайфер", telegramName: "@XXRater" },
+    { nickname: "Moriarty", telegramName: "t.me/maksimiliansm" },
+    { nickname: "Бембі", telegramName: "Bembiiii" },
+    { nickname: "Snoopy:)", telegramName: "snoopy_ua" },
+    { nickname: "Алиот", telegramName: "a_l_i_o_t" }
+];
+
+
+
+
+
+
+
 export const unregUserMap: Map<string, User> = new Map([
     ["Абрам", { nickname: "Абрам", telegramName: "@Mikhrutka", chatId: -1, userType: UserType.Default }],
     ["Адлер", { nickname: "Адлер", telegramName: "@adler_ua", chatId: -1, userType: UserType.Default }],
@@ -37,8 +83,5 @@ export const unregUserMap: Map<string, User> = new Map([
     ["Харюк", { nickname: "Харюк", telegramName: "@ArturSayakhov", chatId: -1, userType: UserType.Default }],
     ["Хирург", { nickname: "Хирург", telegramName: "Highredrose", chatId: -1, userType: UserType.Default }],
     ["Шахматист", { nickname: "Шахматист", telegramName: "@platonich3", chatId: -1, userType: UserType.Default }],
-
-
-
     ["Алиот", { nickname: "Алиот", telegramName: "a_l_i_o_t", chatId: -1, userType: UserType.Admin }]
 ]);

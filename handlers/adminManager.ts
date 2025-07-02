@@ -85,7 +85,7 @@ export class AdminManager {
                     NUMBER_OF_COLUMNS
                 );
 
-                await ctx.reply("Выбери КОМАНДУ", {
+                await ctx.reply("Уверен, что хочешь выполнить:" + selectedCommand + " для ИГРОКА " + selectedNickname + " ?", {
                     parse_mode: "HTML",
                     reply_markup: Markup.inlineKeyboard(commandsButtons).reply_markup,
                 });
