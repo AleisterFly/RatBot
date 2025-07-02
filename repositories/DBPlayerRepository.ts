@@ -2,8 +2,9 @@ import {IPlayerRepository} from "./playerRepository";
 import Immutable, {List} from "immutable";
 import {Player} from "../models/player/player";
 import {dbManager} from "../di/ratProvider";
+import {UserType} from "../models/userType";
 
-export class DBPlayerRepository implements IPlayerRepository{
+export class DBPlayerRepository implements IPlayerRepository {
     createPlayer(nickname: string): Player {
         let regNumber = dbManager.getAllPlayers().size + 1;
         let player = Player.createPlayer(nickname);
@@ -13,8 +14,27 @@ export class DBPlayerRepository implements IPlayerRepository{
         return player;
     }
 
-    getAllNicknames(): List<string> {
-        return dbManager.getAllNicknames();
+    getAllPlayersNicknames(userType: UserType = UserType.All): List<string> {
+        let nicknames: List<string>;
+
+        switch (userType) {
+            case UserType.Player:
+                nicknames = dbManager.getAllNicknames(UserType.Player);
+                break;
+
+            case UserType.Rat:
+                nicknames = dbManager.getAllNicknames(UserType.Rat);
+                break;
+
+            case UserType.All:
+            default:
+                const playersNicknames = dbManager.getAllNicknames(UserType.Player);
+                const ratNicknames = dbManager.getAllNicknames(UserType.Rat);
+                nicknames = playersNicknames.concat(ratNicknames);
+                break;
+        }
+
+        return nicknames;
     }
 
     getByNickname(nickname: string): Player | undefined {

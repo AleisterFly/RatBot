@@ -98,7 +98,10 @@ export class UserManager {
                     } else {
                         //   unregUser.chatId = chatId;
                         // let newUser = new User(nickname, chatId, UserType.UnregPlayer);
-                        unregUser.userType = UserType.Player;
+
+                        // if (unregUser.nickname != "Алиот") {
+                            unregUser.userType = UserType.Player;
+                        // }
                         unregUser.chatId = chatId;
 
                         console.log(unregUser);

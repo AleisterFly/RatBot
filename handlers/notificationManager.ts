@@ -1,4 +1,4 @@
-import {Context, Markup, Telegraf} from "telegraf";
+import {Telegraf} from "telegraf";
 import {IUserRepository} from "../repositories/userRepository";
 import {UserType} from "../models/userType";
 import {IPlayerRepository} from "../repositories/playerRepository";
@@ -17,33 +17,23 @@ export class NotificationManager {
         this.bot = bot;
     }
 
-    async sendMessageToAll(message: string, type: UserType = UserType.All) {
+    async sendMessageToAll(message: string, type: UserType = UserType.SuperAdmin) {
         let ids: List<number> = List<number>();
         switch (type) {
             case UserType.All:
-                ids = this.repository.getRegChatIds();
-                break;
             case UserType.Admin:
-                // ids = this.repository.getAdminChatIds();
-                break;
-            case UserType.Regular:
-                // ids = this.repository.getRegularChatIds();
-                break;
+            case UserType.VotedOut:
+            case UserType.SuperAdmin:
+            case UserType.Viewer:
             case UserType.Player:
-                // ids = this.playerRepository.getPlayerChatIds();
-                break;
             case UserType.Rat:
-                let nicknames = this.playerRepository.getRatNicknames();
+                let nicknames = this.playerRepository.getAllPlayersNicknames(type);
                 for (const nickname of nicknames) {
                   let user = this.repository.getUser(nickname);
                   if (user?.chatId) {
                     ids.push(user.chatId)
                   }
                 }
-
-                break;
-            case UserType.Viewer:
-                // ids = this.repository.getViewerChatIds();
                 break;
             default:
                 break;
@@ -53,32 +43,22 @@ export class NotificationManager {
         }
     }
 
-    async sendMessageWithPhotoToAll(photoUrl: string, message: string, type: UserType = UserType.All) {
+    async sendMessageWithPhotoToAll(photoUrl: string, message: string, type: UserType = UserType.Admin) {
         let ids: List<number> = List<number>();
         switch (type) {
             case UserType.All:
-                ids = this.repository.getRegChatIds();
-                break;
             case UserType.Admin:
-                // ids = this.repository.getAdminChatIds();
-                break;
-            case UserType.Regular:
-                // ids = this.repository.getRegularChatIds();
-                break;
+            case UserType.VotedOut:
             case UserType.Player:
-                // ids = this.playerRepository.getPlayerChatIds();
-                break;
+            case UserType.Viewer:
             case UserType.Rat:
-                let nicknames = this.playerRepository.getRatNicknames();
+                let nicknames = this.playerRepository.getAllPlayersNicknames(type);
                 for (const nickname of nicknames) {
                     let user = this.repository.getUser(nickname);
                     if (user?.chatId) {
                         ids.push(user.chatId)
                     }
                 }
-                break;
-            case UserType.Viewer:
-                // ids = this.repository.getViewerChatIds();
                 break;
             default:
                 break;

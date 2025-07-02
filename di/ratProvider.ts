@@ -10,6 +10,7 @@ import {LocalViewerRepository} from "../repositories/viewerRepository";
 import {DBManager} from "../utils/dbManager";
 import {DBUserRepository} from "../repositories/DBUserRepository";
 import {DBPlayerRepository} from "../repositories/DBPlayerRepository";
+import {AdminManager} from "../handlers/adminManager";
 
 export const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
 export const userRepository = new DBUserRepository();
@@ -21,3 +22,4 @@ export const viewerManager = new ViewerManager(viewerRepository, bot);
 export const notificationManager = new NotificationManager(userRepository, playerRepository, bot);
 export const dbManager = new DBManager();
 export const dbUserRepository = new DBUserRepository();
+export const adminManager = new AdminManager(bot);
