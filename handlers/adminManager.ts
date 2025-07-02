@@ -6,6 +6,7 @@ import {AdminCommand} from "../models/admin/adminCommand";
 import {ConfirmationType} from "../models/admin/confirmationType";
 import {User} from "../models/user";
 import {deleteMessage} from "../utils/deleteMessage";
+import {Player} from "../models/player/player";
 
 
 const NUMBER_OF_COLUMNS = 3;
@@ -90,7 +91,7 @@ export class AdminManager {
                     NUMBER_OF_COLUMNS
                 );
 
-                await ctx.reply("Уверен, что хочешь выполнить: \n"  + selectedCommand + "\n для ИГРОКА \n" + selectedNickname + "\n?", {
+                await ctx.reply("Уверен, что хочешь выполнить: \n" + selectedCommand + "\n для ИГРОКА \n" + selectedNickname + "\n?", {
                     parse_mode: "HTML",
                     reply_markup: Markup.inlineKeyboard(commandsButtons).reply_markup,
                 });
@@ -103,17 +104,11 @@ export class AdminManager {
                         switch (selectedCommand) {
                             case AdminCommand.MARK_VOTED:
                                 let user = userRepository.getUser(selectedNickname);
-                                if (user) {
-                                    await this.onSetVoted(ctx, user);
-                                }
+                                await this.onSetVoted(ctx, user);
                                 break;
                             case AdminCommand.SET_RAT:
                                 let player = playerRepository.getByNickname(selectedNickname);
-                                if (player) {
-                                    player.isRat = !player.isRat;
-                                    playerRepository.updateIsRat(player.nickname, player.isRat);
-                                    await ctx.reply(player.nickname + (player.isRat ? " - КРЫСА!" : " - Не крыса!"));
-                                }
+                                await this.onSetRatOnOff(ctx, player);
                                 break;
                         }
                     }
@@ -125,17 +120,26 @@ export class AdminManager {
         });
     }
 
-        async onSetVoted(ctx: Context, user:User) {
-        // СДЕЛАТЬ проверку на админа
-
-        const isVoted = user.userType !== UserType.VotedOut;
+    private async onSetVoted(ctx: Context, user: User | undefined = undefined) {
         if (user) {
+            const isVoted = user.userType !== UserType.VotedOut;
             user.userType = isVoted ? UserType.VotedOut : UserType.Player;
             userRepository.updateUser(user);
             await ctx.reply(user.nickname + (isVoted ? ": ЗАГОЛОСОВАН!" : ": опять простой Игрок!"));
         } else {
             await ctx.reply("User не найден");
         }
+    }
+
+    private async onSetRatOnOff(ctx: Context, player: Player | undefined = undefined) {
+        if (player) {
+            player.isRat = !player.isRat;
+            playerRepository.updateIsRat(player.nickname, player.isRat);
+            await ctx.reply(player.nickname + (player.isRat ? " - КРЫСА!" : " - Не крыса!"));
+        } else {
+            await ctx.reply("Игрок не найден");
+        }
+
     }
 
 
