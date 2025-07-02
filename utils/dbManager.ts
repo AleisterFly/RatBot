@@ -156,7 +156,7 @@ export class DBManager {
         return new User(row.nickname, row.telegram_name, row.chat_id, row.user_type);
     }
 
-    getUserByNickname(nickname: string, userType: UserType = UserType.All): User {
+    getUserByNickname(nickname: string, userType: UserType = UserType.All): User | undefined {
         const row = userType === UserType.All
             ? this.db.prepare(`SELECT *
                                FROM users
@@ -175,7 +175,7 @@ export class DBManager {
                 chat_id: number;
                 user_type: UserType;
             };
-
+        if (!row) return undefined;
         return new User(row.nickname, row.telegram_name, row.chat_id, row.user_type);
     }
 
