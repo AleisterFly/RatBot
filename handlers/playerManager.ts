@@ -1,8 +1,8 @@
-import { Context, Markup, Telegraf } from "telegraf";
-import { IUserRepository } from "../repositories/userRepository";
-import { IPlayerRepository } from "../repositories/playerRepository";
-import { userRepository } from "../di/ratProvider";
-import {List} from "immutable";
+import {Telegraf} from "telegraf";
+import {IUserRepository} from "../repositories/userRepository";
+import {IPlayerRepository} from "../repositories/playerRepository";
+import {userRepository} from "../di/ratProvider";
+import {UserType} from "../models/userType";
 
 export class PlayerManager {
   // nicknames: List<string>;
@@ -14,8 +14,8 @@ export class PlayerManager {
     this.bot = bot;
   }
 
-  async sendMessageToAllPlayers(message: string) {
-    let nicknames = this.playerRepository.getAllNicknames();
+  async sendMessageToOnlyPlayers(message: string) {
+    let nicknames = this.playerRepository.getAllPlayersNicknames(UserType.Player);
 
     for (const nickname of nicknames) {
       let user = userRepository.getUser(nickname);
@@ -27,7 +27,7 @@ export class PlayerManager {
   }
 
   async sendMessageToAllRats(message: string) {
-    let nicknames = this.playerRepository.getRatNicknames();
+    let nicknames = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
 
     for (const nickname of nicknames) {
       let user = userRepository.getUser(nickname);
