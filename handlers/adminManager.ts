@@ -5,6 +5,7 @@ import {List} from "immutable";
 import {AdminCommand} from "../models/admin/adminCommand";
 import {ConfirmationType} from "../models/admin/confirmationType";
 import {User} from "../models/user";
+import {deleteMessage} from "../utils/deleteMessage";
 
 
 const NUMBER_OF_COLUMNS = 3;
@@ -60,6 +61,8 @@ export class AdminManager {
         });
 
         this.bot.action(/^select_command:(.*)$/, async (ctx) => {
+            await deleteMessage(ctx);
+
             const selectedNickname = ctx.match[1];
 
             const commandsButtons = this.chunk(
@@ -76,6 +79,8 @@ export class AdminManager {
 
 
             this.bot.action(/^command_confirmation:(.*)$/, async (ctx) => {
+                await deleteMessage(ctx);
+
                 const selectedCommand = ctx.match[1] as AdminCommand;
 
                 const commandsButtons = this.chunk(
@@ -91,6 +96,8 @@ export class AdminManager {
                 });
 
                 this.bot.action(/^do_command:(.*)$/, async (ctx) => {
+                    await deleteMessage(ctx);
+
                     const confirmation = ctx.match[1] as ConfirmationType;
                     if (confirmation === ConfirmationType.YES) {
                         switch (selectedCommand) {
