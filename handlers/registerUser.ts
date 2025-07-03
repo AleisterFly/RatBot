@@ -9,6 +9,7 @@ import {
 import {List} from "immutable";
 import {User} from "../models/user";
 import {UserType} from "../models/userType";
+import {chunk} from "../utils/util";
 
 enum ConfirmationType {
     YES = "Да",
@@ -38,7 +39,7 @@ export class UserManager {
 
         console.log(userRepository.getUnregNicknames());
 
-        const buttons = this.chunk(
+        const buttons = chunk(
             userRepository.getUnregNicknames()
                 .sort((a, b) => a.localeCompare(b))
                 .map((name) => Markup.button.callback(name, `register_nickname:${name}`))
@@ -63,7 +64,7 @@ export class UserManager {
             //   parse_mode: "HTML",
             // });
 
-            const buttons = this.chunk(
+            const buttons = chunk(
                 selectConfirmation.map((select) =>
                     Markup.button.callback(select, `on_confirm:${select}|${nickname}`)
                 ),
@@ -134,13 +135,5 @@ export class UserManager {
                     return;
             }
         });
-    }
-
-    chunk<T>(arr: T[], size: number): T[][] {
-        const result: T[][] = [];
-        for (let i = 0; i < arr.length; i += size) {
-            result.push(arr.slice(i, i + size));
-        }
-        return result;
     }
 }

@@ -1,6 +1,7 @@
 import {Context, Markup, Telegraf} from "telegraf";
 import {IPlayerRepository} from "../repositories/playerRepository";
 import {seriesRepository, userRepository} from "../di/ratProvider";
+import {chunk, formatInColumns} from "../utils/util";
 
 const NUMBER_OF_COLUMNS = 3;
 
@@ -23,7 +24,7 @@ export class PlayerManager {
       const currentSeries = seriesRepository.getCurrentTourSeries();
 
       if (currentSeries) {
-        const buttons = this.chunk(
+        const buttons = chunk(
             currentSeries
                 .map((seria) => Markup.button.callback(seria.date, `register_to_series:${seria.date}`))
                 .toArray(), // <-- ключ!
@@ -62,8 +63,19 @@ export class PlayerManager {
       const chatId = ctx.chat?.id;
       if (!chatId) return;
 
-        const message = "Ты зарегистрирован!";
-        const currentUser = userRepository.getRegUser(chatId);
+      const currentUser = userRepository.getRegUser(chatId);
+      const currentSeries = seriesRepository.getCurrentTourSeries();
+      if (currentSeries && currentUser) {
+        const registeredDates = currentSeries
+            .filter((seria) => seria.regNicknames.includes(currentUser.nickname))
+            .map((seria) => seria.date);
+
+        let text = formatInColumns(registeredDates, NUMBER_OF_COLUMNS);
+
+        await ctx.reply("Вы зарегистрированы на:\n\n" + text, {
+          parse_mode: "HTML",
+        });
+      }
       // Дальнейшая логика
     }
 
@@ -74,13 +86,4 @@ export class PlayerManager {
       const currentUser = userRepository.getRegUser(chatId);
       // Дальнейшая логика
     }
-
-
-  chunk<T>(arr: T[], size: number): T[][] {
-    const result: T[][] = [];
-    for (let i = 0; i < arr.length; i += size) {
-      result.push(arr.slice(i, i + size));
-    }
-    return result;
-  }
 }

@@ -24,7 +24,7 @@ export class DBUserRepository implements IUserRepository {
     }
 
     getUnregNicknames(): List<string> {
-        return dbManager.getAllNicknames()
+        return dbManager.getAllNicknames(UserType.UnregPlayer)
     }
 
     getUnregUser(nickname: string): User | undefined {

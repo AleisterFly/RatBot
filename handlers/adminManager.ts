@@ -7,6 +7,7 @@ import { ConfirmationType } from "../models/admin/confirmationType";
 import { User } from "../models/user";
 import { deleteMessage } from "../utils/deleteMessage";
 import { Player } from "../models/player/player";
+import {chunk, formatInColumns} from "../utils/util";
 
 const NUMBER_OF_COLUMNS = 3;
 
@@ -20,7 +21,7 @@ export class AdminManager {
 
     async onShowPlayers(ctx: Context) {
         let playersNicknames = playerRepository.getAllPlayersNicknames();
-        let text = this.formatInColumns(playersNicknames, NUMBER_OF_COLUMNS);
+        let text = formatInColumns(playersNicknames, NUMBER_OF_COLUMNS);
 
         await ctx.reply("Игроки:\n\n" + text, {
             parse_mode: "HTML",
@@ -52,7 +53,7 @@ export class AdminManager {
     }
 
     async onSelectPlayer(ctx: Context) {
-        const buttons = this.chunk(
+        const buttons = chunk(
             playerRepository
                 .getAllPlayersNicknames(UserType.All)
                 .sort((a: string, b: string) => a.localeCompare(b))
@@ -74,7 +75,7 @@ export class AdminManager {
             await deleteMessage(ctx);
             const nick = ctx.match[1];
 
-            const commandsButtons = this.chunk(
+            const commandsButtons = chunk(
                 List.of(AdminCommand.MARK_VOTED, AdminCommand.SET_RAT)
                     .map((cmd) =>
                         Markup.button.callback(
@@ -100,7 +101,7 @@ export class AdminManager {
             const cmdText =
                 cmdShort === "MV" ? AdminCommand.MARK_VOTED : AdminCommand.SET_RAT;
 
-            const confirmButtons = this.chunk(
+            const confirmButtons = chunk(
                 List.of(ConfirmationType.YES, ConfirmationType.CANCEL)
                     .map((conf) =>
                         Markup.button.callback(
@@ -167,28 +168,5 @@ export class AdminManager {
         } else {
             await ctx.reply("Игрок не найден");
         }
-    }
-
-    chunk<T>(arr: T[], size: number): T[][] {
-        const result: T[][] = [];
-        for (let i = 0; i < arr.length; i += size) {
-            result.push(arr.slice(i, i + size));
-        }
-        return result;
-    }
-
-    formatInColumns(items: List<string>, columns: number): string {
-        const rows = Math.ceil(items.size / columns);
-        let output = "";
-        for (let row = 0; row < rows; row++) {
-            let line = "";
-            for (let col = 0; col < columns; col++) {
-                const index = col * rows + row;
-                const value = items.get(index) || "";
-                line += value.padEnd(20);
-            }
-            output += line.trimEnd() + "\n";
-        }
-        return output;
     }
 }

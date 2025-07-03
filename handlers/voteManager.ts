@@ -4,6 +4,7 @@ import { List } from "immutable"
 import {deleteMessage} from "../utils/deleteMessage";
 import {dbManager} from "../di/ratProvider";
 import {Player} from "../models/player/player";
+import {chunk} from "../utils/util";
 
 type VoteStep = 'select_rat'
 
@@ -83,7 +84,7 @@ export class VoteManager {
         await deleteMessage(ctx);
         const available = MockSeriaNicknames.filter(n => !alreadyVoted.includes(n))
 
-        const buttons = this.chunk(
+        const buttons = chunk(
             available
                 .sort((a, b) => a.localeCompare(b))
                 .map((name) => Markup.button.callback(name, `vote_nickname:${name}`))
@@ -95,13 +96,5 @@ export class VoteManager {
             parse_mode: "HTML",
             reply_markup: Markup.inlineKeyboard(buttons).reply_markup,
         })
-    }
-
-    chunk<T>(arr: T[], size: number): T[][] {
-        const result: T[][] = [];
-        for (let i = 0; i < arr.length; i += size) {
-            result.push(arr.slice(i, i + size));
-        }
-        return result;
     }
 }
