@@ -39,7 +39,7 @@ export class DBPlayerRepository implements IPlayerRepository {
     }
 
     getByNickname(nickname: string): Player | undefined {
-        return undefined;
+        return dbManager.getPlayerByNickname(nickname);
     }
 
     getRatNicknames(): List<string> {
