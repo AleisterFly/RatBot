@@ -1,15 +1,20 @@
-import Database from "better-sqlite3";
+import Database, {type Database as DatabaseType} from "better-sqlite3";
 import type { Database as DB } from "better-sqlite3";
 import { List } from "immutable";
 import { Seria } from "../models/player/series";
 import { StageType } from "../models/player/stageType";
 import { Viewer } from "../models/viewer";
+import {dbase, dbManager} from "../di/ratProvider";
+import path from "path";
+import {unregUsers} from "../repositories/unregUserMap";
+import {UserType} from "../models/userType";
+import {seriesList} from "../repositories/series/seriesMap";
 
 export class SeriesDB {
-    private db: DB;
+    private db: DatabaseType;
 
-    constructor() {
-        this.db = new Database("series.db");
+    constructor(filePath: string = 'db.sqlite') {
+        this.db = new Database(path.resolve(__dirname, filePath));
     }
 
     // ======================================================================================================
@@ -44,6 +49,15 @@ export class SeriesDB {
         `);
     }
 
+    initSeries(): void {
+        for (const seria of seriesList) {
+            let sbSeria = this.getSeria(seria.date);
+            if (!sbSeria) {
+                this.saveSeria(seria);
+            }
+        }
+    }
+
     saveSeries(series: List<Seria>): void {
         const stmt = this.db.prepare(
             "INSERT INTO series (id, date, stageType, isCurrent) VALUES (?, ?, ?, ?)",
@@ -74,7 +88,7 @@ export class SeriesDB {
         ).all() as {
             id: number,
             date: string,
-            stageType: string,
+            stageType: StageType,
             isCurrent: number,
         }[];
 
@@ -94,13 +108,41 @@ export class SeriesDB {
         }));
     }
 
-    getSeria(stage: StageType): Seria | undefined {
-        const row = this.db.prepare(
+    getSeriesByStage(stage: StageType): List<Seria> | undefined {
+        const rows = this.db.prepare(
             "SELECT * FROM series WHERE stageType = ?",
-        ).get(stage) as {
+        ).all(stage) as {
             id: number,
             date: string,
-            stageType: string,
+            stageType: StageType,
+            isCurrent: number,
+        }[];
+
+        if (rows.length === 0) return undefined;
+
+        return List(rows.map((row) => {
+            const nicknames = this.db.prepare(
+                "SELECT nickname FROM nicknames WHERE seriaId = ?",
+            ).all(row.id) as { nickname: string }[];
+
+            return new Seria(
+                row.id,
+                row.date,
+                row.stageType as StageType,
+                List(),
+                List(nicknames.map((n) => n.nickname)),
+                row.isCurrent === 1,
+            );
+        }));
+    }
+
+    getSeria(date: String): Seria | undefined {
+        const row = this.db.prepare(
+            "SELECT * FROM series WHERE date = ?",
+        ).get(date) as {
+            id: number,
+            date: string,
+            stageType: StageType,
             isCurrent: number,
         } | undefined;
 
@@ -126,7 +168,7 @@ export class SeriesDB {
         ).get() as {
             id: number,
             date: string,
-            stageType: string,
+            stageType: StageType,
             isCurrent: number,
         } | undefined;
 
@@ -171,25 +213,27 @@ export class SeriesDB {
         }
     }
 
-    getViewerByChatId(chatId: number): Viewer | undefined {
-        const row = this.db.prepare(
-            `SELECT * FROM viewers WHERE chat_id = ?`,
-        ).get(chatId) as {
-            nickname: string,
-            telegram_name: string,
-            first_name: string,
-            last_name: string,
-            chat_id: number,
-        } | undefined;
-
-        if (!row) return undefined;
-
-        return new Viewer(
-            row.nickname,
-            row.chat_id,
-            row.telegram_name,
-            row.first_name,
-            row.last_name,
+    saveSeria(seria: Seria): void {
+        const stmt = this.db.prepare(
+            "INSERT INTO series (id, date, stageType, isCurrent) VALUES (?, ?, ?, ?)"
         );
+        const nickStmt = this.db.prepare(
+            "INSERT OR IGNORE INTO nicknames (seriaId, nickname) VALUES (?, ?)"
+        );
+
+        stmt.run(
+            seria.id,
+            seria.date,
+            seria.stageType,
+            seria.isCurrent ? 1 : 0
+        );
+
+        seria.regNicknames.forEach((nick) => {
+            nickStmt.run(
+                seria.id,
+                nick
+            );
+        });
     }
+
 }

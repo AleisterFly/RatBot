@@ -37,6 +37,7 @@ console.log("Bot is started!");
 seriesDB.createTables();
 dbManager.createTables();
 dbUserRepository.saveUnregUsers();
+seriesDB.initSeries()
 
 // TODO: Приветствие
 async function onStart(ctx: Context) {

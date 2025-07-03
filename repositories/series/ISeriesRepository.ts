@@ -5,7 +5,8 @@ import {StageType} from "../../models/player/stageType";
 export interface ISeriesRepository {
     saveSeries(series: List<Seria>): void;
     getSeries(): List<Seria>;
-    getSeria(stage: StageType): Seria | undefined;
+    getSeries(stage: StageType): List<Seria> | undefined;
+    getSeria(date: String): Seria | undefined;
     getCurrentSeria(): Seria | undefined;
     setCurrentSeria(date: String): void;
     registerNickname(nickname: string): void;

@@ -13,6 +13,7 @@ import {DBPlayerRepository} from "../repositories/DBPlayerRepository";
 import {AdminManager} from "../handlers/adminManager";
 import {SeriesDB} from "../utils/seriesDB";
 import {VoteManager} from "../handlers/voteManager";
+import {DB} from "../utils/DB";
 
 export const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
 export const userRepository = new DBUserRepository();
@@ -27,3 +28,4 @@ export const dbManager = new DBManager();
 export const dbUserRepository = new DBUserRepository();
 export const adminManager = new AdminManager(bot);
 export const seriesDB = new SeriesDB();
+export const dbase = new DB();

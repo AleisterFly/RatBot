@@ -28,12 +28,12 @@ CREATE TABLE IF NOT EXISTS player_scores (
   role_type TEXT CHECK (role_type IN ('MAFIA', 'CITIZENS', 'DON', 'SHERIFF'))
 );
 
-CREATE TABLE IF NOT EXISTS games (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  player_id INTEGER REFERENCES players(id),
-  player_score_id INTEGER REFERENCES player_scores(id),
-  game_result TEXT CHECK (game_result IN ('MAFIA_WIN', 'CITIZENS_WIN', 'DRAW'))
-);
+-- CREATE TABLE IF NOT EXISTS games (
+--   id INTEGER PRIMARY KEY AUTOINCREMENT,
+--   player_id INTEGER REFERENCES players(id),
+--   player_score_id INTEGER REFERENCES player_scores(id),
+--   game_result TEXT CHECK (game_result IN ('MAFIA_WIN', 'CITIZENS_WIN', 'DRAW'))
+-- );
 
 CREATE TABLE IF NOT EXISTS teams (
   id TEXT PRIMARY KEY,
@@ -53,10 +53,10 @@ CREATE TABLE IF NOT EXISTS team_players (
   PRIMARY KEY (team_id, player_id)
 );
 
-CREATE TABLE IF NOT EXISTS series (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  stage_type TEXT CHECK (stage_type IN ('SHOW_MATCH', 'FIRST_TOUR', 'SECOND_TOUR', 'FINAL'))
-);
+-- CREATE TABLE IF NOT EXISTS series (
+--   id INTEGER PRIMARY KEY AUTOINCREMENT,
+--   stage_type TEXT CHECK (stage_type IN ('SHOW_MATCH', 'FIRST_TOUR', 'SECOND_TOUR', 'FINAL'))
+-- );
 
 CREATE TABLE IF NOT EXISTS series_games (
   series_id INTEGER REFERENCES series(id),
