@@ -1,8 +1,8 @@
-import {Context, Telegraf} from "telegraf";
+import {Context, Markup, Telegraf} from "telegraf";
 import {IPlayerRepository} from "../repositories/playerRepository";
 import {seriesRepository, userRepository} from "../di/ratProvider";
-import {UserType} from "../models/userType";
 
+const NUMBER_OF_COLUMNS = 3;
 
 export class PlayerManager {
 
@@ -16,13 +16,46 @@ export class PlayerManager {
     }
 
     async registerToSeria(ctx: Context) {
-        const chatId = ctx.chat?.id;
-        if (!chatId) return;
+      const chatId = ctx.chat?.id;
+      if (!chatId) return;
 
-        const currentUser = userRepository.getRegUser(chatId);
-        const currentSeries = seriesRepository.getCurrentTourSeries();
+      const currentUser = userRepository.getRegUser(chatId);
+      const currentSeries = seriesRepository.getCurrentTourSeries();
 
-        // Дальнейшая логика
+      if (currentSeries) {
+        const buttons = this.chunk(
+            currentSeries
+                .map((seria) => Markup.button.callback(seria.date, `register_to_series:${seria.date}`))
+                .toArray(), // <-- ключ!
+            NUMBER_OF_COLUMNS
+        );
+
+        await ctx.reply("Выбери серию для регистрации", {
+          parse_mode: "HTML",
+          reply_markup: Markup.inlineKeyboard(buttons).reply_markup,
+        });
+
+        this.bot.action(/^register_to_series:(.*)$/, async (ctx) => {
+          const chatId = ctx.chat?.id as number;
+          const messageId = ctx.callbackQuery?.message?.message_id as number;
+          await ctx.telegram.deleteMessage(chatId, messageId);
+          const seriaDate = ctx.match[1];
+
+          const selectSeria = currentSeries.find((s) => s.date === seriaDate);
+          if(currentUser && selectSeria) {
+
+            if (selectSeria.regNicknames.contains(currentUser.nickname)) {
+
+              await ctx.reply(`Вы уже были зарегистрированы на эту серию!`);
+            } else {
+              selectSeria.regNicknames = selectSeria.regNicknames.push(currentUser.nickname);
+              seriesRepository.updateSeria(selectSeria);
+
+              await ctx.reply(`Вы зарегистрировались на серию : ${seriaDate}`);
+            }
+          }
+        });
+      }
     }
 
     async getRegisterSeries(ctx: Context) {
@@ -41,4 +74,13 @@ export class PlayerManager {
       const currentUser = userRepository.getRegUser(chatId);
       // Дальнейшая логика
     }
+
+
+  chunk<T>(arr: T[], size: number): T[][] {
+    const result: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) {
+      result.push(arr.slice(i, i + size));
+    }
+    return result;
+  }
 }

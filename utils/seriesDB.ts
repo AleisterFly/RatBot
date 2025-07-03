@@ -273,4 +273,32 @@ export class SeriesDB {
             );
         });
     }
+
+    updateSeria(seria: Seria): void {
+        const stmt = this.db.prepare(
+            "UPDATE series SET date = ?, stageType = ?, isCurrent = ? WHERE id = ?"
+        );
+        const deleteNickStmt = this.db.prepare(
+            "DELETE FROM nicknames WHERE seriaId = ?"
+        );
+        const insertNickStmt = this.db.prepare(
+            "INSERT OR IGNORE INTO nicknames (seriaId, nickname) VALUES (?, ?)"
+        );
+
+        stmt.run(
+            seria.date,
+            seria.stageType,
+            seria.isCurrent ? 1 : 0,
+            seria.id
+        );
+
+        deleteNickStmt.run(seria.id);
+
+        seria.regNicknames.forEach((nick) => {
+            insertNickStmt.run(
+                seria.id,
+                nick
+            );
+        });
+    }
 }

@@ -36,4 +36,8 @@ export class DBSeriesRepository implements ISeriesRepository {
             if (!currentSeria) return undefined;
             return seriesDB.getSeriesByStage(currentSeria.stageType);
         }
+
+    updateSeria(seria: Seria): void {
+        seriesDB.updateSeria(seria);
+    }
 }

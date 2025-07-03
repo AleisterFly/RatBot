@@ -7,7 +7,6 @@ import {UserType} from "../models/userType";
 import {Player} from "../models/player/player";
 import {List} from "immutable";
 import {Viewer} from "../models/viewer";
-import {dbase} from "../di/ratProvider";
 
 export class DBManager {
     private db: DatabaseType;

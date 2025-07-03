@@ -1,14 +1,13 @@
 import { Game } from './game'
 import { StageType } from './stageType'
 import {List} from "immutable";
-import {UserType} from "../userType";
 
 export class Seria {
     public id: number;
     public date: string;
     public stageType: StageType;
-    public games: List<Game> = List<Game>();
-    public regNicknames: List<string> = List<string>();
+    public games: List<Game>;
+    public regNicknames: List<string>;
     isCurrent: boolean = false;
 
     constructor(

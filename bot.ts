@@ -10,7 +10,7 @@ import {
   notificationManager,
   viewerManager,
   dbManager,
-  seriesDB, voteManager, userRepository
+  seriesDB, voteManager, userRepository, playerManager
 } from "./di/ratProvider";
 import {User} from "./models/user";
 
@@ -22,6 +22,10 @@ bot.command('betting_registration', (ctx) => viewerManager.onRegister(ctx));
 bot.command('guess_rat', (ctx) => voteManager.onRatVote(ctx));
 
 // bot.on(message("text"), botTextHandler);
+//PLAYER
+bot.command("reg_seria", playerManager.registerToSeria.bind(playerManager));
+
+
 
 //ADMIN
 bot.command("show_players", adminManager.onShowPlayers.bind(adminManager));

@@ -11,4 +11,5 @@ export interface ISeriesRepository {
     setCurrentSeria(date: String): void;
     registerNickname(nickname: string): void;
     getCurrentTourSeries():  List<Seria> | undefined
+    updateSeria(seria: Seria): void;
 }
