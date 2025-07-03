@@ -8,7 +8,7 @@ import {dbase, dbManager} from "../di/ratProvider";
 import path from "path";
 import {unregUsers} from "../repositories/unregUserMap";
 import {UserType} from "../models/userType";
-import {seriesList} from "../repositories/series/seriesMap";
+import {seriesList} from "../config/seriesList";
 
 export class SeriesDB {
     private db: DatabaseType;
