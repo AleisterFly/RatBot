@@ -1,13 +1,8 @@
 import Database, {type Database as DatabaseType} from "better-sqlite3";
-import type { Database as DB } from "better-sqlite3";
 import { List } from "immutable";
 import { Seria } from "../models/player/series";
 import { StageType } from "../models/player/stageType";
-import { Viewer } from "../models/viewer";
-import {dbase, dbManager} from "../di/ratProvider";
 import path from "path";
-import {unregUsers} from "../repositories/unregUserMap";
-import {UserType} from "../models/userType";
 import {seriesList} from "../config/seriesList";
 
 export class SeriesDB {

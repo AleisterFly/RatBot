@@ -10,8 +10,7 @@ import {
   notificationManager,
   viewerManager,
   dbManager,
-  dbUserRepository,
-  seriesDB, voteManager
+  seriesDB, voteManager, userRepository
 } from "./di/ratProvider";
 import {User} from "./models/user";
 
@@ -36,7 +35,7 @@ bot.launch();
 console.log("Bot is started!");
 seriesDB.createTables();
 dbManager.createTables();
-dbUserRepository.saveUnregUsers();
+userRepository.saveUnregUsers();
 seriesDB.initSeries()
 
 // TODO: Приветствие

@@ -1,6 +1,6 @@
 import {Context, Telegraf} from "telegraf";
 import {IPlayerRepository} from "../repositories/playerRepository";
-import {seriesManager, userRepository} from "../di/ratProvider";
+import {seriesRepository, userRepository} from "../di/ratProvider";
 import {UserType} from "../models/userType";
 
 
@@ -20,7 +20,7 @@ export class PlayerManager {
         if (!chatId) return;
 
         const currentUser = userRepository.getRegUser(chatId);
-        const currentSeries = seriesManager.getCurrentTourSeries();
+        const currentSeries = seriesRepository.getCurrentTourSeries();
 
         // Дальнейшая логика
     }
