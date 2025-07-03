@@ -164,7 +164,7 @@ export class AdminManager {
         if (player) {
             await ctx.reply(player.nickname + (player.isRat ? " - КРЫСА!" : " - Не крыса!"));
             player.isRat = !player.isRat;
-            playerRepository.updateIsRat(player.nickname, player.isRat);
+            playerRepository.updatePlayer(player);
 
         } else {
             await ctx.reply("Игрок не найден");

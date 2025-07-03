@@ -13,13 +13,17 @@ export interface IPlayerRepository {
   updateGameScores(nickname: string, gameScores: number): void;
   updateRatScores(nickname: string, ratScores: number): void;
   updatePenalties(nickname: string, penalties: List<number>): void;
-  updateIsRat(nickname: string, isRat: boolean): void;
+  updatePlayer(player: Player): void;
 }
 
 export class LocalPlayerRepository implements IPlayerRepository {
   readonly players: Map<string, Player> = new Map();
 
   constructor() {}
+
+  updatePlayer(player: Player) {
+    return;
+  }
 
   getAllPlayersNicknames(userType: UserType): List<string> {
         throw new Error("Method not implemented.");
@@ -81,13 +85,6 @@ export class LocalPlayerRepository implements IPlayerRepository {
     const player = this.players.get(nickname);
     if (player) {
       player.penalties = penalties;
-    }
-  }
-
-  updateIsRat(nickname: string, isRat: boolean): void {
-    const player = this.players.get(nickname);
-    if (player) {
-      player.isRat = isRat;
     }
   }
 }

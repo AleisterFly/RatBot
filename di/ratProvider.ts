@@ -12,6 +12,7 @@ import {DBUserRepository} from "../repositories/DBUserRepository";
 import {DBPlayerRepository} from "../repositories/DBPlayerRepository";
 import {AdminManager} from "../handlers/adminManager";
 import {SeriesDB} from "../utils/seriesDB";
+import {VoteManager} from "../handlers/voteManager";
 
 export const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
 export const userRepository = new DBUserRepository();
@@ -20,6 +21,7 @@ export const viewerRepository = new LocalViewerRepository();
 export const playerManager = new PlayerManager(playerRepository, bot);
 export const userManager = new UserManager(bot);
 export const viewerManager = new ViewerManager(viewerRepository, bot);
+export const voteManager = new VoteManager(viewerRepository, bot);
 export const notificationManager = new NotificationManager(userRepository, playerRepository, bot);
 export const dbManager = new DBManager();
 export const dbUserRepository = new DBUserRepository();

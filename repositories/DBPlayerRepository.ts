@@ -50,11 +50,11 @@ export class DBPlayerRepository implements IPlayerRepository {
         return false;
     }
 
-    updateGameScores(nickname: string, gameScores: number): void {
+    updatePlayer(player: Player): void {
+        dbManager.updatePlayer(player);
     }
 
-    updateIsRat(nickname: string, isRat: boolean): void {
-        dbManager.updatePlayerIsRat(nickname,isRat);
+    updateGameScores(nickname: string, gameScores: number): void {
     }
 
     updatePenalties(nickname: string, penalties: Immutable.List<number>): void {

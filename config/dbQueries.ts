@@ -76,8 +76,12 @@ CREATE TABLE IF NOT EXISTS tour_series (
 );
 
 CREATE TABLE IF NOT EXISTS viewers (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  nickname TEXT NOT NULL
+   id INTEGER PRIMARY KEY AUTOINCREMENT,
+   nickname TEXT NOT NULL,
+   telegram_name TEXT,
+   first_name TEXT,
+   last_name TEXT,
+   chat_id INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS viewer_seria_voting (

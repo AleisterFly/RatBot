@@ -1,12 +1,14 @@
 import { Context, Telegraf } from "telegraf"
 import { IViewerRepository } from "../repositories/viewerRepository"
 import {anyOf, message} from "telegraf/filters";
+import {Viewer} from "../models/viewer";
 
 type RegisterStep = 'nickname' | 'firstName' | 'lastName'
 
 type RegisterSession = {
     step: RegisterStep,
     nickname?: string,
+    telegramName?: string,
     firstName?: string,
 }
 
@@ -53,14 +55,17 @@ export class ViewerManager {
                     console.log(`nickname:`)
                     const exists = this.viewerRepository.getByNickname(text)
                     if (exists) {
-                        await ctx.reply("Этот ник уже занят. Попробуйте другой или /register заново.")
+                        await ctx.reply("Этот ник уже занят. Попробуйте другой или /betting_registration заново.")
                         this.registerSessions.delete(chatId)
                         return
                     }
 
-                    session.nickname = text
-                    session.step = "firstName"
-                    await ctx.reply("Введите ваше имя:")
+                    session.nickname = text;
+                    session.telegramName = ctx.message.from?.username;
+                    console.log(`nickname: ${session.nickname}`);
+                    console.log(`telegramName: ${session.telegramName}`);
+                    session.step = "firstName";
+                    await ctx.reply("Введите ваше имя:");
                     break
                 }
 
@@ -74,11 +79,13 @@ export class ViewerManager {
 
                 case "lastName": {
                     const nickname = session.nickname!
+                    const chatId = ctx.chat?.id!
+                    const telegramName = session.telegramName!
                     const firstName = session.firstName!
                     const lastName = text
 
                     this.viewerRepository.createViewer(
-                        nickname
+                        nickname, chatId, telegramName, firstName, lastName
                     )
 
                     await ctx.reply(

@@ -6,6 +6,7 @@ import {User} from "../models/user";
 import {UserType} from "../models/userType";
 import {Player} from "../models/player/player";
 import {List} from "immutable";
+import {Viewer} from "../models/viewer";
 
 export class DBManager {
     private db: DatabaseType;
@@ -54,7 +55,6 @@ export class DBManager {
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `).run(nickname, teamName, gameScores, ratScores, penaltiesStr, isRat ? 1 : 0, regNumber);
     }
-
 
 
     addPlayerScore(total: number, plus: number, minus: number, best: number, ci: number, roleType: string): void {
@@ -114,12 +114,13 @@ export class DBManager {
         `).run(tourId, seriesId);
     }
 
-    addViewer(nickname: string): void {
+    addViewer(viewer: Viewer): void {
         this.db.prepare(`
-            INSERT INTO viewers (nickname)
-            VALUES (?)
-        `).run(nickname);
+            INSERT INTO viewers (nickname, telegram_name, first_name, last_name, chat_id)
+            VALUES (?, ?, ?, ?, ?)
+        `).run(viewer.nickname, viewer.telegramName, viewer.firstName, viewer.lastName, viewer.chatId);
     }
+
 
     addViewerSeriaVoting(viewerId: number, seriaId: number, votedNicknames: string): void {
         this.db.prepare(`
@@ -181,11 +182,34 @@ export class DBManager {
 
 
     // Players
-    getPlayerByNickname(nickname: string) {
-        return this.db.prepare(`SELECT *
-                                FROM players
-                                WHERE nickname = ?`).get(nickname);
+    getPlayerByNickname(nickname: string): Player | undefined {
+        const row = this.db.prepare(`
+            SELECT *
+            FROM players
+            WHERE nickname = ?
+        `).get(nickname) as {
+            nickname: string;
+            team_name: string;
+            game_scores: number;
+            rat_scores: number;
+            penalties: string; // хранится как JSON
+            is_rat: number;
+            reg_number: number;
+        };
+
+        if (!row) return undefined;
+
+        return new Player(
+            row.nickname,
+            row.team_name,
+            row.game_scores,
+            row.rat_scores,
+            List<number>(JSON.parse(row.penalties)),
+            !!row.is_rat,
+            row.reg_number
+        );
     }
+
 
     getPlayersByTeam(teamName: string) {
         return this.db.prepare(`SELECT *
@@ -242,23 +266,34 @@ export class DBManager {
     }
 
     // Viewers
-    getViewerByNickname(nickname: string) {
-        return this.db.prepare(`SELECT *
-                                FROM viewers
-                                WHERE nickname = ?`).get(nickname);
+    getViewerByChatId(chatId: number): Viewer | undefined {
+        const row = this.db.prepare(`SELECT * FROM viewers WHERE chat_id = ?`).get(chatId) as {
+            nickname: string;
+            telegram_name: string;
+            first_name: string;
+            last_name: string;
+            chat_id: number;
+        } | undefined;
+
+        if (!row) return undefined;
+
+        return new Viewer(row.nickname, row.chat_id, row.telegram_name, row.first_name, row.last_name);
     }
 
-    getViewerSeriaVotes(viewerId: number) {
-        return this.db.prepare(`SELECT *
-                                FROM viewer_seria_voting
-                                WHERE viewer_id = ?`).all(viewerId);
+    getViewerByNickname(nickname: string): Viewer | undefined {
+        const row = this.db.prepare(`SELECT * FROM viewers WHERE nickname = ?`).get(nickname) as {
+            nickname: string;
+            telegram_name: string;
+            first_name: string;
+            last_name: string;
+            chat_id: number;
+        } | undefined;
+
+        if (!row) return undefined;
+
+        return new Viewer(row.nickname, row.chat_id, row.telegram_name, row.first_name, row.last_name);
     }
 
-    getViewerTourVotes(viewerId: number) {
-        return this.db.prepare(`SELECT *
-                                FROM viewer_tour_voting
-                                WHERE viewer_id = ?`).all(viewerId);
-    }
 
     // Get All Users
     getAllUsers(userType: string = 'all'): List<User> {
@@ -317,6 +352,20 @@ export class DBManager {
         }));
     }
 
+    getAllViewers(): List<Viewer> {
+        const rows = this.db.prepare(`SELECT * FROM viewers`).all() as {
+            nickname: string;
+            telegram_name: string;
+            first_name: string;
+            last_name: string;
+            chat_id: number;
+        }[];
+
+        return List(rows.map(row =>
+            new Viewer(row.nickname, row.chat_id, row.telegram_name, row.first_name, row.last_name)
+        ));
+    }
+
     // ======================================================================================================
     // ==== UPDATE A ROW IN THE TABLE ======================================================================
     // ======================================================================================================
@@ -324,67 +373,42 @@ export class DBManager {
     // Users
     updateUser(user: User): void {
         this.db.prepare(`UPDATE users
-                         SET telegram_name = ?, user_type = ?, chat_id = ?
+                         SET telegram_name = ?,
+                             user_type     = ?,
+                             chat_id       = ?
                          WHERE nickname = ?`).run(user.telegramName, user.userType, user.chatId, user.nickname);
     }
 
-
-    updateUserNickname(id: number, nickname: string): void {
-        this.db.prepare(`UPDATE users
-                         SET nickname = ?
-                         WHERE id = ?`).run(nickname, id);
+    // Player
+    updatePlayer(player: Player): void {
+        this.db.prepare(
+            `UPDATE players
+             SET team_name   = ?,
+                 game_scores = ?,
+                 rat_scores  = ?,
+                 penalties   = ?,
+                 is_rat      = ?,
+                 reg_number  = ?
+             WHERE nickname = ?`
+        ).run(
+            player.teamName,
+            player.gameScores,
+            player.ratScores,
+            JSON.stringify(player.penalties.toArray()),
+            player.isRat ? 1 : 0,
+            player.regNumber,
+            player.nickname
+        );
     }
 
-    updateUserTelegramName(id: number, telegramName: string): void {
-        this.db.prepare(`UPDATE users
-                         SET telegram_name = ?
-                         WHERE id = ?`).run(telegramName, id);
-    }
-
-    updateUserChatId(id: number, chatId: number): void {
-        this.db.prepare(`UPDATE users
-                         SET chat_id = ?
-                         WHERE id = ?`).run(chatId, id);
-    }
-
-    // Players
-    updatePlayerTeam(id: number, teamName: string): void {
-        this.db.prepare(`UPDATE players
-                         SET team_name = ?
-                         WHERE id = ?`).run(teamName, id);
-    }
-
-    updatePlayerScores(id: number, gameScores: number, ratScores: number): void {
-        this.db.prepare(`UPDATE players
-                         SET game_scores = ?,
-                             rat_scores  = ?
-                         WHERE id = ?`).run(gameScores, ratScores, id);
-    }
-
-    updatePlayerPenalties(id: number, penalties: string): void {
-        this.db.prepare(`UPDATE players
-                         SET penalties = ?
-                         WHERE id = ?`).run(penalties, id);
-    }
-
-    updatePlayerIsRat(nickname: string, isRat: boolean): void {
-        this.db.prepare(`UPDATE players
-                         SET is_rat = ?
-                         WHERE nickname = ?`).run(isRat, nickname);
-    }
-
-    // Player Scores
-    updatePlayerScore(id: number, total: number, plus: number, minus: number, best: number, ci: number, role: string): void {
-        this.db.prepare(`
-            UPDATE player_scores
-            SET total_score        = ?,
-                plus_extra_points  = ?,
-                minus_extra_points = ?,
-                best_move_points   = ?,
-                ci_points          = ?,
-                role_type          = ?
-            WHERE id = ?
-        `).run(total, plus, minus, best, ci, role, id);
+    updateViewer(viewer: Viewer): void {
+        this.db.prepare(`UPDATE viewers
+                     SET telegram_name = ?,
+                         first_name = ?,
+                         last_name = ?,
+                         chat_id = ?
+                     WHERE nickname = ?`)
+            .run(viewer.telegramName, viewer.firstName, viewer.lastName, viewer.chatId, viewer.nickname);
     }
 
     // Games
@@ -574,23 +598,11 @@ export class DBManager {
     }
 
     // Viewers
-    deleteViewer(id: number): void {
-        this.db.prepare(`DELETE
-                         FROM viewers
-                         WHERE id = ?`).run(id);
+    deleteViewerByNickname(nickname: string): void {
+        this.db.prepare(`DELETE FROM viewers WHERE nickname = ?`).run(nickname);
     }
 
-    deleteViewerSeriaVote(viewerId: number, seriaId: number): void {
-        this.db.prepare(`DELETE
-                         FROM viewer_seria_voting
-                         WHERE viewer_id = ?
-                           AND seria_id = ?`).run(viewerId, seriaId);
-    }
-
-    deleteViewerTourVote(viewerId: number, tourId: number): void {
-        this.db.prepare(`DELETE
-                         FROM viewer_tour_voting
-                         WHERE viewer_id = ?
-                           AND tour_id = ?`).run(viewerId, tourId);
+    deleteViewerByChatId(chatId: number): void {
+        this.db.prepare(`DELETE FROM viewers WHERE chat_id = ?`).run(chatId);
     }
 }
