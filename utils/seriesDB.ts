@@ -22,29 +22,72 @@ export class SeriesDB {
     // ======================================================================================================
     createTables(): void {
         this.db.exec(`
-            CREATE TABLE IF NOT EXISTS series (
-                                                  id INTEGER PRIMARY KEY,
-                                                  date TEXT,
-                                                  stageType TEXT,
-                                                  isCurrent BOOLEAN
+            CREATE TABLE IF NOT EXISTS series
+            (
+                id
+                INTEGER
+                PRIMARY
+                KEY,
+                date
+                TEXT,
+                stageType
+                TEXT,
+                isCurrent
+                BOOLEAN
             );
-            CREATE TABLE IF NOT EXISTS games (
-                                                 id INTEGER PRIMARY KEY,
-                                                 seriaId INTEGER,
-                                                 FOREIGN KEY(seriaId) REFERENCES series(id)
+            CREATE TABLE IF NOT EXISTS games
+            (
+                id
+                INTEGER
+                PRIMARY
+                KEY,
+                seriaId
+                INTEGER,
+                FOREIGN
+                KEY
+            (
+                seriaId
+            ) REFERENCES series
+            (
+                id
+            )
                 );
-            CREATE TABLE IF NOT EXISTS nicknames (
-                                                     seriaId INTEGER,
-                                                     nickname TEXT,
-                                                     FOREIGN KEY(seriaId) REFERENCES series(id),
-                UNIQUE(seriaId, nickname)
+            CREATE TABLE IF NOT EXISTS nicknames
+            (
+                seriaId
+                INTEGER,
+                nickname
+                TEXT,
+                FOREIGN
+                KEY
+            (
+                seriaId
+            ) REFERENCES series
+            (
+                id
+            ),
+                UNIQUE
+            (
+                seriaId,
+                nickname
+            )
                 );
-            CREATE TABLE IF NOT EXISTS viewers (
-                                                   chat_id INTEGER PRIMARY KEY,
-                                                   nickname TEXT NOT NULL,
-                                                   telegram_name TEXT,
-                                                   first_name TEXT,
-                                                   last_name TEXT
+            CREATE TABLE IF NOT EXISTS viewers
+            (
+                chat_id
+                INTEGER
+                PRIMARY
+                KEY,
+                nickname
+                TEXT
+                NOT
+                NULL,
+                telegram_name
+                TEXT,
+                first_name
+                TEXT,
+                last_name
+                TEXT
             );
         `);
     }
@@ -235,5 +278,4 @@ export class SeriesDB {
             );
         });
     }
-
 }

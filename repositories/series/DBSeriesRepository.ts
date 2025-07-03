@@ -4,7 +4,7 @@ import {Seria} from "../../models/player/series";
 import {List} from "immutable";
 import {seriesDB} from "../../di/ratProvider";
 
-export class DBPlayerRepository implements ISeriesRepository {
+export class DBSeriesRepository implements ISeriesRepository {
     constructor() {}
 
     getSeria(stage: StageType): Seria | undefined {
@@ -23,11 +23,17 @@ export class DBPlayerRepository implements ISeriesRepository {
         seriesDB.saveSeries(series)
     }
 
-    setCurrentSeria(date: String): void {
+    setCurrentSeria(date: string): void {
         seriesDB.setCurrentSeria(date);
     }
 
     getCurrentSeria(): Seria | undefined {
        return seriesDB.getCurrentSeria();
     }
+
+    getCurrentTourSeries():  List<Seria> | undefined {
+            const currentSeria = seriesDB.getCurrentSeria();
+            if (!currentSeria) return undefined;
+            return seriesDB.getSeriesByStage(currentSeria.stageType);
+        }
 }
