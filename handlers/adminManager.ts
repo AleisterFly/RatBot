@@ -48,6 +48,30 @@ export class AdminManager {
         }
     }
 
+    async sendMessageToOnlyPlayers(message: string) {
+        let nicknames = playerRepository.getAllPlayersNicknames(UserType.Player);
+
+        for (const nickname of nicknames) {
+            let user = userRepository.getUser(nickname);
+
+            if (user) {
+                await this.bot.telegram.sendMessage(user.chatId, message);
+            }
+        }
+    }
+
+    async sendMessageToAllRats(message: string) {
+        let nicknames = playerRepository.getAllPlayersNicknames(UserType.Rat);
+
+        for (const nickname of nicknames) {
+            let user = userRepository.getUser(nickname);
+
+            if (user) {
+                await this.bot.telegram.sendMessage(user.chatId, message);
+            }
+        }
+    }
+
     async onSelectPlayer(ctx: Context) {
 
         const buttons = this.chunk(

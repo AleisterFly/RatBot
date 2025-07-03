@@ -1,7 +1,7 @@
 import {Telegraf} from "telegraf";
 import {IUserRepository} from "../repositories/userRepository";
 import {IPlayerRepository} from "../repositories/playerRepository";
-import {userRepository} from "../di/ratProvider";
+import {playerRepository, userRepository} from "../di/ratProvider";
 import {UserType} from "../models/userType";
 
 export class PlayerManager {
@@ -14,20 +14,8 @@ export class PlayerManager {
     this.bot = bot;
   }
 
-  async sendMessageToOnlyPlayers(message: string) {
-    let nicknames = this.playerRepository.getAllPlayersNicknames(UserType.Player);
-
-    for (const nickname of nicknames) {
-      let user = userRepository.getUser(nickname);
-
-      if (user) {
-        await this.bot.telegram.sendMessage(user.chatId, message);
-      }
-    }
-  }
-
   async sendMessageToAllRats(message: string) {
-    let nicknames = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
+    let nicknames = playerRepository.getAllPlayersNicknames(UserType.Rat);
 
     for (const nickname of nicknames) {
       let user = userRepository.getUser(nickname);
@@ -37,4 +25,5 @@ export class PlayerManager {
       }
     }
   }
+
 }
