@@ -1,12 +1,13 @@
-import { Context } from "telegraf";
+import {Context} from "telegraf";
 import {
-  bot,
-  userManager,
-  adminManager,
-  viewerManager,
-  dbManager,
-  seriesDB, voteManager, userRepository, playerManager, viewerDB
+    bot,
+    userManager,
+    adminManager,
+    viewerManager,
+    dbManager,
+    seriesDB, voteManager, userRepository, playerManager, seriesRepository, viewerDB
 } from "./di/ratProvider";
+import {List} from "immutable";
 
 
 
@@ -32,7 +33,7 @@ bot.command("get_current", adminManager.sendCurrentSeria.bind(adminManager));
 
 
 async function botTextHandler(ctx: Context) {
-  ctx.reply("ПРИВЕТ!");
+    ctx.reply("ПРИВЕТ!");
 }
 
 bot.launch();
@@ -43,7 +44,16 @@ dbManager.createTables();
 userRepository.saveUnregUsers();
 seriesDB.initSeries();
 
+const mockSeriaNicknames: List<string> = List([
+    "Абрам", "Космос", "Аврора", "Адлер", "Алиот",
+    "Комар", "Крис", "Кукла", "Тони", "f5"
+]);
+
+for (const nickname of mockSeriaNicknames) {
+    seriesRepository.registerNickname(nickname);
+}
+
 // TODO: Приветствие
 async function onStart(ctx: Context) {
-  ctx.reply("Добро пожаловать!");
+    ctx.reply("Добро пожаловать!");
 }
