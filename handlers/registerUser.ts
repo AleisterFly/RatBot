@@ -1,15 +1,13 @@
 import {Context, Markup, Telegraf} from "telegraf";
-import {IUserRepository} from "../repositories/userRepository";
 import {
-    notificationManager,
     playerRepository,
     playerManager,
-    userRepository
+    userRepository, bot, adminManager, userManager, viewerManager, voteManager
 } from "../di/ratProvider";
 import {List} from "immutable";
-import {User} from "../models/user";
 import {UserType} from "../models/userType";
 import {chunk} from "../utils/util";
+import {BotCommandAccess} from "../models/allBotCommands";
 
 enum ConfirmationType {
     YES = "Да",
@@ -17,6 +15,7 @@ enum ConfirmationType {
 }
 
 const NUMBER_OF_COLUMNS = 5;
+const NUMBER_OF_COLUMNS_COMMAND = 3;
 
 const selectConfirmation: string[] = [
     ConfirmationType.YES,
@@ -29,6 +28,72 @@ export class UserManager {
     constructor(bot: Telegraf) {
         this.bot = bot;
     }
+
+    async onShowCommands(ctx: Context) {
+        let user = userRepository.getRegUser(ctx.chat?.id);
+        console.log(user);
+        if (user) {
+            const allowedCommands = this.getAllowedCommands(user.userType);
+            // const formattedCommands = allowedCommands.toArray().join('\n');
+
+            const buttons = chunk(
+                allowedCommands
+                    .sort((a, b) => a.localeCompare(b))
+                    .map((name) => Markup.button.callback(name, `on_command_choose:${name}`))
+                    .toArray(), // <-- ключ!
+                NUMBER_OF_COLUMNS_COMMAND
+            );
+
+            await ctx.reply("Доступные команды:", {
+                parse_mode: "HTML",
+                reply_markup: Markup.inlineKeyboard(buttons).reply_markup,
+            });
+
+            this.bot.action(/^on_command_choose:(.*)$/, async (ctx) => {
+                const chatId = ctx.chat?.id as number;
+                const messageId = ctx.callbackQuery?.message?.message_id as number;
+                await ctx.telegram.deleteMessage(chatId, messageId);
+
+                const command = ctx.match[1];
+                switch (command) {
+                    case 'show_players':
+                        await adminManager.onShowPlayers(ctx);
+                        break;
+                    case 'select_player':
+                        await adminManager.onSelectPlayer(ctx);
+                        break;
+                    case 'update_current':
+                        await adminManager.updateCurrentSeria(ctx);
+                        break;
+                    case 'get_current':
+                        await adminManager.sendCurrentSeria(ctx);
+                        break;
+                    case 'reg_seria':
+                        await playerManager.registerToSeria(ctx);
+                        break;
+                    case 'show_reg_seria':
+                        await playerManager.getRegisterSeries(ctx);
+                        break;
+                    case 'cancel_reg_seria':
+                        await playerManager.cancelRegistrationToSeria(ctx);
+                        break;
+                    case 'betting_registration':
+                        await viewerManager.onRegister(ctx);
+                        break;
+                    case 'guess_rat':
+                        await voteManager.onRatVote(ctx);
+                        break;
+                }
+            });
+        }
+    }
+
+    private getAllowedCommands(userType: UserType): List<string> {
+        return List(Object.entries(BotCommandAccess)
+            .filter(([_, types]) => types.includes(userType) || types.includes(UserType.All))
+            .map(([command, _]) => command));
+    }
+
 
     async onRegister(ctx: Context) {
         console.log("onRegister");

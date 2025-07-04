@@ -8,6 +8,10 @@ import {
   seriesDB, voteManager, userRepository, playerManager, viewerDB
 } from "./di/ratProvider";
 
+
+
+bot.command("show_commands", userManager.onShowCommands.bind(userManager));
+
 bot.command("start", onStart);
 bot.command("register", userManager.onRegister.bind(userManager));
 bot.command('betting_registration', (ctx) => viewerManager.onRegister(ctx));
@@ -23,6 +27,8 @@ bot.command("show_players", adminManager.onShowPlayers.bind(adminManager));
 bot.command("select_player", adminManager.onSelectPlayer.bind(adminManager));
 bot.command("update_current", adminManager.updateCurrentSeria.bind(adminManager));
 bot.command("get_current", adminManager.sendCurrentSeria.bind(adminManager));
+
+// bot.command("create_team", adminManager.sendCurrentSeria.bind(adminManager));
 
 
 async function botTextHandler(ctx: Context) {

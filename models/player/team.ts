@@ -1,17 +1,16 @@
-import { Player } from './player'
 import {List} from "immutable";
 
 export class Team {
     constructor(
-        public id: string,
+        public id: number,
         public title: string,
         public emblemUrl: string,
-        public players: List<Player>,
-        public kickedPlayers: List<Player>,
+        public players: List<string>,
+        public kickedPlayers: List<string>,
         public score: number,
         public bonusScore: number,
         public totalScore: number,
-        public ratPlayer: Player,
-        public capitan: Player,
+        public ratPlayer: string,
+        public capitan: string,
     ) {}
 }

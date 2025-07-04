@@ -15,6 +15,8 @@ import {SeriesDB} from "../utils/seriesDB";
 import {VoteManager} from "../handlers/voteManager";
 import {DBSeriesRepository} from "../repositories/series/DBSeriesRepository";
 import {ViewerDB} from "../utils/viewerDB";
+import {TeamDB} from "../utils/teamDB";
+import {DBTeamRepository} from "../repositories/team/DBTeamRepository";
 
 export const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
 export const userRepository = new DBUserRepository();
@@ -30,3 +32,5 @@ export const adminManager = new AdminManager(bot);
 export const seriesDB = new SeriesDB();
 export const seriesRepository= new DBSeriesRepository();
 export const viewerDB = new ViewerDB();
+export const teamDB = new TeamDB();
+export const teamRepository= new DBTeamRepository();
