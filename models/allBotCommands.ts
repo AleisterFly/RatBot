@@ -10,9 +10,13 @@ enum BotCommand {
     CANCEL_REG_SERIA = 'cancel_reg_seria',
     SHOW_COMMANDS = 'show_commands',
     SHOW_PLAYERS = 'show_players',
+    SHOW_PLAYERS_SUPER = 'show_players_super',
     SELECT_PLAYER = 'select_player',
     UPDATE_CURRENT = 'update_current',
-    GET_CURRENT = 'get_current'
+    GET_CURRENT = 'get_current',
+
+    //TEST
+    UNREG = 'unreg'
 }
 
 export const BotCommandAccess: Record<BotCommand, UserType[]> = {
@@ -29,4 +33,9 @@ export const BotCommandAccess: Record<BotCommand, UserType[]> = {
     [BotCommand.SELECT_PLAYER]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.UPDATE_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.GET_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
+
+    [BotCommand.SHOW_PLAYERS_SUPER]: [UserType.SuperAdmin],
+
+    //TEST
+    [BotCommand.UNREG]: [UserType.All],
 }

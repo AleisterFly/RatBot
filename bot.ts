@@ -29,7 +29,12 @@ bot.command("select_player", adminManager.onSelectPlayer.bind(adminManager));
 bot.command("update_current", adminManager.updateCurrentSeria.bind(adminManager));
 bot.command("get_current", adminManager.sendCurrentSeria.bind(adminManager));
 
+//SUPER ADMIN
+bot.command("show_players_SUPER", adminManager.onSuperShowPlayers.bind(adminManager));
 // bot.command("create_team", adminManager.sendCurrentSeria.bind(adminManager));
+
+//TEST
+bot.command("unreg", userManager.onUnreg.bind(userManager));
 
 
 async function botTextHandler(ctx: Context) {

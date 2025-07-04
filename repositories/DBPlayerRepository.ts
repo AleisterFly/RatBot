@@ -26,6 +26,10 @@ export class DBPlayerRepository implements IPlayerRepository {
                 nicknames = dbManager.getAllNicknames(UserType.Rat);
                 break;
 
+            case UserType.UnregPlayer:
+                nicknames = dbManager.getAllNicknames(UserType.UnregPlayer);
+                break;
+
             case UserType.All:
             default:
                 const playersNicknames = dbManager.getAllNicknames(UserType.Player);

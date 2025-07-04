@@ -43,6 +43,29 @@ export class AdminManager {
         }
     }
 
+    async onSuperShowPlayers(ctx: Context) {
+        //SUPER ADMIN
+        //SUPER ADMIN
+        //SUPER ADMIN
+        let playersNicknames = playerRepository.getAllPlayersNicknames(UserType.Player);
+        let ratNicknames = playerRepository.getAllPlayersNicknames(UserType.Rat);
+        let unregNicknames = playerRepository.getAllPlayersNicknames(UserType.UnregPlayer);
+
+        let playersText = formatInColumns(playersNicknames, NUMBER_OF_COLUMNS);
+        let ratText = formatInColumns(ratNicknames, NUMBER_OF_COLUMNS);
+        let unregText = formatInColumns(unregNicknames, NUMBER_OF_COLUMNS);
+
+        await ctx.reply("Игроки:\n\n" + playersText, {
+            parse_mode: "HTML",
+        });
+        await ctx.reply("Крысы:\n\n" + ratText, {
+            parse_mode: "HTML",
+        });
+        await ctx.reply("Не реги:\n\n" + unregText, {
+            parse_mode: "HTML",
+        });
+    }
+
     async sendMessageToAllRats(message: string) {
         let nicknames = playerRepository.getAllPlayersNicknames(UserType.Rat);
 

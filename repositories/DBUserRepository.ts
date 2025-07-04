@@ -3,7 +3,7 @@ import {User} from "../models/user";
 import {dbManager} from "../di/ratProvider";
 import {List} from "immutable";
 import {UserType} from "../models/userType";
-import {unregUsers} from "./unregUserMap";
+import {unregUsers} from "../config/unregUserMap";
 
 export class DBUserRepository implements IUserRepository {
     createUser(user: User): User {

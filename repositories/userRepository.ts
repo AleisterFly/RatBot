@@ -1,6 +1,6 @@
 import { User } from "../models/user";
 import {List} from "immutable";
-import {unregUserMap} from "./unregUserMap";
+import {unregUserMap} from "../config/unregUserMap";
 import {dbManager} from "../di/ratProvider";
 
 export interface IUserRepository {

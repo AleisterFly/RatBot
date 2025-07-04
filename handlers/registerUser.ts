@@ -1,8 +1,11 @@
 import {Context, Markup, Telegraf} from "telegraf";
 import {
-    playerRepository,
+    adminManager,
     playerManager,
-    userRepository, bot, adminManager, userManager, viewerManager, voteManager
+    playerRepository, userManager,
+    userRepository,
+    viewerManager,
+    voteManager
 } from "../di/ratProvider";
 import {List} from "immutable";
 import {UserType} from "../models/userType";
@@ -31,7 +34,6 @@ export class UserManager {
 
     async onShowCommands(ctx: Context) {
         let user = userRepository.getRegUser(ctx.chat?.id);
-        console.log(user);
         if (user) {
             const allowedCommands = this.getAllowedCommands(user.userType);
             // const formattedCommands = allowedCommands.toArray().join('\n');
@@ -83,6 +85,12 @@ export class UserManager {
                     case 'guess_rat':
                         await voteManager.onRatVote(ctx);
                         break;
+                    case 'show_players_super':
+                        await adminManager.onSuperShowPlayers(ctx);
+                        break;
+                    case 'unreg':
+                        await userManager.onUnreg(ctx);
+                        break;
                 }
             });
         }
@@ -92,6 +100,15 @@ export class UserManager {
         return List(Object.entries(BotCommandAccess)
             .filter(([_, types]) => types.includes(userType) || types.includes(UserType.All))
             .map(([command, _]) => command));
+    }
+
+
+    //TEST
+    async onUnreg(ctx: Context) {
+        let user = userRepository.getRegUser(ctx.chat?.id);
+        if (user) {
+            userRepository.deleteRegUser(user.nickname)
+        }
     }
 
 
@@ -167,8 +184,14 @@ export class UserManager {
                         //   unregUser.chatId = chatId;
                         // let newUser = new User(nickname, chatId, UserType.UnregPlayer);
 
-                        if (unregUser.nickname == "Алиот") {
+                        if (unregUser.nickname == "_АДМИН") {
                             unregUser.userType = UserType.Admin;
+                        } else if(unregUser.nickname == "_СУПЕР АДМИН") {
+                            unregUser.userType = UserType.SuperAdmin;
+                        } else if(unregUser.nickname == "_КРЫСА") {
+                            unregUser.userType = UserType.Rat;
+                        } else if(unregUser.nickname == "_ЗРИТЕЛЬ") {
+                            unregUser.userType = UserType.Viewer;
                         } else {
                             unregUser.userType = UserType.Player;
                         }
