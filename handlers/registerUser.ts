@@ -2,7 +2,8 @@ import {Context, Markup, Telegraf} from "telegraf";
 import {
     adminManager,
     playerManager,
-    playerRepository, userManager,
+    playerRepository,
+    userManager,
     userRepository,
     viewerManager,
     voteManager
@@ -205,20 +206,26 @@ export class UserManager {
 
 
                         userRepository.updateUser(unregUser);
-                        let player = playerRepository.createPlayer(nickname);
-                        console.log(player);
+                        if (unregUser.userType == UserType.Player || unregUser.userType == UserType.Rat) {
+                            let player = playerRepository.createPlayer(nickname);
+                            console.log(player);
 
-                        // if (player.regNumber != 2) {
-                        //     playerRepository.updateIsRat(nickname, true);
-                        // }
+                            // if (player.regNumber != 2) {
+                            //     playerRepository.updateIsRat(nickname, true);
+                            // }
 
-                        // playerManager.sendMessageToAllRats(
-                        //     `Участник номер ${player.regNumber} (${nickname}) успешно зарегистрирован!`
-                        // );
+                            // playerManager.sendMessageToAllRats(
+                            //     `Участник номер ${player.regNumber} (${nickname}) успешно зарегистрирован!`
+                            // );
 
-                        await ctx.reply(
-                          `Участник номер ${player.regNumber} (${nickname}) успешно зарегистрирован!`
-                        );
+                            await ctx.reply(
+                                `Участник номер ${player.regNumber} (${nickname}) успешно зарегистрирован!`
+                            );
+                        } else {
+                            await ctx.reply(
+                                `USER ${unregUser.nickname} успешно зарегистрирован как ${unregUser.userType} !`
+                            );
+                        }
                         return;
                     }
 
