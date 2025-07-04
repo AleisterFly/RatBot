@@ -70,7 +70,7 @@ export class AdminManager {
 
             const message = await ctx.reply(
                 stage,
-                Markup.inlineKeyboard(buttons, { columns: 5 })
+                Markup.inlineKeyboard(buttons, {columns: 5})
             );
 
             // Добавляем ID сообщения в массив для удаления
@@ -101,7 +101,10 @@ export class AdminManager {
         });
     }
 
-
+    async sendCurrentSeria(ctx: Context) {
+        let currentSeria = seriesRepository.getCurrentSeria();
+        await ctx.reply(`Текущая серия: ${currentSeria?.date}`);
+    }
 
     async onSelectPlayer(ctx: Context) {
         const buttons = chunk(

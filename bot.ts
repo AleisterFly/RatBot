@@ -22,6 +22,7 @@ bot.command("cancel_reg_seria", playerManager.cancelRegistrationToSeria.bind(pla
 bot.command("show_players", adminManager.onShowPlayers.bind(adminManager));
 bot.command("select_player", adminManager.onSelectPlayer.bind(adminManager));
 bot.command("update_current", adminManager.updateCurrentSeria.bind(adminManager));
+bot.command("get_current", adminManager.sendCurrentSeria.bind(adminManager));
 
 
 async function botTextHandler(ctx: Context) {
