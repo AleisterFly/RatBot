@@ -1,5 +1,5 @@
 import {Context, Markup, Telegraf} from "telegraf";
-import {playerRepository, seriesRepository, userRepository} from "../di/ratProvider";
+import {playerRepository, seriesRepository, teamRepository, userManager, userRepository} from "../di/ratProvider";
 import {UserType} from "../models/userType";
 import {List} from "immutable";
 import {AdminCommand} from "../models/admin/adminCommand";
@@ -22,15 +22,6 @@ export class AdminManager {
         this.registerActions();
     }
 
-    async onShowPlayers(ctx: Context) {
-        let playersNicknames = playerRepository.getAllPlayersNicknames();
-        let text = formatInColumns(playersNicknames, NUMBER_OF_COLUMNS);
-
-        await ctx.reply("Игроки:\n\n" + text, {
-            parse_mode: "HTML",
-        });
-    }
-
     async sendMessageToOnlyPlayers(message: string) {
         let nicknames = playerRepository.getAllPlayersNicknames(UserType.Player);
 
@@ -41,6 +32,26 @@ export class AdminManager {
                 await this.bot.telegram.sendMessage(user.chatId, message);
             }
         }
+    }
+
+    async addTeam(ctx: Context) {
+        await ctx.reply("Введите название команды");
+
+        this.bot.on('text', async (ctx) => {
+            const teamName = ctx.message.text;
+
+            teamRepository.createTeam(teamName);
+
+        });
+    }
+
+    async onShowPlayers(ctx: Context) {
+        let playersNicknames = playerRepository.getAllPlayersNicknames();
+        let text = formatInColumns(playersNicknames, NUMBER_OF_COLUMNS);
+
+        await ctx.reply("Игроки:\n\n" + text, {
+            parse_mode: "HTML",
+        });
     }
 
     async onSuperShowPlayers(ctx: Context) {
@@ -226,6 +237,18 @@ export class AdminManager {
             const isVoted = user.userType !== UserType.VotedOut;
             user.userType = isVoted ? UserType.VotedOut : UserType.Player;
             userRepository.updateUser(user);
+
+            let team = teamRepository.getTeam(user.nickname)
+            if (team) {
+                if (isVoted) {
+                    team.kickedPlayers.push(user.nickname)
+                    team.players = team.players.filter(p => p !== user.nickname)
+                } else {
+                    team.kickedPlayers = team.kickedPlayers.filter(p => p !== user.nickname)
+                    team.players.push(user.nickname)
+                }
+                teamRepository.updateTeam(team);
+            }
             await ctx.reply(
                 user.nickname +
                 (isVoted ? ": ЗАГОЛОСОВАН!" : ": снова обычный Игрок!")
@@ -239,6 +262,16 @@ export class AdminManager {
         if (player) {
             player.isRat = !player.isRat;
             playerRepository.updatePlayer(player);
+            let user = userRepository.getUser(player.nickname)
+            if (user) {
+                user.userType = player.isRat ? UserType.Rat : UserType.Player;
+                userRepository.updateUser(user);
+            }
+            let team = teamRepository.getTeam(player.teamName)
+            if (team) {
+                team.ratPlayer = player.nickname
+                teamRepository.updateTeam(team);
+            }
             await ctx.reply(
                 player.nickname + (player.isRat ? " - КРЫСА!" : " - Не крыса!")
             );

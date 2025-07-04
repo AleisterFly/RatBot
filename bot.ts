@@ -5,7 +5,7 @@ import {
     adminManager,
     viewerManager,
     dbManager,
-    seriesDB, voteManager, userRepository, playerManager, seriesRepository, viewerDB
+    seriesDB, voteManager, userRepository, playerManager, seriesRepository, viewerDB, teamDB
 } from "./di/ratProvider";
 import {List} from "immutable";
 
@@ -45,6 +45,7 @@ bot.launch();
 console.log("Bot is started!");
 seriesDB.createTables();
 viewerDB.createTables();
+teamDB.createTables()
 dbManager.createTables();
 userRepository.saveUnregUsers();
 seriesDB.initSeries();

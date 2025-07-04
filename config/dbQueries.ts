@@ -35,23 +35,23 @@ CREATE TABLE IF NOT EXISTS player_scores (
 --   game_result TEXT CHECK (game_result IN ('MAFIA_WIN', 'CITIZENS_WIN', 'DRAW'))
 -- );
 
-CREATE TABLE IF NOT EXISTS teams (
-  id TEXT PRIMARY KEY,
-  title TEXT,
-  emblem_url TEXT,
-  score INTEGER,
-  bonus_score INTEGER,
-  total_score INTEGER,
-  rat_player_id INTEGER REFERENCES players(id),
-  capitan_id INTEGER REFERENCES players(id)
-);
-
-CREATE TABLE IF NOT EXISTS team_players (
-  team_id TEXT REFERENCES teams(id),
-  player_id INTEGER REFERENCES players(id),
-  is_kicked BOOLEAN DEFAULT FALSE,
-  PRIMARY KEY (team_id, player_id)
-);
+-- CREATE TABLE IF NOT EXISTS teams (
+--   id TEXT PRIMARY KEY,
+--   title TEXT,
+--   emblem_url TEXT,
+--   score INTEGER,
+--   bonus_score INTEGER,
+--   total_score INTEGER,
+--   rat_player_id INTEGER REFERENCES players(id),
+--   capitan_id INTEGER REFERENCES players(id)
+-- );
+-- 
+-- CREATE TABLE IF NOT EXISTS team_players (
+--   team_id TEXT REFERENCES teams(id),
+--   player_id INTEGER REFERENCES players(id),
+--   is_kicked BOOLEAN DEFAULT FALSE,
+--   PRIMARY KEY (team_id, player_id)
+-- );
 
 -- CREATE TABLE IF NOT EXISTS series (
 --   id INTEGER PRIMARY KEY AUTOINCREMENT,

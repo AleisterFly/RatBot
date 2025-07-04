@@ -91,6 +91,10 @@ export class UserManager {
                     case 'unreg':
                         await userManager.onUnreg(ctx);
                         break;
+                    case 'add_team':
+                        await adminManager.addTeam(ctx);
+                        break;
+
                 }
             });
         }

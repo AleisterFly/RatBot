@@ -10,33 +10,20 @@ export class TeamDB {
         this.db = new Database(path.resolve(__dirname, filePath));
     }
 
-    private initDB() {
+    createTables() {
         this.db.exec(`
             CREATE TABLE IF NOT EXISTS teams
             (
-                id
-                INTEGER
-                PRIMARY
-                KEY,
-                title
-                TEXT
-                UNIQUE,
-                emblemUrl
-                TEXT,
-                players
-                TEXT,
-                kickedPlayers
-                TEXT,
-                score
-                INTEGER,
-                bonusScore
-                INTEGER,
-                totalScore
-                INTEGER,
-                ratPlayer
-                TEXT,
-                capitan
-                TEXT
+                id                INTEGER                PRIMARY                KEY,
+                title                TEXT                UNIQUE,
+                emblemUrl                TEXT,
+                players                TEXT,
+                kickedPlayers                TEXT,
+                score                INTEGER,
+                bonusScore                INTEGER,
+                totalScore                INTEGER,
+                ratPlayer                TEXT,
+                capitan                TEXT
             )
         `);
     }
@@ -170,18 +157,18 @@ export class TeamDB {
 
     updateTeam(team: Team): void {
         this.db.prepare(`
-        UPDATE teams 
-        SET title = ?, 
-            emblemUrl = ?, 
-            players = ?, 
-            kickedPlayers = ?, 
-            score = ?, 
-            bonusScore = ?, 
-            totalScore = ?, 
-            ratPlayer = ?, 
-            capitan = ? 
-        WHERE id = ?
-    `).run(
+            UPDATE teams
+            SET title         = ?,
+                emblemUrl     = ?,
+                players       = ?,
+                kickedPlayers = ?,
+                score         = ?,
+                bonusScore    = ?,
+                totalScore    = ?,
+                ratPlayer     = ?,
+                capitan       = ?
+            WHERE id = ?
+        `).run(
             team.title,
             team.emblemUrl,
             JSON.stringify(team.players.toArray()),

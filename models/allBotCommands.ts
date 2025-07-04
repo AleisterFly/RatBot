@@ -14,6 +14,7 @@ enum BotCommand {
     SELECT_PLAYER = 'select_player',
     UPDATE_CURRENT = 'update_current',
     GET_CURRENT = 'get_current',
+    ADD_TEAM= 'add_team',
 
     //TEST
     UNREG = 'unreg'
@@ -33,6 +34,7 @@ export const BotCommandAccess: Record<BotCommand, UserType[]> = {
     [BotCommand.SELECT_PLAYER]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.UPDATE_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.GET_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
+    [BotCommand.ADD_TEAM]: [UserType.Admin, UserType.SuperAdmin],
 
     [BotCommand.SHOW_PLAYERS_SUPER]: [UserType.SuperAdmin],
 
