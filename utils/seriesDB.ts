@@ -69,21 +69,15 @@ export class SeriesDB {
                 );
             CREATE TABLE IF NOT EXISTS viewers
             (
-                chat_id
-                INTEGER
-                PRIMARY
-                KEY,
                 nickname
                 TEXT
-                NOT
-                NULL,
-                telegram_name
+                PRIMARY
+                KEY,
+                seriaVoting
                 TEXT,
-                first_name
-                TEXT,
-                last_name
+                tourVoting
                 TEXT
-            );
+            )
         `);
     }
 

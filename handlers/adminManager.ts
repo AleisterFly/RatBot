@@ -9,12 +9,13 @@ import {deleteMessage} from "../utils/deleteMessage";
 import {Player} from "../models/player/player";
 import {chunk, formatInColumns} from "../utils/util";
 import {StageType} from "../models/player/stageType";
-import {Seria} from "../models/player/series";
 
 const NUMBER_OF_COLUMNS = 3;
 
 export class AdminManager {
     bot: Telegraf;
+
+    private messageIdsForDelete: number[] = [];
 
     constructor(bot: Telegraf) {
         this.bot = bot;
@@ -55,8 +56,10 @@ export class AdminManager {
     }
 
     async updateCurrentSeria(ctx: Context) {
-        const series = seriesRepository.getSeries().toArray(); // Immutable → Array
+        const series = seriesRepository.getSeries().toArray();
+        this.messageIdsForDelete = [];
 
+        // Отправляем новые инлайн-кнопки
         for (const stage of Object.values(StageType)) {
             const filtered = series.filter(s => s.stageType === stage);
             if (filtered.length === 0) continue;
@@ -65,19 +68,40 @@ export class AdminManager {
                 Markup.button.callback(s.date, `update_seria:${s.date}`)
             );
 
-            await ctx.reply(stage, Markup.inlineKeyboard(buttons, { columns: 5 }));
+            const message = await ctx.reply(
+                stage,
+                Markup.inlineKeyboard(buttons, { columns: 5 })
+            );
 
-            this.bot.action(/^update_seria:(.*)$/, async (ctx) => {
-                const chatId = ctx.chat?.id as number;
-                const messageId = ctx.callbackQuery?.message?.message_id as number;
-                await ctx.telegram.deleteMessage(chatId, messageId);
-                const seriaDate = ctx.match[1];
-
-                seriesRepository.setCurrentSeria(seriaDate);
-                await ctx.reply(`Текушая серия обновлена на : ${seriaDate}`);
-            });
+            // Добавляем ID сообщения в массив для удаления
+            this.messageIdsForDelete.push(message.message_id);
         }
+
+        // Обработчик нажатия на инлайн-кнопки
+        this.bot.action(/^update_seria:(.*)$/, async (ctx) => {
+            const chatId = ctx.chat?.id as number;
+
+            // Удаляем все сообщения, которые были отправлены в рамках текущего вызова команды
+            for (const msgId of this.messageIdsForDelete) {
+                try {
+                    // Удаляем сообщение
+                    await ctx.telegram.deleteMessage(chatId, msgId);
+                } catch (e) {
+                    // Если сообщение уже удалено, просто игнорируем ошибку
+                    console.log("Не удалось удалить сообщение с ID:", msgId);
+                }
+            }
+
+            // Получаем информацию о выбранной серии
+            const seriaDate = ctx.match[1];
+            seriesRepository.setCurrentSeria(seriaDate);
+
+            // Отправляем сообщение о том, что серия обновлена
+            await ctx.reply(`Текущая серия обновлена на: ${seriaDate}`);
+        });
     }
+
+
 
     async onSelectPlayer(ctx: Context) {
         const buttons = chunk(

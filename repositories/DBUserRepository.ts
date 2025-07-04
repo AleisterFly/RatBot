@@ -6,6 +6,10 @@ import {UserType} from "../models/userType";
 import {unregUsers} from "./unregUserMap";
 
 export class DBUserRepository implements IUserRepository {
+    createUser(user: User): User {
+        dbManager.addUser(user.nickname, user.telegramName, user.chatId, user.userType);
+        return user;
+    }
 
     deleteRegUser(nickname: string): void {
         dbManager.deleteUserByNickname(nickname);
@@ -33,6 +37,10 @@ export class DBUserRepository implements IUserRepository {
 
     getUser(nickname: string): User | undefined {
         return dbManager.getUserByNickname(nickname);
+    }
+
+    getUserByChatId(chatId: number): User | undefined {
+        return dbManager.getUserByChatId(chatId);
     }
 
     saveUnregUsers(): void {

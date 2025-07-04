@@ -1,9 +1,11 @@
 import { User } from "../models/user";
-import {UserType} from "../models/userType";
 import {List} from "immutable";
 import {unregUserMap} from "./unregUserMap";
+import {dbManager} from "../di/ratProvider";
 
 export interface IUserRepository {
+  createUser(user: User): User;
+
   getRegChatIds(): List<number>;
   getRegUser(chatId: number | undefined): User | undefined;
   getUser(nickname: string): User | undefined;
@@ -19,6 +21,11 @@ export class LocalUserRepository implements IUserRepository {
   readonly regUsers: Map<string, User> = new Map();
 
   constructor() {}
+
+  createUser(user: User): User {
+    dbManager.addUser(user.nickname, user.telegramName, user.chatId, user.userType);
+    return user;
+  }
 
   updateUser(user: User): void {
         throw new Error("Method not implemented.");

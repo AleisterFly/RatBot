@@ -119,7 +119,7 @@ export class DBManager {
         this.db.prepare(`
             INSERT INTO viewers (nickname, telegram_name, first_name, last_name, chat_id)
             VALUES (?, ?, ?, ?, ?)
-        `).run(viewer.nickname, viewer.telegramName, viewer.firstName, viewer.lastName, viewer.chatId);
+        `).run(viewer.nickname);
     }
 
 
@@ -266,36 +266,6 @@ export class DBManager {
                                 WHERE type = ?`).all(type);
     }
 
-    // Viewers
-    getViewerByChatId(chatId: number): Viewer | undefined {
-        const row = this.db.prepare(`SELECT * FROM viewers WHERE chat_id = ?`).get(chatId) as {
-            nickname: string;
-            telegram_name: string;
-            first_name: string;
-            last_name: string;
-            chat_id: number;
-        } | undefined;
-
-        if (!row) return undefined;
-
-        return new Viewer(row.nickname, row.chat_id, row.telegram_name, row.first_name, row.last_name);
-    }
-
-    getViewerByNickname(nickname: string): Viewer | undefined {
-        const row = this.db.prepare(`SELECT * FROM viewers WHERE nickname = ?`).get(nickname) as {
-            nickname: string;
-            telegram_name: string;
-            first_name: string;
-            last_name: string;
-            chat_id: number;
-        } | undefined;
-
-        if (!row) return undefined;
-
-        return new Viewer(row.nickname, row.chat_id, row.telegram_name, row.first_name, row.last_name);
-    }
-
-
     // Get All Users
     getAllUsers(userType: string = 'all'): List<User> {
         const rows = userType === 'all'
@@ -353,20 +323,6 @@ export class DBManager {
         }));
     }
 
-    getAllViewers(): List<Viewer> {
-        const rows = this.db.prepare(`SELECT * FROM viewers`).all() as {
-            nickname: string;
-            telegram_name: string;
-            first_name: string;
-            last_name: string;
-            chat_id: number;
-        }[];
-
-        return List(rows.map(row =>
-            new Viewer(row.nickname, row.chat_id, row.telegram_name, row.first_name, row.last_name)
-        ));
-    }
-
     // ======================================================================================================
     // ==== UPDATE A ROW IN THE TABLE ======================================================================
     // ======================================================================================================
@@ -400,16 +356,6 @@ export class DBManager {
             player.regNumber,
             player.nickname
         );
-    }
-
-    updateViewer(viewer: Viewer): void {
-        this.db.prepare(`UPDATE viewers
-                     SET telegram_name = ?,
-                         first_name = ?,
-                         last_name = ?,
-                         chat_id = ?
-                     WHERE nickname = ?`)
-            .run(viewer.telegramName, viewer.firstName, viewer.lastName, viewer.chatId, viewer.nickname);
     }
 
     // Games

@@ -12,4 +12,8 @@ export class User {
     this.chatId = chatId;
     this.userType = userType;
   }
+
+  static createUser(nickname: string, telegramName: string, chatId: number, userType: UserType): User {
+    return new User(nickname, telegramName, chatId, userType);
+  }
 }

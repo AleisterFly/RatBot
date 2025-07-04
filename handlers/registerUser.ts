@@ -31,6 +31,7 @@ export class UserManager {
     }
 
     async onRegister(ctx: Context) {
+        console.log("onRegister");
         let regUser = userRepository.getRegUser(ctx.chat?.id);
         if (regUser != undefined) {
             await ctx.reply(`${regUser.nickname}, вы уже были зарегистрированы!`);

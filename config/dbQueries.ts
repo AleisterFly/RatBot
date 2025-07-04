@@ -73,28 +73,4 @@ CREATE TABLE IF NOT EXISTS tour_series (
   tour_id INTEGER REFERENCES tours(id),
   series_id INTEGER REFERENCES series(id),
   PRIMARY KEY (tour_id, series_id)
-);
-
-CREATE TABLE IF NOT EXISTS viewers (
-   id INTEGER PRIMARY KEY AUTOINCREMENT,
-   nickname TEXT NOT NULL,
-   telegram_name TEXT,
-   first_name TEXT,
-   last_name TEXT,
-   chat_id INTEGER NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS viewer_seria_voting (
-  viewer_id INTEGER REFERENCES viewers(id),
-  seria_id INTEGER,
-  voted_player_nicknames TEXT,
-  PRIMARY KEY (viewer_id, seria_id)
-);
-
-CREATE TABLE IF NOT EXISTS viewer_tour_voting (
-  viewer_id INTEGER REFERENCES viewers(id),
-  tour_id INTEGER,
-  voted_player_nicknames TEXT,
-  PRIMARY KEY (viewer_id, tour_id)
-);
-    `;
+);`;
