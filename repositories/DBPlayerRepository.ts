@@ -6,7 +6,13 @@ import {UserType} from "../models/userType";
 
 export class DBPlayerRepository implements IPlayerRepository {
     createPlayer(nickname: string): Player {
-        let regNumber = dbManager.getAllPlayers().size + 1;
+        let regNumber = 0;
+        let existPlayer = dbManager.getPlayerByNickname(nickname);
+        if (existPlayer) {
+            regNumber = existPlayer.regNumber;
+        } else {
+            regNumber = dbManager.getAllPlayers().size + 1;
+        }
         let player = Player.createPlayer(nickname);
         player.regNumber = regNumber;
         console.log("DBPlayerRepository" + player);

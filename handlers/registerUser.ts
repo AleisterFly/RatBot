@@ -111,7 +111,9 @@ export class UserManager {
     async onUnreg(ctx: Context) {
         let user = userRepository.getRegUser(ctx.chat?.id);
         if (user) {
-            userRepository.deleteRegUser(user.nickname)
+            user.chatId = -1;
+            user.userType = UserType.UnregPlayer;
+            userRepository.updateUser(user)
         }
     }
 

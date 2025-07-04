@@ -52,7 +52,7 @@ export class DBManager {
     ): void {
         const penaltiesStr = JSON.stringify(penalties.toArray());
         this.db.prepare(`
-            INSERT INTO players (nickname, team_name, game_scores, rat_scores, penalties, is_rat, reg_number)
+            INSERT OR REPLACE INTO players (nickname, team_name, game_scores, rat_scores, penalties, is_rat, reg_number)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         `).run(nickname, teamName, gameScores, ratScores, penaltiesStr, isRat ? 1 : 0, regNumber);
     }
