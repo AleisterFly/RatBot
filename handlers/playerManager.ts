@@ -76,14 +76,25 @@ export class PlayerManager {
           parse_mode: "HTML",
         });
       }
-      // Дальнейшая логика
     }
 
     async cancelRegistrationToSeria(ctx: Context) {
         const message = "Твоя регистрация отменена.";
-      const chatId = ctx.chat?.id;
-      if (!chatId) return;
-      const currentUser = userRepository.getRegUser(chatId);
-      // Дальнейшая логика
+        const chatId = ctx.chat?.id;
+        if (!chatId) return;
+
+        const currentUser = userRepository.getRegUser(chatId);
+        const currentSeries = seriesRepository.getCurrentTourSeries();
+        if (currentSeries && currentUser) {
+            currentSeries.forEach((seria) => {
+                if (seria.regNicknames.includes(currentUser.nickname)) {
+                    seria.regNicknames = seria.regNicknames.filter(nick => nick !== currentUser.nickname);
+                    seriesRepository.updateSeria(seria);
+                }
+            });
+        }
+        await ctx.reply(message, {
+            parse_mode: "HTML",
+        });
     }
 }

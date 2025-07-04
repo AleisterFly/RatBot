@@ -1,13 +1,15 @@
-import { Context, Markup, Telegraf } from "telegraf";
-import { playerRepository, userRepository } from "../di/ratProvider";
-import { UserType } from "../models/userType";
-import { List } from "immutable";
-import { AdminCommand } from "../models/admin/adminCommand";
-import { ConfirmationType } from "../models/admin/confirmationType";
-import { User } from "../models/user";
-import { deleteMessage } from "../utils/deleteMessage";
-import { Player } from "../models/player/player";
+import {Context, Markup, Telegraf} from "telegraf";
+import {playerRepository, seriesRepository, userRepository} from "../di/ratProvider";
+import {UserType} from "../models/userType";
+import {List} from "immutable";
+import {AdminCommand} from "../models/admin/adminCommand";
+import {ConfirmationType} from "../models/admin/confirmationType";
+import {User} from "../models/user";
+import {deleteMessage} from "../utils/deleteMessage";
+import {Player} from "../models/player/player";
 import {chunk, formatInColumns} from "../utils/util";
+import {StageType} from "../models/player/stageType";
+import {Seria} from "../models/player/series";
 
 const NUMBER_OF_COLUMNS = 3;
 
@@ -49,6 +51,31 @@ export class AdminManager {
             if (user) {
                 await this.bot.telegram.sendMessage(user.chatId, message);
             }
+        }
+    }
+
+    async updateCurrentSeria(ctx: Context) {
+        const series = seriesRepository.getSeries().toArray(); // Immutable → Array
+
+        for (const stage of Object.values(StageType)) {
+            const filtered = series.filter(s => s.stageType === stage);
+            if (filtered.length === 0) continue;
+
+            const buttons = filtered.map(s =>
+                Markup.button.callback(s.date, `update_seria:${s.date}`)
+            );
+
+            await ctx.reply(stage, Markup.inlineKeyboard(buttons, { columns: 5 }));
+
+            this.bot.action(/^update_seria:(.*)$/, async (ctx) => {
+                const chatId = ctx.chat?.id as number;
+                const messageId = ctx.callbackQuery?.message?.message_id as number;
+                await ctx.telegram.deleteMessage(chatId, messageId);
+                const seriaDate = ctx.match[1];
+
+                seriesRepository.setCurrentSeria(seriaDate);
+                await ctx.reply(`Текушая серия обновлена на : ${seriaDate}`);
+            });
         }
     }
 

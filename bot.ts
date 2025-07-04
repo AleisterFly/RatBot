@@ -1,8 +1,4 @@
 import { Telegraf, Context } from "telegraf";
-import { TELEGRAM_BOT_TOKEN } from "./config/tokens";
-import { message } from "telegraf/filters";
-import { UserManager } from "./handlers/registerUser";
-import { LocalUserRepository } from "./repositories/userRepository";
 import {
   bot,
   userManager,
@@ -24,12 +20,17 @@ bot.command('guess_rat', (ctx) => voteManager.onRatVote(ctx));
 // bot.on(message("text"), botTextHandler);
 //PLAYER
 bot.command("reg_seria", playerManager.registerToSeria.bind(playerManager));
+bot.command("show_reg_seria", playerManager.getRegisterSeries.bind(playerManager));
+bot.command("cancel_reg_seria", playerManager.cancelRegistrationToSeria.bind(playerManager));
+
 
 
 
 //ADMIN
 bot.command("show_players", adminManager.onShowPlayers.bind(adminManager));
 bot.command("select_player", adminManager.onSelectPlayer.bind(adminManager));
+bot.command("update_current", adminManager.updateCurrentSeria.bind(adminManager));
+
 
 async function botTextHandler(ctx: Context) {
   ctx.reply("ПРИВЕТ!");
