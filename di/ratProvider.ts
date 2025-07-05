@@ -12,7 +12,7 @@ import {DBUserRepository} from "../repositories/DBUserRepository";
 import {DBPlayerRepository} from "../repositories/DBPlayerRepository";
 import {AdminManager} from "../handlers/adminManager";
 import {SeriesDB} from "../utils/seriesDB";
-import {VoteManager} from "../handlers/voteManager";
+import {VoteManager} from "../handlers/voting/voteManager";
 import {DBSeriesRepository} from "../repositories/series/DBSeriesRepository";
 import {ViewerDB} from "../utils/viewerDB";
 import {TeamDB} from "../utils/teamDB";

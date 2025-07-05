@@ -7,7 +7,7 @@ import {ConfirmationType} from "../models/admin/confirmationType";
 import {User} from "../models/user";
 import {deleteMessage} from "../utils/deleteMessage";
 import {Player} from "../models/player/player";
-import {chunk, formatInColumns} from "../utils/util";
+import {chunk, formatInColumns, isSpecialNickname} from "../utils/util";
 import {StageType} from "../models/player/stageType";
 
 const NUMBER_OF_COLUMNS = 3;
@@ -41,9 +41,75 @@ export class AdminManager {
             const teamName = ctx.message.text;
 
             teamRepository.createTeam(teamName);
+            ctx.reply(`Команда ${teamName} была добавлена`);
 
         });
     }
+
+    async addPlayerToTeam(ctx: Context) {
+        const teams = teamRepository.getTeams();
+
+        const buttons = teams
+            .map((team) =>
+                Markup.button.callback(team.title, `select_team:${team.title}`)
+            );
+
+        await ctx.reply("Выбери команду:", {
+            parse_mode: "HTML",
+            reply_markup: Markup.inlineKeyboard(buttons.toArray(), { columns: 2 }).reply_markup,
+        });
+
+        this.bot.action(/^select_team:(.*)$/, async (ctx) => {
+            const chatId = ctx.chat?.id as number;
+            const messageId = ctx.callbackQuery?.message?.message_id as number;
+            await ctx.telegram.deleteMessage(chatId, messageId);
+
+            const teamTitle = ctx.match[1];
+
+            await ctx.answerCbQuery(`Команда выбрана: ${teamTitle}`);
+
+            const currentPlayers = teamRepository.getActivePlayersNicknames(teamTitle)?.toArray() || [];
+
+            if (currentPlayers.length >= 5) {
+                await ctx.reply(`В команде "${teamTitle}" уже ${currentPlayers.length} игроков — больше добавлять нельзя.`);
+                await ctx.reply(`Игроки в команде: ${currentPlayers.join(", ")}`);
+                return;
+            }
+
+            const playerNicknames = playerRepository.getAllPlayersNicknames();
+
+            const availablePlayers = playerNicknames.filter(name => !currentPlayers.includes(name));
+
+            const playerButtons = availablePlayers
+                .sort((a, b) => a.localeCompare(b))
+                .map((name) =>
+                    Markup.button.callback(name, `select_player_for_team:${teamTitle}|${name}`)
+                );
+
+            await ctx.reply(`Выбери игрока для команды "${teamTitle}":`, {
+                parse_mode: "HTML",
+                reply_markup: Markup.inlineKeyboard(playerButtons.toArray(), { columns: 2 }).reply_markup,
+            });
+        });
+
+        this.bot.action(/^select_player_for_team:(.*)$/, async (ctx) => {
+            const chatId = ctx.chat?.id as number;
+            const messageId = ctx.callbackQuery?.message?.message_id as number;
+            await ctx.telegram.deleteMessage(chatId, messageId);
+
+            const data = ctx.match[1]; // "НазваниеКоманды|НикИгрока"
+            const [teamTitle, playerName] = data.split("|");
+
+            teamRepository.addActivePlayer(teamTitle, playerName);
+
+            await ctx.answerCbQuery(`Игрок ${playerName} выбран для команды ${teamTitle}`);
+            await ctx.reply(`Игрок ${playerName} добавлен в команду ${teamTitle}`);
+
+            const currentPlayers = teamRepository.getActivePlayersNicknames(teamTitle)?.toArray() || [];
+            await ctx.reply(`Игроки в команде: ${currentPlayers.join(", ")}`);
+        });
+    }
+
 
     async onShowPlayers(ctx: Context) {
         let playersNicknames = playerRepository.getAllPlayersNicknames();
@@ -278,5 +344,50 @@ export class AdminManager {
         } else {
             await ctx.reply("Игрок не найден");
         }
+    }
+
+    async onAddPlayerToSeria(ctx: Context) {
+        console.log("onAddPlayerToSeria");
+
+        // Берём уже зарегистрированных и сразу в Array
+        const currentReg = seriesRepository.getCurrentSeria()?.regNicknames?.toArray() || [];
+        console.log("Уже зарегистрированы:", currentReg);
+
+        if (currentReg.length >= 10) {
+            await ctx.reply("В серии уже 10 участников.");
+            await ctx.reply("В серии зарегистрированы: " + currentReg);
+            return;
+        }
+
+        const buttons = chunk(
+            playerRepository.getAllPlayersNicknames()
+                .filter((name) => !currentReg.includes(name)) // теперь includes для Array
+                .sort((a, b) => a.localeCompare(b))
+                .map((name) => Markup.button.callback(name, `add_player_to_seria:${name}`))
+                .toArray(),
+            NUMBER_OF_COLUMNS
+        );
+
+        await ctx.reply("Выбери игрока для добавления в серию:", {
+            parse_mode: "HTML",
+            reply_markup: Markup.inlineKeyboard(buttons).reply_markup,
+        });
+
+        this.bot.action(/^add_player_to_seria:(.*)$/, async (ctx) => {
+            const chatId = ctx.chat?.id as number;
+            const messageId = ctx.callbackQuery?.message?.message_id as number;
+            await ctx.telegram.deleteMessage(chatId, messageId);
+
+            const nickname = ctx.match[1];
+
+            seriesRepository.registerNickname(nickname);
+
+            await ctx.answerCbQuery(`Игрок ${nickname} выбран`);
+
+            const updatedReg = seriesRepository.getCurrentSeria()?.regNicknames?.toArray() || [];
+
+            await ctx.reply(`Игрок ${nickname} добавлен в текущую серию`);
+            await ctx.reply(`Игроки в текущей серии: ${updatedReg.join(", ")}`);
+        });
     }
 }

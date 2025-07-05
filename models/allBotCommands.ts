@@ -5,6 +5,7 @@ enum BotCommand {
     REGISTER = 'register',
     BETTING_REGISTRATION = 'betting_registration',
     GUESS_RAT = 'guess_rat',
+    GUESS_RAT_TOUR = 'guess_rat_tour',
     REG_SERIA = 'reg_seria',
     SHOW_REG_SERIA = 'show_reg_seria',
     CANCEL_REG_SERIA = 'cancel_reg_seria',
@@ -14,10 +15,13 @@ enum BotCommand {
     SELECT_PLAYER = 'select_player',
     UPDATE_CURRENT = 'update_current',
     GET_CURRENT = 'get_current',
-    ADD_TEAM= 'add_team',
+    ADD_TEAM = 'add_team',
+    ADD_PLAYER_TO_SERIA = 'add_player_to_seria',
 
     //TEST
-    UNREG = 'unreg'
+    UNREG = 'unreg',
+    ADD_PLAYER_TO_TEAM = 'add_player_to_team',
+    MAKE_ALL_PLAYER = 'make_all_player',
 }
 
 export const BotCommandAccess: Record<BotCommand, UserType[]> = {
@@ -26,6 +30,7 @@ export const BotCommandAccess: Record<BotCommand, UserType[]> = {
     [BotCommand.REGISTER]: [UserType.UnregPlayer, UserType.Viewer],
     [BotCommand.BETTING_REGISTRATION]: [UserType.Viewer],
     [BotCommand.GUESS_RAT]: [UserType.Viewer],
+    [BotCommand.GUESS_RAT_TOUR]: [UserType.Viewer],
     [BotCommand.REG_SERIA]: [UserType.Player, UserType.Rat],
     [BotCommand.SHOW_REG_SERIA]: [UserType.Player, UserType.Rat],
     [BotCommand.CANCEL_REG_SERIA]: [UserType.Player, UserType.Rat],
@@ -35,9 +40,12 @@ export const BotCommandAccess: Record<BotCommand, UserType[]> = {
     [BotCommand.UPDATE_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.GET_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.ADD_TEAM]: [UserType.Admin, UserType.SuperAdmin],
+    [BotCommand.ADD_PLAYER_TO_TEAM]: [UserType.Admin, UserType.SuperAdmin],
+    [BotCommand.ADD_PLAYER_TO_SERIA]: [UserType.Admin, UserType.SuperAdmin],
 
     [BotCommand.SHOW_PLAYERS_SUPER]: [UserType.SuperAdmin],
 
     //TEST
     [BotCommand.UNREG]: [UserType.All],
+    [BotCommand.MAKE_ALL_PLAYER]: [UserType.All],
 }

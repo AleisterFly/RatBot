@@ -16,7 +16,8 @@ bot.command("show_commands", userManager.onShowCommands.bind(userManager));
 bot.command("start", onStart);
 bot.command("register", userManager.onRegister.bind(userManager));
 bot.command('betting_registration', (ctx) => viewerManager.onRegister(ctx));
-bot.command('guess_rat', (ctx) => voteManager.onRatVote(ctx));
+bot.command('guess_rat', (ctx) => voteManager.guessRatVote(ctx));
+bot.command('guess_rat_tour', (ctx) => voteManager.guessRatTourVote(ctx));
 
 //PLAYER
 bot.command("reg_seria", playerManager.registerToSeria.bind(playerManager));
@@ -49,15 +50,6 @@ teamDB.createTables()
 dbManager.createTables();
 userRepository.saveUnregUsers();
 seriesDB.initSeries();
-
-const mockSeriaNicknames: List<string> = List([
-    "Абрам", "Космос", "Аврора", "Адлер", "Алиот",
-    "Комар", "Крис", "Кукла", "Тони", "f5"
-]);
-
-for (const nickname of mockSeriaNicknames) {
-    seriesRepository.registerNickname(nickname);
-}
 
 // TODO: Приветствие
 async function onStart(ctx: Context) {

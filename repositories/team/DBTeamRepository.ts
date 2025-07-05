@@ -30,6 +30,10 @@ export class DBTeamRepository implements ITeamRepository {
         return teamDB.getTeams();
     }
 
+    addActivePlayer(title: string, playerName: string): void {
+        teamDB.addActivePlayer(title, playerName);
+    }
+
     saveTeam(team: Team): void {
         teamDB.saveTeam(team);
     }

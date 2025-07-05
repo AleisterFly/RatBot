@@ -98,6 +98,16 @@ export class TeamDB {
         return team?.players;
     }
 
+    addActivePlayer(title: string, playerName: string): void {
+        const team = this.getTeam(title);
+        if (!team) {
+            throw new Error(`Команда с названием "${title}" не найдена`);
+        }
+
+        const updatedPlayers = team.players.push(playerName);
+        this.setTeamActivePlayers(title, updatedPlayers);
+    }
+
     setRatPlayer(title: string, nickname: string): void {
         this.db.prepare('UPDATE teams SET ratPlayer = ? WHERE title = ?').run(nickname, title);
     }

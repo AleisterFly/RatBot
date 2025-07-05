@@ -1,6 +1,6 @@
 import {Context, Markup, Telegraf} from "telegraf";
 import {
-    adminManager,
+    adminManager, dbManager,
     playerManager,
     playerRepository,
     userManager,
@@ -10,7 +10,7 @@ import {
 } from "../di/ratProvider";
 import {List} from "immutable";
 import {UserType} from "../models/userType";
-import {chunk} from "../utils/util";
+import {chunk, isSpecialNickname} from "../utils/util";
 import {BotCommandAccess} from "../models/allBotCommands";
 
 enum ConfirmationType {
@@ -84,18 +84,29 @@ export class UserManager {
                         await viewerManager.onRegister(ctx);
                         break;
                     case 'guess_rat':
-                        await voteManager.onRatVote(ctx);
+                        await voteManager.guessRatVote(ctx);
+                        break;
+                    case 'guess_rat_tour':
+                        await voteManager.guessRatTourVote(ctx);
                         break;
                     case 'show_players_super':
                         await adminManager.onSuperShowPlayers(ctx);
                         break;
-                    case 'unreg':
-                        await userManager.onUnreg(ctx);
-                        break;
                     case 'add_team':
                         await adminManager.addTeam(ctx);
                         break;
-
+                    case 'add_player_to_team':
+                        await adminManager.addPlayerToTeam(ctx);
+                        break;
+                    case 'add_player_to_seria':
+                        await adminManager.onAddPlayerToSeria(ctx);
+                        break;
+                    case 'unreg':
+                        await userManager.onUnreg(ctx);
+                        break;
+                    case 'make_all_player':
+                        await userManager.onMakeAllPlayer(ctx);
+                        break;
                 }
             });
         }
@@ -118,6 +129,23 @@ export class UserManager {
         }
     }
 
+    async onMakeAllPlayer(ctx: Context) {
+        let users = dbManager.getAllUsers();
+        for (const user of users) {
+            if (isSpecialNickname(user.nickname)) {
+                continue;
+            }
+
+            console.log(user.nickname);
+
+            user.chatId = Math.floor(10000000 + Math.random() * 90000000);
+            user.userType = UserType.Player;
+            userRepository.updateUser(user);
+            playerRepository.createPlayer(user.nickname);
+        }
+
+        await ctx.reply("Все юзеры, кроме специальных, теперь стали игроками!");
+    }
 
     async onRegister(ctx: Context) {
         console.log("onRegister");

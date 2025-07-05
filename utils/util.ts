@@ -22,3 +22,7 @@ export function chunk<T>(arr: T[], size: number): T[][] {
     }
     return result;
 }
+
+export function isSpecialNickname(nickname: string): boolean {
+    return nickname == "_СУПЕР АДМИН" || nickname == "_АДМИН" || nickname == "_КРЫСА" || nickname == "_ЗРИТЕЛЬ";
+}
