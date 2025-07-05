@@ -7,6 +7,7 @@ import {UserType} from "../models/userType";
 import {Player} from "../models/player/player";
 import {List} from "immutable";
 import {Viewer} from "../models/viewer";
+import {StageType} from "../models/player/stageType";
 
 export class DBManager {
     private db: DatabaseType;
@@ -48,13 +49,15 @@ export class DBManager {
         ratScores: number,
         penalties: List<number>,
         isRat: boolean,
-        regNumber: number
+        regNumber: number,
+        votings: object = {}
     ): void {
         const penaltiesStr = JSON.stringify(penalties.toArray());
+        const votingsStr = JSON.stringify(votings);
         this.db.prepare(`
-            INSERT OR REPLACE INTO players (nickname, team_name, game_scores, rat_scores, penalties, is_rat, reg_number)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `).run(nickname, teamName, gameScores, ratScores, penaltiesStr, isRat ? 1 : 0, regNumber);
+            INSERT OR REPLACE INTO players (nickname, team_name, game_scores, rat_scores, penalties, is_rat, reg_number, votings)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(nickname, teamName, gameScores, ratScores, penaltiesStr, isRat ? 1 : 0, regNumber, votingsStr);
     }
 
 
@@ -196,6 +199,7 @@ export class DBManager {
             penalties: string; // хранится как JSON
             is_rat: number;
             reg_number: number;
+            votings: string;
         };
 
         if (!row) return undefined;
@@ -207,7 +211,9 @@ export class DBManager {
             row.rat_scores,
             List<number>(JSON.parse(row.penalties)),
             !!row.is_rat,
-            row.reg_number
+            row.reg_number,
+            new Map(Object.entries(JSON.parse(row.votings)))
+            // new Map(Object.entries(JSON.parse(row.votings)))
         );
     }
 
@@ -302,9 +308,10 @@ export class DBManager {
             penalties: string;
             is_rat: boolean;
             reg_number: number;
+            votings: string;
         }[];
         return List(rows.map(row => {
-            return new Player(row.nickname, row.team_name, row.game_scores, row.rat_scores, List(JSON.parse(row.penalties)), row.is_rat, row.reg_number);
+            return new Player(row.nickname, row.team_name, row.game_scores, row.rat_scores, List(JSON.parse(row.penalties)), row.is_rat, row.reg_number, JSON.parse(row.votings));
         }));
     }
 
@@ -345,7 +352,8 @@ export class DBManager {
                  rat_scores  = ?,
                  penalties   = ?,
                  is_rat      = ?,
-                 reg_number  = ?
+                 reg_number  = ?,
+                 votings     = ?
              WHERE nickname = ?`
         ).run(
             player.teamName,
@@ -354,6 +362,9 @@ export class DBManager {
             JSON.stringify(player.penalties.toArray()),
             player.isRat ? 1 : 0,
             player.regNumber,
+            // JSON.stringify(JSON.stringify(Object.fromEntries(player.votings))),
+            // JSON.stringify(Array.from(player.votings.entries())),
+            JSON.stringify(Object.fromEntries(player.votings)),
             player.nickname
         );
     }
@@ -492,6 +503,25 @@ export class DBManager {
         this.db.prepare(`DELETE
                          FROM player_scores
                          WHERE id = ?`).run(id);
+    }
+
+    getVotingForPlayersByStageAndTeam(stageType: StageType, teamName: string): List<string> {
+        const players = this.db.prepare(`
+            SELECT p.nickname, p.votings
+            FROM players p
+            WHERE p.team_name = ?
+        `).all(teamName) as { nickname: string, votings: string }[];
+
+        const votedNicknames = new Set<string>();
+
+        players.forEach(player => {
+            const votings = JSON.parse(player.votings);
+            if (votings[stageType]) {
+                votedNicknames.add(player.nickname);
+            }
+        });
+
+        return List(Array.from(votedNicknames));
     }
 
     // Games

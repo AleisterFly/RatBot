@@ -107,6 +107,12 @@ export class UserManager {
                     case 'make_all_player':
                         await userManager.onMakeAllPlayer(ctx);
                         break;
+                    case 'player_voting':
+                        await playerManager.voting(ctx);
+                        break;
+                    case 'show_players_voting':
+                        await adminManager.showVoting(ctx);
+                        break;
                 }
             });
         }

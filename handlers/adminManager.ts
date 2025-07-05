@@ -56,7 +56,7 @@ export class AdminManager {
 
         await ctx.reply("Выбери команду:", {
             parse_mode: "HTML",
-            reply_markup: Markup.inlineKeyboard(buttons.toArray(), { columns: 2 }).reply_markup,
+            reply_markup: Markup.inlineKeyboard(buttons.toArray(), {columns: 2}).reply_markup,
         });
 
         this.bot.action(/^select_team:(.*)$/, async (ctx) => {
@@ -395,4 +395,45 @@ export class AdminManager {
             await ctx.reply(`Игроки в текущей серии: ${updatedReg.join(", ")}`);
         });
     }
+
+    async showVoting(ctx: Context) {
+        const votingTeams = teamRepository.getTeams();
+
+        const buttons = votingTeams
+            .map((team) =>
+                Markup.button.callback(team.title, `select_team_voting:${team.title}`)
+            );
+
+        await ctx.reply("Выбери команду:", {
+            parse_mode: "HTML",
+            reply_markup: Markup.inlineKeyboard(buttons.toArray(), {columns: 2}).reply_markup,
+        });
+
+        this.bot.action(/^select_team_voting:(.*)$/, async (ctx) => {
+            const chatId = ctx.chat?.id as number;
+            const messageId = ctx.callbackQuery?.message?.message_id as number;
+            await ctx.telegram.deleteMessage(chatId, messageId);
+
+            const teamTitle = ctx.match[1];
+
+            await ctx.answerCbQuery(`Команда выбрана: ${teamTitle}`);
+
+            const team = teamRepository.getTeam(teamTitle);
+            if (team) {
+
+                const teamPlayers = team.players;
+                const currentStage = seriesRepository.getCurrentSeria()?.stageType;
+
+                for (const playerNickname of teamPlayers) {
+                    const player = playerRepository.getByNickname(playerNickname);
+                    const voting = player?.votings
+                    if (voting && currentStage) {
+                        await ctx.reply(`${playerNickname} \nпроголосовал за: ---->>>>>   ${voting.get(currentStage)}`);
+                    }
+                }
+            }
+        });
+    }
+
+
 }

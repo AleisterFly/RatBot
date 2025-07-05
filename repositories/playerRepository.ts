@@ -1,6 +1,7 @@
 import { Player } from "../models/player/player";
 import {List} from "immutable";
 import {UserType} from "../models/userType";
+import {StageType} from "../models/player/stageType";
 
 export interface IPlayerRepository {
   createPlayer(nickname: string): Player;
@@ -14,12 +15,17 @@ export interface IPlayerRepository {
   updateRatScores(nickname: string, ratScores: number): void;
   updatePenalties(nickname: string, penalties: List<number>): void;
   updatePlayer(player: Player): void;
+  getVotingOfPlayers(stageType: StageType, teamName: string): List<string>;
 }
 
 export class LocalPlayerRepository implements IPlayerRepository {
   readonly players: Map<string, Player> = new Map();
 
   constructor() {}
+
+  getVotingOfPlayers(stageType: StageType, teamName: string): List<string> {
+        throw new Error("Method not implemented.");
+    }
 
   updatePlayer(player: Player) {
     return;

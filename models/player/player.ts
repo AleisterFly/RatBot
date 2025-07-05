@@ -1,4 +1,5 @@
 import {List} from "immutable";
+import {StageType} from "./stageType";
 
 export class Player {
     nickname: string;
@@ -8,8 +9,9 @@ export class Player {
     penalties: List<number>;
     isRat: boolean;
     regNumber: number;
+    votings: Map<StageType, string>
 
-    constructor(
+     constructor(
         nickname = "",
         teamName = "",
         gameScores = 0,
@@ -17,6 +19,7 @@ export class Player {
         penalties: List<number> = List<number>(),
         isRat = false,
         regNumber = -1,
+        votings = new Map()
     ) {
         this.nickname = nickname;
         this.teamName = teamName;
@@ -25,6 +28,7 @@ export class Player {
         this.penalties = penalties;
         this.isRat = isRat;
         this.regNumber = regNumber;
+        this.votings = votings;
     }
 
     static createPlayer(nickname: string): Player {

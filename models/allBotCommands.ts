@@ -17,6 +17,8 @@ enum BotCommand {
     GET_CURRENT = 'get_current',
     ADD_TEAM = 'add_team',
     ADD_PLAYER_TO_SERIA = 'add_player_to_seria',
+    PLAYER_VOTING = 'player_voting',
+    SHOW_VOTING = 'show_players_voting',
 
     //TEST
     UNREG = 'unreg',
@@ -34,14 +36,16 @@ export const BotCommandAccess: Record<BotCommand, UserType[]> = {
     [BotCommand.REG_SERIA]: [UserType.Player, UserType.Rat],
     [BotCommand.SHOW_REG_SERIA]: [UserType.Player, UserType.Rat],
     [BotCommand.CANCEL_REG_SERIA]: [UserType.Player, UserType.Rat],
+    [BotCommand.PLAYER_VOTING]: [UserType.Player, UserType.Rat],
 
+    [BotCommand.SHOW_VOTING]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.SHOW_PLAYERS]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.SELECT_PLAYER]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.UPDATE_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.GET_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.ADD_TEAM]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.ADD_PLAYER_TO_TEAM]: [UserType.Admin, UserType.SuperAdmin],
-    [BotCommand.ADD_PLAYER_TO_SERIA]: [UserType.Admin, UserType.SuperAdmin],
+    [BotCommand.ADD_PLAYER_TO_SERIA]: [UserType.Player, UserType.Rat],
 
     [BotCommand.SHOW_PLAYERS_SUPER]: [UserType.SuperAdmin],
 

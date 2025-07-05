@@ -3,6 +3,7 @@ import Immutable, {List} from "immutable";
 import {Player} from "../models/player/player";
 import {dbManager} from "../di/ratProvider";
 import {UserType} from "../models/userType";
+import {StageType} from "../models/player/stageType";
 
 export class DBPlayerRepository implements IPlayerRepository {
     createPlayer(nickname: string): Player {
@@ -53,27 +54,35 @@ export class DBPlayerRepository implements IPlayerRepository {
     }
 
     getRatNicknames(): List<string> {
-        return List<string>();
+        throw new Error("Method not implemented.");
     }
 
     isPlayerRat(nickname: string): boolean {
-        return false;
+        throw new Error("Method not implemented.");
     }
 
     updatePlayer(player: Player): void {
         dbManager.updatePlayer(player);
     }
 
+    getVotingOfPlayers(stageType: StageType, teamName: string): List<string> {
+        return dbManager.getVotingForPlayersByStageAndTeam(stageType, teamName)
+    }
+
     updateGameScores(nickname: string, gameScores: number): void {
+        throw new Error("Method not implemented.");
     }
 
     updatePenalties(nickname: string, penalties: Immutable.List<number>): void {
+        throw new Error("Method not implemented.");
     }
 
     updateRatScores(nickname: string, ratScores: number): void {
+        throw new Error("Method not implemented.");
     }
 
     updateTeamName(nickname: string, teamName: string): void {
+        throw new Error("Method not implemented.");
     }
 
 }

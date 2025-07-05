@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS players (
   rat_scores INTEGER DEFAULT 0,
   penalties TEXT,
   is_rat BOOLEAN DEFAULT FALSE,
-  reg_number INTEGER NOT NULL
+  reg_number INTEGER NOT NULL,
+  votings JSONB DEFAULT '{}'
 );
 
 CREATE TABLE IF NOT EXISTS player_scores (
