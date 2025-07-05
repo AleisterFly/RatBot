@@ -428,7 +428,7 @@ export class AdminManager {
                     const player = playerRepository.getByNickname(playerNickname);
                     const voting = player?.votings
                     if (voting && currentStage) {
-                        await ctx.reply(`${playerNickname} \nпроголосовал за: ---->>>>>   ${voting.get(currentStage)}`);
+                        await ctx.reply(`${playerNickname} \nпроголосовал за: ---->>>>>   ${voting.get(currentStage) ?? ''}`);
                     }
                 }
             }
