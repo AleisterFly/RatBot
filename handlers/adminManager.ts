@@ -1,5 +1,5 @@
 import {Context, Markup, Telegraf} from "telegraf";
-import {playerRepository, seriesRepository, teamRepository, userManager, userRepository} from "../di/ratProvider";
+import {playerRepository, seriesRepository, teamRepository, userRepository} from "../di/ratProvider";
 import {UserType} from "../models/userType";
 import {List} from "immutable";
 import {AdminCommand} from "../models/admin/adminCommand";
@@ -7,7 +7,7 @@ import {ConfirmationType} from "../models/admin/confirmationType";
 import {User} from "../models/user";
 import {deleteMessage} from "../utils/deleteMessage";
 import {Player} from "../models/player/player";
-import {chunk, formatInColumns, isSpecialNickname} from "../utils/util";
+import {chunk, formatInColumns} from "../utils/util";
 import {StageType} from "../models/player/stageType";
 
 const NUMBER_OF_COLUMNS = 3;
@@ -68,28 +68,32 @@ export class AdminManager {
 
             await ctx.answerCbQuery(`Команда выбрана: ${teamTitle}`);
 
-            const currentPlayers = teamRepository.getActivePlayersNicknames(teamTitle)?.toArray() || [];
+            const team = teamRepository.getTeam(teamTitle);
+            if (team) {
 
-            if (currentPlayers.length >= 5) {
-                await ctx.reply(`В команде "${teamTitle}" уже ${currentPlayers.length} игроков — больше добавлять нельзя.`);
-                await ctx.reply(`Игроки в команде: ${currentPlayers.join(", ")}`);
-                return;
+                const currentPlayers = team.players.concat(team.kickedPlayers);
+
+                if (currentPlayers.size >= 5) {
+                    await ctx.reply(`В команде "${teamTitle}" уже ${currentPlayers.size} игроков — больше добавлять нельзя.`);
+                    await ctx.reply(`Игроки в команде: ${currentPlayers.join(", ")}`);
+                    return;
+                }
+
+                const playerNicknames = playerRepository.getAllPlayersNicknames();
+
+                const availablePlayers = playerNicknames.filter(name => !currentPlayers.includes(name));
+
+                const playerButtons = availablePlayers
+                    .sort((a, b) => a.localeCompare(b))
+                    .map((name) =>
+                        Markup.button.callback(name, `select_player_for_team:${teamTitle}|${name}`)
+                    );
+
+                await ctx.reply(`Выбери игрока для команды "${teamTitle}":`, {
+                    parse_mode: "HTML",
+                    reply_markup: Markup.inlineKeyboard(playerButtons.toArray(), {columns: 2}).reply_markup,
+                });
             }
-
-            const playerNicknames = playerRepository.getAllPlayersNicknames();
-
-            const availablePlayers = playerNicknames.filter(name => !currentPlayers.includes(name));
-
-            const playerButtons = availablePlayers
-                .sort((a, b) => a.localeCompare(b))
-                .map((name) =>
-                    Markup.button.callback(name, `select_player_for_team:${teamTitle}|${name}`)
-                );
-
-            await ctx.reply(`Выбери игрока для команды "${teamTitle}":`, {
-                parse_mode: "HTML",
-                reply_markup: Markup.inlineKeyboard(playerButtons.toArray(), { columns: 2 }).reply_markup,
-            });
         });
 
         this.bot.action(/^select_player_for_team:(.*)$/, async (ctx) => {
