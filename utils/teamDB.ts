@@ -85,7 +85,7 @@ export class TeamDB {
 
     getTeamByNickname(nickname: string): Team | undefined {
         const teams = this.getTeams();
-        return teams.find(team => team.players.includes(nickname));
+        return teams.find(team => team.players.includes(nickname)  || team.kickedPlayers.includes(nickname));
     }
 
     getKickedNicknames(title: string): List<string> | undefined {

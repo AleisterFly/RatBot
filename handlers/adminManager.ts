@@ -304,14 +304,14 @@ export class AdminManager {
             user.userType = isVoted ? UserType.VotedOut : UserType.Player;
             userRepository.updateUser(user);
 
-            let team = teamRepository.getTeam(user.nickname)
+            let team = teamRepository.getTeamByNickname(user.nickname)
             if (team) {
                 if (isVoted) {
-                    team.kickedPlayers.push(user.nickname)
                     team.players = team.players.filter(p => p !== user.nickname)
+                    team.kickedPlayers = team.kickedPlayers.push(user.nickname)
                 } else {
                     team.kickedPlayers = team.kickedPlayers.filter(p => p !== user.nickname)
-                    team.players.push(user.nickname)
+                    team.players = team.players.push(user.nickname)
                 }
                 teamRepository.updateTeam(team);
             }
@@ -333,9 +333,10 @@ export class AdminManager {
                 user.userType = player.isRat ? UserType.Rat : UserType.Player;
                 userRepository.updateUser(user);
             }
-            let team = teamRepository.getTeam(player.teamName)
+
+            let team = teamRepository.getTeamByNickname(player.nickname)
             if (team) {
-                team.ratPlayer = player.nickname
+                team.ratPlayer = player.isRat ? player.nickname : "";
                 teamRepository.updateTeam(team);
             }
             await ctx.reply(
