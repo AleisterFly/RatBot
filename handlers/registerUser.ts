@@ -21,7 +21,7 @@ enum ConfirmationType {
 }
 
 const NUMBER_OF_COLUMNS = 5;
-const NUMBER_OF_COLUMNS_COMMAND = 3;
+const NUMBER_OF_COLUMNS_COMMAND = 1;
 
 const selectConfirmation: string[] = [
     ConfirmationType.YES,
@@ -61,46 +61,46 @@ export class UserManager {
 
                 const command = ctx.match[1];
                 switch (command) {
-                    case 'show_players':
+                    case 'ПОКАЗАТЬ ИГРОКОВ':
                         await adminManager.onShowPlayers(ctx);
                         break;
-                    case 'select_player':
+                    case 'КРЫСА / УДАЛИТЬ':
                         await adminManager.onSelectPlayer(ctx);
                         break;
-                    case 'update_current':
+                    case 'ЗАДАТЬ ТЕКУЩУЮ СЕРИЮ':
                         await adminManager.updateCurrentSeria(ctx);
                         break;
-                    case 'get_current':
+                    case 'ПОКАЗАТЬ ТЕКУЩУЮ СЕРИЮ':
                         await adminManager.sendCurrentSeria(ctx);
                         break;
-                    case 'reg_seria':
+                    case 'ЗАПИСАТЬСЯ НА СЕРИЮ':
                         await playerManager.registerToSeria(ctx);
                         break;
-                    case 'show_reg_seria':
+                    case 'ПОКАЗАТЬ РЕГ СЕРИЮ':
                         await playerManager.getRegisterSeries(ctx);
                         break;
-                    case 'cancel_reg_seria':
+                    case 'ОТМЕНИТЬ РЕГ СЕРИЮ':
                         await playerManager.cancelRegistrationToSeria(ctx);
                         break;
-                    case 'betting_registration':
+                    case 'РЕГИСТРАЦИЯ В КОНКУРСЕ':
                         await viewerManager.onRegister(ctx);
                         break;
-                    case 'guess_rat':
+                    case 'УГАДАТЬ КРЫС В СЕРИИ':
                         await voteManager.guessRatVote(ctx);
                         break;
-                    case 'guess_rat_tour':
+                    case 'УГАДАТЬ КРЫС В ТУРЕ':
                         await voteManager.guessRatTourVote(ctx);
                         break;
-                    case 'show_players_super':
+                    case '(супер) ПОКАЗАТЬ ИГРОКОВ':
                         await adminManager.onSuperShowPlayers(ctx);
                         break;
-                    case 'add_team':
+                    case 'ДОБАВИТЬ КОМАНДУ':
                         await adminManager.addTeam(ctx);
                         break;
-                    case 'add_player_to_team':
+                    case 'ИГРОК В КОМАНДУ':
                         await adminManager.addPlayerToTeam(ctx);
                         break;
-                    case 'add_player_to_seria':
+                    case 'ИГРОК В СЕРИЮ':
                         await adminManager.onAddPlayerToSeria(ctx);
                         break;
                     case 'unreg':
@@ -109,22 +109,22 @@ export class UserManager {
                     case 'make_all_player':
                         await userManager.onMakeAllPlayer(ctx);
                         break;
-                    case 'player_voting':
+                    case 'ГОЛОСОВАНИЕ':
                         await playerManager.voting(ctx);
                         break;
-                    case 'show_players_voting':
+                    case 'ПОКАЗАТь ГОЛОСОВАНИЕ':
                         await adminManager.showVoting(ctx);
                         break;
-                    case 'RAT_SELECT_GAMES':
+                    case 'ВЫБРАТЬ КРЫСОИГРЫ':
                         await playerManager.ratSelectGames(ctx);
                         break;
-                    case 'RAT_DONE_TASK':
+                    case 'ЗАДАНИЕ ВЫПОЛНЕНО!':
                         await playerManager.ratDoneTask(ctx);
                         break;
-                    case 'SHOW_RATS_DONE_TASK':
+                    case 'ВЫПОЛНЕННЫЕ КРЫСОЗАДАНИЯ':
                         await adminManager.showRatDoneTasks(ctx);
                         break;
-                    case 'SHOW_RATS_SELECT_GAMES':
+                    case 'КРЫСО-ИГРЫ':
                         await adminManager.showRatSelectGames(ctx);
                         break;
                 }
@@ -169,6 +169,13 @@ export class UserManager {
 
     async onRegister(ctx: Context) {
         console.log("onRegister");
+
+        let players = playerRepository.getAllPlayersNicknames();
+        if (players.size >= 50){
+            await viewerManager.onRegister(ctx);
+            return;
+        }
+
         let regUser = userRepository.getRegUser(ctx.chat?.id);
         if (regUser != undefined) {
             await ctx.reply(`${regUser.nickname}, вы уже были зарегистрированы!`);
