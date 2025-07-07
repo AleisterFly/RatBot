@@ -54,7 +54,7 @@ export const BotCommandAccess: Record<BotCommand, UserType[]> = {
     [BotCommand.GET_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.ADD_TEAM]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.ADD_PLAYER_TO_TEAM]: [UserType.Admin, UserType.SuperAdmin],
-    [BotCommand.ADD_PLAYER_TO_SERIA]: [UserType.Player, UserType.Rat],
+    [BotCommand.ADD_PLAYER_TO_SERIA]: [UserType.Admin, UserType.SuperAdmin],
 
     [BotCommand.SHOW_PLAYERS_SUPER]: [UserType.SuperAdmin],
     [BotCommand.SHOW_RATS_DONE_TASK]: [UserType.SuperAdmin],
