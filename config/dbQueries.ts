@@ -1,3 +1,6 @@
+import {StageType} from "../models/player/stageType";
+import {List} from "immutable";
+
 export const CREATE_TABLES_QUERY = `
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -16,7 +19,9 @@ CREATE TABLE IF NOT EXISTS players (
   penalties TEXT,
   is_rat BOOLEAN DEFAULT FALSE,
   reg_number INTEGER NOT NULL,
-  votings JSONB DEFAULT '{}'
+  votings JSONB DEFAULT '{}',
+  ratGames JSONB DEFAULT '{}',
+  doneTasks JSONB DEFAULT '{}'
 );
 
 CREATE TABLE IF NOT EXISTS player_scores (

@@ -1,4 +1,5 @@
 import {UserType} from "./userType";
+import {adminManager} from "../di/ratProvider";
 
 enum BotCommand {
     START = 'start',
@@ -19,6 +20,10 @@ enum BotCommand {
     ADD_PLAYER_TO_SERIA = 'add_player_to_seria',
     PLAYER_VOTING = 'player_voting',
     SHOW_VOTING = 'show_players_voting',
+    RAT_SELECT_GAMES = 'RAT_SELECT_GAMES',
+    RAT_DONE_TASK = 'RAT_DONE_TASK',
+    SHOW_RATS_DONE_TASK = 'SHOW_RATS_DONE_TASK',
+    SHOW_RATS_SELECT_GAMES = 'SHOW_RATS_SELECT_GAMES',
 
     //TEST
     UNREG = 'unreg',
@@ -38,6 +43,9 @@ export const BotCommandAccess: Record<BotCommand, UserType[]> = {
     [BotCommand.CANCEL_REG_SERIA]: [UserType.Player, UserType.Rat],
     [BotCommand.PLAYER_VOTING]: [UserType.Player, UserType.Rat],
 
+    [BotCommand.RAT_SELECT_GAMES]: [UserType.Rat],
+    [BotCommand.RAT_DONE_TASK]: [UserType.Rat],
+
     [BotCommand.SHOW_VOTING]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.SHOW_PLAYERS]: [UserType.Admin, UserType.SuperAdmin],
     [BotCommand.SELECT_PLAYER]: [UserType.Admin, UserType.SuperAdmin],
@@ -48,6 +56,8 @@ export const BotCommandAccess: Record<BotCommand, UserType[]> = {
     [BotCommand.ADD_PLAYER_TO_SERIA]: [UserType.Player, UserType.Rat],
 
     [BotCommand.SHOW_PLAYERS_SUPER]: [UserType.SuperAdmin],
+    [BotCommand.SHOW_RATS_DONE_TASK]: [UserType.SuperAdmin],
+    [BotCommand.SHOW_RATS_SELECT_GAMES]: [UserType.SuperAdmin],
 
     //TEST
     [BotCommand.UNREG]: [UserType.All],

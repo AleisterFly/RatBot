@@ -1,7 +1,7 @@
 import {Context, Markup, Telegraf} from "telegraf";
 import {IPlayerRepository} from "../repositories/playerRepository";
 import {playerRepository, seriesRepository, teamRepository, userRepository} from "../di/ratProvider";
-import {chunk, formatInColumns} from "../utils/util";
+import {chunk, formatInColumns, numberRatGames} from "../utils/util";
 import {List} from "immutable";
 import {StageType} from "../models/player/stageType";
 
@@ -141,4 +141,93 @@ export class PlayerManager {
             }
         }
     }
+
+    async ratSelectGames(ctx: Context) {
+        const chatId = ctx.chat?.id;
+        if (!chatId) return;
+
+        const currentUser = userRepository.getRegUser(chatId);
+        if (currentUser) {
+            const player = playerRepository.getByNickname(currentUser.nickname);
+            const currentStage = seriesRepository.getCurrentSeria()?.stageType;
+
+            if (currentStage && player) {
+                if (player.ratGames.has(currentStage)) {
+                    await ctx.reply('Вы уже выбрали игры на данном этапе!');
+                    return;
+                }
+
+                const buttons = List.of(1, 2, 3, 4, 5, 6)
+                    .map(number => Markup.button.callback(
+                        number.toString(),
+                        `set_rat_games:${number}`
+                    ));
+
+                let numberGames = numberRatGames(currentStage);
+
+                await ctx.reply(`Выберите ${numberGames} крысоигры: \n\n`, {
+                    parse_mode: 'HTML',
+                    reply_markup: Markup.inlineKeyboard(buttons.toArray(), {columns: 1}).reply_markup,
+                });
+
+                //нужно выбор нескольких (numberGames) и подтвердить
+
+
+                this.bot.action(/^set_rat_games:(.*)$/, async (ctx) => {
+                        const chatId = ctx.chat?.id as number;
+                        const messageId = ctx.callbackQuery?.message?.message_id as number;
+                        await ctx.telegram.deleteMessage(chatId, messageId);
+                        const gameInt = ctx.match[1];
+
+                        player.ratGames = player.ratGames.set(currentStage, List([parseInt(gameInt, 10)]));
+                        playerRepository.updatePlayer(player);
+                    }
+                )
+            }
+        }
+    }
+
+
+    async ratDoneTask(ctx: Context) {
+        const chatId = ctx.chat?.id;
+        if (!chatId) return;
+
+        const currentUser = userRepository.getRegUser(chatId);
+        if (currentUser) {
+            const player = playerRepository.getByNickname(currentUser.nickname);
+            const currentStage = seriesRepository.getCurrentSeria()?.stageType;
+
+            if (currentStage && player) {
+                if (player.doneTasks.has(currentStage)) {
+                    await ctx.reply('Вы уже отметили в какой игре выполнили задание!');
+                    return;
+                }
+
+                const buttons = List.of(1, 2, 3, 4, 5, 6)
+                    .map(number => Markup.button.callback(
+                        number.toString(),
+                        `set_done_task:${number}`
+                    ));
+
+                let numberGames = numberRatGames(currentStage);
+
+                await ctx.reply(`Отметьте в какой игре по счету вы выполнили задание: \n\n`, {
+                    parse_mode: 'HTML',
+                    reply_markup: Markup.inlineKeyboard(buttons.toArray(), {columns: 1}).reply_markup,
+                });
+
+                this.bot.action(/^set_done_task:(.*)$/, async (ctx) => {
+                        const chatId = ctx.chat?.id as number;
+                        const messageId = ctx.callbackQuery?.message?.message_id as number;
+                        await ctx.telegram.deleteMessage(chatId, messageId);
+                        const gameInt = ctx.match[1];
+
+                        player.doneTasks = player.doneTasks.set(currentStage, parseInt(gameInt, 10));
+                        playerRepository.updatePlayer(player);
+                    }
+                )
+            }
+        }
+    }
+
 }

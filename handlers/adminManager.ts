@@ -435,5 +435,43 @@ export class AdminManager {
         });
     }
 
+    async showRatSelectGames(ctx: Context) {
+        const ratNicknames = playerRepository.getAllPlayersNicknames(UserType.Rat);
 
+        const players = ratNicknames
+            .map(nickname => playerRepository.getByNickname(nickname))
+            .filter((p): p is Player => p !== undefined);
+
+        const messageText = "Крысы выбрали игры \n\n" + players.map(player => {
+            const ratGameLines: string[] = [];
+
+            player.ratGames.forEach((list, stageType) => {
+                ratGameLines.push(`${stageType}: [${list.join(', ')}]`);
+            });
+
+            return `${player.nickname}\n${ratGameLines.join('\n')}`;
+        }).join('\n\n');
+
+        await ctx.reply(messageText || 'Нет крыс и их игр 🐀');
+    }
+
+    async showRatDoneTasks(ctx: Context) {
+        const ratNicks = playerRepository.getAllPlayersNicknames(UserType.Rat);
+
+        const players = ratNicks
+            .map(nickname => playerRepository.getByNickname(nickname))
+            .filter((p): p is Player => p !== undefined);
+
+        const messageText = "выполненные задания в играх \n\n" + players.map(player => {
+            const doneTaskLines: string[] = [];
+
+            player.doneTasks.forEach((value, stageType) => {
+                doneTaskLines.push(`${stageType}: ${value}`);
+            });
+
+            return `${player.nickname}\n${doneTaskLines.join('\n')}`;
+        }).join('\n\n');
+
+        await ctx.reply(messageText || 'Нет данных о выполненных заданиях ✅');
+    }
 }

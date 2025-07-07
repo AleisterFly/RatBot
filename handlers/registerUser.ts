@@ -1,6 +1,7 @@
 import {Context, Markup, Telegraf} from "telegraf";
 import {
-    adminManager, dbManager,
+    adminManager,
+    dbManager,
     playerManager,
     playerRepository,
     userManager,
@@ -12,6 +13,7 @@ import {List} from "immutable";
 import {UserType} from "../models/userType";
 import {chunk, isSpecialNickname} from "../utils/util";
 import {BotCommandAccess} from "../models/allBotCommands";
+import {StageType} from "../models/player/stageType";
 
 enum ConfirmationType {
     YES = "Да",
@@ -112,6 +114,18 @@ export class UserManager {
                         break;
                     case 'show_players_voting':
                         await adminManager.showVoting(ctx);
+                        break;
+                    case 'RAT_SELECT_GAMES':
+                        await playerManager.ratSelectGames(ctx);
+                        break;
+                    case 'RAT_DONE_TASK':
+                        await playerManager.ratDoneTask(ctx);
+                        break;
+                    case 'SHOW_RATS_DONE_TASK':
+                        await adminManager.showRatDoneTasks(ctx);
+                        break;
+                    case 'SHOW_RATS_SELECT_GAMES':
+                        await adminManager.showRatSelectGames(ctx);
                         break;
                 }
             });

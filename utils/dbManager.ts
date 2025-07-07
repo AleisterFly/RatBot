@@ -50,14 +50,19 @@ export class DBManager {
         penalties: List<number>,
         isRat: boolean,
         regNumber: number,
-        votings: object = {}
+        votings: object = {},
+        ratGames: object = {},
+        doneTasks: object = {},
     ): void {
         const penaltiesStr = JSON.stringify(penalties.toArray());
         const votingsStr = JSON.stringify(votings);
+        const ratGamesStr = JSON.stringify(ratGames);
+        const doneTasksStr = JSON.stringify(doneTasks);
         this.db.prepare(`
-            INSERT OR REPLACE INTO players (nickname, team_name, game_scores, rat_scores, penalties, is_rat, reg_number, votings)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(nickname, teamName, gameScores, ratScores, penaltiesStr, isRat ? 1 : 0, regNumber, votingsStr);
+            INSERT
+            OR REPLACE INTO players (nickname, team_name, game_scores, rat_scores, penalties, is_rat, reg_number, votings, ratGames, doneTasks)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(nickname, teamName, gameScores, ratScores, penaltiesStr, isRat ? 1 : 0, regNumber, votingsStr, ratGamesStr, doneTasksStr);
     }
 
 
@@ -200,6 +205,8 @@ export class DBManager {
             is_rat: number;
             reg_number: number;
             votings: string;
+            ratGames: string;
+            doneTasks: string;
         };
 
         if (!row) return undefined;
@@ -212,7 +219,9 @@ export class DBManager {
             List<number>(JSON.parse(row.penalties)),
             !!row.is_rat,
             row.reg_number,
-            new Map(Object.entries(JSON.parse(row.votings)))
+            new Map(Object.entries(JSON.parse(row.votings))),
+            new Map(Object.entries(JSON.parse(row.ratGames))),
+            new Map(Object.entries(JSON.parse(row.doneTasks))),
             // new Map(Object.entries(JSON.parse(row.votings)))
         );
     }
@@ -309,9 +318,12 @@ export class DBManager {
             is_rat: boolean;
             reg_number: number;
             votings: string;
+            ratGames: string;
+            doneTasks: string;
         }[];
         return List(rows.map(row => {
-            return new Player(row.nickname, row.team_name, row.game_scores, row.rat_scores, List(JSON.parse(row.penalties)), row.is_rat, row.reg_number, JSON.parse(row.votings));
+            return new Player(row.nickname, row.team_name, row.game_scores, row.rat_scores, List(JSON.parse(row.penalties)), row.is_rat, row.reg_number,
+                JSON.parse(row.votings), JSON.parse(row.ratGames), JSON.parse(row.doneTasks));
         }));
     }
 
@@ -353,8 +365,10 @@ export class DBManager {
                  penalties   = ?,
                  is_rat      = ?,
                  reg_number  = ?,
-                 votings     = ?
-             WHERE nickname = ?`
+                 votings     = ?,
+                 ratGames    = ?,
+                 doneTasks   = ?
+                 WHERE nickname = ?`
         ).run(
             player.teamName,
             player.gameScores,
@@ -362,9 +376,9 @@ export class DBManager {
             JSON.stringify(player.penalties.toArray()),
             player.isRat ? 1 : 0,
             player.regNumber,
-            // JSON.stringify(JSON.stringify(Object.fromEntries(player.votings))),
-            // JSON.stringify(Array.from(player.votings.entries())),
             JSON.stringify(Object.fromEntries(player.votings)),
+            JSON.stringify(Object.fromEntries(player.ratGames)),
+            JSON.stringify(Object.fromEntries(player.doneTasks)),
             player.nickname
         );
     }
@@ -576,10 +590,14 @@ export class DBManager {
 
     // Viewers
     deleteViewerByNickname(nickname: string): void {
-        this.db.prepare(`DELETE FROM viewers WHERE nickname = ?`).run(nickname);
+        this.db.prepare(`DELETE
+                         FROM viewers
+                         WHERE nickname = ?`).run(nickname);
     }
 
     deleteViewerByChatId(chatId: number): void {
-        this.db.prepare(`DELETE FROM viewers WHERE chat_id = ?`).run(chatId);
+        this.db.prepare(`DELETE
+                         FROM viewers
+                         WHERE chat_id = ?`).run(chatId);
     }
 }

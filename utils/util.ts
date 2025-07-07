@@ -1,4 +1,5 @@
 import {List} from "immutable";
+import {StageType} from "../models/player/stageType";
 
 export function formatInColumns(items: List<string>, columns: number): string {
     const rows = Math.ceil(items.size / columns);
@@ -25,4 +26,17 @@ export function chunk<T>(arr: T[], size: number): T[][] {
 
 export function isSpecialNickname(nickname: string): boolean {
     return nickname == "_СУПЕР АДМИН" || nickname == "_АДМИН" || nickname == "_КРЫСА" || nickname == "_ЗРИТЕЛЬ";
+}
+
+export function numberRatGames(stage: StageType): number {
+    switch (stage) {
+        case StageType.FIRST_TOUR:
+            return 4;
+        case StageType.SECOND_TOUR:
+            return 3;
+        case StageType.FINAL:
+            return 2;
+        default:
+            return 0;
+    }
 }
