@@ -21,6 +21,7 @@ export class DBPlayerRepository implements IPlayerRepository {
         return player;
     }
 
+    // Get all types of users!!!
     getAllPlayersNicknames(userType: UserType = UserType.All): List<string> {
         let nicknames: List<string>;
 
@@ -35,6 +36,10 @@ export class DBPlayerRepository implements IPlayerRepository {
 
             case UserType.UnregPlayer:
                 nicknames = dbManager.getAllNicknames(UserType.UnregPlayer);
+                break;
+
+            case UserType.VotedOut:
+                nicknames = dbManager.getAllNicknames(UserType.VotedOut);
                 break;
 
             case UserType.All:

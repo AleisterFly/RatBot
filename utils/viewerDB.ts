@@ -1,7 +1,8 @@
-import {List, Map} from "immutable";
-import Database, {type Database as DatabaseType} from 'better-sqlite3';
-import {Viewer} from "../models/viewer";
+import { List, Map } from "immutable";
+import Database, { type Database as DatabaseType } from 'better-sqlite3';
+import { Viewer } from "../models/viewer";
 import path from "path";
+import { StageType } from "../models/player/stageType";
 
 export class ViewerDB {
     private db: DatabaseType;
@@ -14,38 +15,67 @@ export class ViewerDB {
         this.db.exec(`
             CREATE TABLE IF NOT EXISTS viewers
             (
-                nickname
-                TEXT
-                PRIMARY
-                KEY,
-                seriaVoting
-                TEXT,
-                tourVoting
-                TEXT
+                nickname TEXT PRIMARY KEY,
+                seriaVoting TEXT,
+                seriaScores TEXT,
+                tourVoting TEXT,
+                tourScores TEXT,
+                totalScores INTEGER
             )
         `);
     }
 
     public addViewer(nickname: string): void {
-        const stmt = this.db.prepare('INSERT INTO viewers (nickname, seriaVoting, tourVoting) VALUES (?, ?, ?)');
-        stmt.run(nickname, JSON.stringify({}), JSON.stringify({}));
+        const stmt = this.db.prepare(`
+            INSERT INTO viewers 
+            (nickname, seriaVoting, seriaScores, tourVoting, tourScores, totalScores) 
+            VALUES (?, ?, ?, ?, ?, ?)
+        `);
+        stmt.run(
+            nickname,
+            JSON.stringify({}),
+            JSON.stringify({}),
+            JSON.stringify({}),
+            JSON.stringify({}),
+            0
+        );
     }
 
-    public updateViewerVoting(nickname: string, seriaVoting: Map<string, List<string>>, tourVoting: Map<string, List<string>>): void {
-        const stmt = this.db.prepare('UPDATE viewers SET seriaVoting = ?, tourVoting = ? WHERE nickname = ?');
-        stmt.run(JSON.stringify(seriaVoting.toJS()), JSON.stringify(tourVoting.toJS()), nickname);
+    public updateViewerVoting(
+        nickname: string,
+        seriaVoting: Map<string, List<string>>,
+        seriaScores: Map<string, number>,
+        tourVoting: Map<StageType, List<string>>,
+        tourScores: Map<StageType, number>,
+        totalScores: number
+    ): void {
+        const stmt = this.db.prepare(`
+            UPDATE viewers 
+            SET seriaVoting = ?, seriaScores = ?, tourVoting = ?, tourScores = ?, totalScores = ?
+            WHERE nickname = ?
+        `);
+        stmt.run(
+            JSON.stringify(seriaVoting.toJS()),
+            JSON.stringify(seriaScores.toJS()),
+            JSON.stringify(tourVoting.toJS()),
+            JSON.stringify(tourScores.toJS()),
+            totalScores,
+            nickname
+        );
     }
 
-    public getViewer(nickname: string): Viewer
-        | undefined {
+    public getViewer(nickname: string): Viewer | undefined {
         const stmt = this.db.prepare('SELECT * FROM viewers WHERE nickname = ?');
         const result = stmt.get(nickname) as {
             nickname: string,
             seriaVoting: string,
+            seriaScores: string,
             tourVoting: string,
+            tourScores: string,
+            totalScores: number
         } | undefined;
-        if (result) {
 
+        if (result) {
             return this.parseViewer(result);
         }
     }
@@ -54,7 +84,10 @@ export class ViewerDB {
         const rows = this.db.prepare('SELECT * FROM viewers').all() as {
             nickname: string,
             seriaVoting: string,
+            seriaScores: string,
             tourVoting: string,
+            tourScores: string,
+            totalScores: number
         }[];
 
         const viewers = rows.map(result => this.parseViewer(result));
@@ -62,21 +95,32 @@ export class ViewerDB {
     }
 
     private parseViewer(result: any): Viewer {
-        const seriaObj = JSON.parse(result.seriaVoting) as Record<string, string[]>;
-        const tourObj = JSON.parse(result.tourVoting) as Record<string, string[]>;
+        const seriaVotingObj = JSON.parse(result.seriaVoting) as Record<string, string[]>;
+        const seriaScoresObj = JSON.parse(result.seriaScores) as Record<string, number>;
+        const tourVotingObj = JSON.parse(result.tourVoting) as Record<string, string[]>;
+        const tourScoresObj = JSON.parse(result.tourScores) as Record<string, number>;
 
-        const seriaMap = Map(Object.entries(seriaObj).map(
+        const seriaVotingMap = Map(Object.entries(seriaVotingObj).map(
             ([key, arr]) => [key, List(arr)]
         ));
 
-        const tourMap = Map(Object.entries(tourObj).map(
-            ([key, arr]) => [key, List(arr)]
+        const seriaScoresMap = Map(Object.entries(seriaScoresObj));
+
+        const tourVotingMap = Map(Object.entries(tourVotingObj).map(
+            ([key, arr]) => [key as StageType, List(arr)]
+        ));
+
+        const tourScoresMap = Map(Object.entries(tourScoresObj).map(
+            ([key, score]) => [key as StageType, score]
         ));
 
         return new Viewer(
             result.nickname,
-            seriaMap,
-            tourMap
+            seriaVotingMap,
+            seriaScoresMap,
+            tourVotingMap,
+            tourScoresMap,
+            result.totalScores
         );
     }
 }

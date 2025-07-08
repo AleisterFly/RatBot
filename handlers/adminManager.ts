@@ -16,6 +16,7 @@ export class AdminManager {
     bot: Telegraf;
 
     private messageIdsForDelete: number[] = [];
+    private addTeamSessions = new Map<number, boolean>();
 
     constructor(bot: Telegraf) {
         this.bot = bot;
@@ -35,14 +36,30 @@ export class AdminManager {
     }
 
     async addTeam(ctx: Context) {
+        const chatId = ctx.chat?.id as number;
+        const teamsCount = teamRepository.getTeams().size;
+
+        if (teamsCount >= 10) {
+            await ctx.reply("10 команд уже зарегистрированы.");
+            return;
+        }
+
         await ctx.reply("Введите название команды");
 
+        this.addTeamSessions ??= new Map();
+        this.addTeamSessions.set(chatId, true);
+
         this.bot.on('text', async (ctx) => {
+            const chatId = ctx.chat.id;
+
+            if (!this.addTeamSessions.get(chatId)) return;
+
             const teamName = ctx.message.text;
 
             teamRepository.createTeam(teamName);
-            ctx.reply(`Команда ${teamName} была добавлена`);
+            await ctx.reply(`Команда ${teamName} была добавлена`);
 
+            this.addTeamSessions.delete(chatId);
         });
     }
 

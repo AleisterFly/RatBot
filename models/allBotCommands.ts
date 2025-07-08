@@ -3,14 +3,14 @@ import {adminManager} from "../di/ratProvider";
 
 enum BotCommand {
     START = 'start',
-    REGISTER = 'РЕГИСТРАЦИЯ ИГРОКА',
-    BETTING_REGISTRATION = 'РЕГИСТРАЦИЯ В КОНКУРСЕ',
+    // REGISTER = 'РЕГИСТРАЦИЯ ИГРОКА',
+    // BETTING_REGISTRATION = 'РЕГИСТРАЦИЯ В КОНКУРСЕ',
     GUESS_RAT = 'УГАДАТЬ КРЫС В СЕРИИ',
     GUESS_RAT_TOUR = 'УГАДАТЬ КРЫС В ТУРЕ',
     REG_SERIA = 'ЗАПИСАТЬСЯ НА СЕРИЮ',
     SHOW_REG_SERIA = 'ПОКАЗАТЬ РЕГ СЕРИЮ',
     CANCEL_REG_SERIA = 'ОТМЕНИТЬ РЕГ СЕРИЮ',
-    SHOW_COMMANDS = 'ПОКАЗАТЬ КОМАНДЫ',
+    // SHOW_COMMANDS = 'ПОКАЗАТЬ КОМАНДЫ',
     SHOW_PLAYERS = 'ПОКАЗАТЬ ИГРОКОВ',
     SHOW_PLAYERS_SUPER = '(супер) ПОКАЗАТЬ ИГРОКОВ',
     SELECT_PLAYER = 'КРЫСА / УДАЛИТЬ',
@@ -19,7 +19,7 @@ enum BotCommand {
     ADD_TEAM = 'ДОБАВИТЬ КОМАНДУ',
     ADD_PLAYER_TO_SERIA = 'ИГРОК В СЕРИЮ',
     PLAYER_VOTING = 'ГОЛОСОВАНИЕ',
-    SHOW_VOTING = 'ПОКАЗАТь ГОЛОСОВАНИЕ',
+    SHOW_VOTING = 'ПОКАЗАТЬ ГОЛОСОВАНИЕ',
     RAT_SELECT_GAMES = 'ВЫБРАТЬ КРЫСОИГРЫ',
     RAT_DONE_TASK = 'ЗАДАНИЕ ВЫПОЛНЕНО!',
     SHOW_RATS_DONE_TASK = 'ВЫПОЛНЕННЫЕ КРЫСОЗАДАНИЯ',
@@ -33,10 +33,10 @@ enum BotCommand {
 }
 
 export const BotCommandAccess: Record<BotCommand, UserType[]> = {
-    [BotCommand.SHOW_COMMANDS]: [UserType.All],
+    // [BotCommand.SHOW_COMMANDS]: [UserType.All],
     [BotCommand.START]: [UserType.All],
-    [BotCommand.REGISTER]: [UserType.UnregPlayer, UserType.Viewer],
-    [BotCommand.BETTING_REGISTRATION]: [UserType.Viewer],
+    // [BotCommand.REGISTER]: [UserType.UnregPlayer, UserType.Viewer],
+    // [BotCommand.BETTING_REGISTRATION]: [UserType.Viewer],
     [BotCommand.GUESS_RAT]: [UserType.Viewer],
     [BotCommand.GUESS_RAT_TOUR]: [UserType.Viewer],
     [BotCommand.REG_SERIA]: [UserType.Player, UserType.Rat],

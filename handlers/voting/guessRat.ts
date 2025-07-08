@@ -137,7 +137,8 @@ export class GuessRat {
                 }
             }
 
-            await ctx.reply(`Ваши баллы: ${scores}`);
+            console.log(`Ваши баллы: ${scores}`);
+            await ctx.reply(`Ваши голоса были приняты!`);
             this.voteSessions.delete(chatId);
         });
 

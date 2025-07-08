@@ -125,7 +125,8 @@ export class GuessRatTour {
                 }
             }
 
-            await ctx.reply(`Ваши баллы: ${score}`);
+            console.log(`Ваши баллы: ${score}`)
+            await ctx.reply(`Ваши голоса были приняты!`);
             this.voteSessions.delete(chatId);
         });
 

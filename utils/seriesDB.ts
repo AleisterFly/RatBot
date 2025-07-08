@@ -67,17 +67,6 @@ export class SeriesDB {
                 nickname
             )
                 );
-            CREATE TABLE IF NOT EXISTS viewers
-            (
-                nickname
-                TEXT
-                PRIMARY
-                KEY,
-                seriaVoting
-                TEXT,
-                tourVoting
-                TEXT
-            )
         `);
     }
 

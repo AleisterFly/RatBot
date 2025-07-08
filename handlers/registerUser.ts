@@ -13,7 +13,6 @@ import {List} from "immutable";
 import {UserType} from "../models/userType";
 import {chunk, isSpecialNickname} from "../utils/util";
 import {BotCommandAccess} from "../models/allBotCommands";
-import {StageType} from "../models/player/stageType";
 
 enum ConfirmationType {
     YES = "Да",
@@ -30,6 +29,7 @@ const selectConfirmation: string[] = [
 
 export class UserManager {
     bot: Telegraf;
+    commandMessageMap: Map<number, number[]> = new Map();
 
     constructor(bot: Telegraf) {
         this.bot = bot;
@@ -41,23 +41,72 @@ export class UserManager {
             const allowedCommands = this.getAllowedCommands(user.userType);
             // const formattedCommands = allowedCommands.toArray().join('\n');
 
-            const buttons = chunk(
+            console.log(user.userType);
+
+            let buttons = chunk(
                 allowedCommands
                     .sort((a, b) => a.localeCompare(b))
-                    .map((name) => Markup.button.callback(name, `on_command_choose:${name}`))
+                    .map((name) => Markup.button.callback(name, `on_choose:${name}`))
                     .toArray(), // <-- ключ!
                 NUMBER_OF_COLUMNS_COMMAND
             );
 
-            await ctx.reply("Доступные команды:", {
-                parse_mode: "HTML",
-                reply_markup: Markup.inlineKeyboard(buttons).reply_markup,
-            });
 
-            this.bot.action(/^on_command_choose:(.*)$/, async (ctx) => {
+            const playerCommands = this.getAllowedCommands(UserType.Player);
+            let ratCommands = this.getAllowedCommands(UserType.Rat);
+            ratCommands = ratCommands.filter(cmd => !playerCommands.includes(cmd));
+
+            if (user.userType == UserType.Rat) {
+                const playerMessage = await ctx.reply("Команды игрока:", {
+                    parse_mode: "HTML",
+                    reply_markup: Markup.inlineKeyboard(
+                        playerCommands
+                            .sort((a, b) => a.localeCompare(b))
+                            .map(name => Markup.button.callback(name, `on_choose:${name}`))
+                            .toArray(),
+                        { columns: NUMBER_OF_COLUMNS_COMMAND }
+                    ).reply_markup,
+                });
+
+                const ratMessage = await ctx.reply("Крысокоманды:", {
+                    parse_mode: "HTML",
+                    reply_markup: Markup.inlineKeyboard(
+                        ratCommands
+                            .sort((a, b) => a.localeCompare(b))
+                            .map(name => Markup.button.callback(name, `on_choose:${name}`))
+                            .toArray(),
+                        { columns: NUMBER_OF_COLUMNS_COMMAND }
+                    ).reply_markup,
+                });
+
+                this.commandMessageMap.set(ctx.chat?.id!, [playerMessage.message_id, ratMessage.message_id]);
+            } else {
+                const singleMessage = await ctx.reply("Доступные команды:", {
+                    parse_mode: "HTML",
+                    reply_markup: Markup.inlineKeyboard(
+                        allowedCommands
+                            .sort((a, b) => a.localeCompare(b))
+                            .map(name => Markup.button.callback(name, `on_choose:${name}`))
+                            .toArray(),
+                        { columns: NUMBER_OF_COLUMNS_COMMAND }
+                    ).reply_markup,
+                });
+
+                this.commandMessageMap.set(ctx.chat?.id!, [singleMessage.message_id]);
+            }
+
+            this.bot.action(/^on_choose:(.*)$/, async (ctx) => {
                 const chatId = ctx.chat?.id as number;
-                const messageId = ctx.callbackQuery?.message?.message_id as number;
-                await ctx.telegram.deleteMessage(chatId, messageId);
+
+                const ids = this.commandMessageMap.get(chatId) || [];
+                for (const id of ids) {
+                    try {
+                        await ctx.telegram.deleteMessage(chatId, id);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+                this.commandMessageMap.delete(chatId);
 
                 const command = ctx.match[1];
                 switch (command) {
@@ -112,11 +161,11 @@ export class UserManager {
                     case 'ГОЛОСОВАНИЕ':
                         await playerManager.voting(ctx);
                         break;
-                    case 'ПОКАЗАТь ГОЛОСОВАНИЕ':
+                    case 'ПОКАЗАТЬ ГОЛОСОВАНИЕ':
                         await adminManager.showVoting(ctx);
                         break;
                     case 'ВЫБРАТЬ КРЫСОИГРЫ':
-                        await playerManager.ratSelectGames(ctx);
+                        await playerManager.startRatGameSelection(ctx);
                         break;
                     case 'ЗАДАНИЕ ВЫПОЛНЕНО!':
                         await playerManager.ratDoneTask(ctx);
