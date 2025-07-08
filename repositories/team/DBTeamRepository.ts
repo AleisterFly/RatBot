@@ -1,5 +1,5 @@
 import {ITeamRepository} from "./ITeamRepository";
-import Immutable from "immutable";
+import Immutable, {List} from "immutable";
 import {Team} from "../../models/player/team";
 import {teamDB} from "../../di/ratProvider";
 
@@ -12,6 +12,11 @@ export class DBTeamRepository implements ITeamRepository {
 
     getActivePlayersNicknames(title: string): Immutable.List<string> | undefined {
         return teamDB.getActivePlayersNicknames(title);
+    }
+
+    getCapitans(): List<string> | undefined {
+        const teams = this.getTeams();
+        return List(teams.map(team => team.capitan).filter(capitan => capitan !== ''));
     }
 
     getKickedNicknames(title: string): Immutable.List<string> | undefined {

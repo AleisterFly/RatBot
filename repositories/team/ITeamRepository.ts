@@ -19,4 +19,5 @@ export interface ITeamRepository {
     saveTeam(team: Team): void;
     updateTeam(team: Team): void;
     createTeam(title: string): void;
+    getCapitans(): List<string> | undefined
 }

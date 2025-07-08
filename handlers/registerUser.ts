@@ -1,9 +1,12 @@
 import {Context, Markup, Telegraf} from "telegraf";
 import {
     adminManager,
-    dbManager, phaseDB, phaseRepository,
+    dbManager,
+    phaseRepository,
     playerManager,
     playerRepository,
+    seriesRepository,
+    teamRepository,
     userManager,
     userRepository,
     viewerManager,
@@ -14,6 +17,8 @@ import {UserType} from "../models/userType";
 import {chunk, isSpecialNickname} from "../utils/util";
 import {BotCommandAccess} from "../models/allBotCommands";
 import {Phase} from "../models/admin/phase";
+import {StageType} from "../models/player/stageType";
+import {Team} from "../models/player/team";
 
 enum ConfirmationType {
     YES = "Да",
@@ -44,11 +49,14 @@ export class UserManager {
             console.log(user.userType);
 
             let phase = phaseRepository.getPhase();
+            let stage = seriesRepository.getCurrentSeria()?.stageType;
+            let teams = teamRepository.getTeams();
 
-            if (!phase) return;
-            const allowedCommands = this.getAllowedCommands(user.userType, phase);
-            const playerCommands = this.getAllowedCommands(UserType.Player, phase);
-            let ratCommands = this.getAllowedCommands(UserType.Rat, phase);
+
+            if (!phase || !stage) return;
+            const allowedCommands = this.getAllowedCommands(user.userType, user.nickname, phase, stage, teams);
+            const playerCommands = this.getAllowedCommands(UserType.Player, user.nickname, phase, stage, teams);
+            let ratCommands = this.getAllowedCommands(UserType.Rat, user.nickname, phase, stage, teams);
             ratCommands = ratCommands.filter(cmd => !playerCommands.includes(cmd));
 
             if (user.userType == UserType.Rat && ratCommands.size > 0) {
@@ -182,15 +190,42 @@ export class UserManager {
         }
     }
 
-    private getAllowedCommands(userType: UserType, phase: Phase): List<string> {
-        console.log(phase);
-        return List(Object.entries(BotCommandAccess)
-            .filter(([_, [types, commandPhase]]) => (types.includes(userType) || types.includes(UserType.All))
-                &&
-                (commandPhase === Phase.DEFAULT || commandPhase === phase))
-            .map(([command, _]) => command));
-    }
+    // private getAllowedCommands(userType: UserType, phase: Phase): List<string> {
+    //     console.log(phase);
+    //     return List(Object.entries(BotCommandAccess)
+    //         .filter(([_, [types, commandPhase]]) => (types.includes(userType) || types.includes(UserType.All))
+    //             &&
+    //             (commandPhase === Phase.DEFAULT || commandPhase === phase))
+    //         .map(([command, _]) => command));
+    // }
 
+
+    private getAllowedCommands(
+        userType: UserType,
+        userNickname: string,
+        phase: Phase,
+        stage: StageType,
+        teams: List<Team>
+    ): List<string> {
+        const isUserCapitan = teams.some(team => team.capitan === userNickname);
+
+        return List(
+            Object.entries(BotCommandAccess)
+                .filter(([_, [types, commandPhase]]) => {
+                    const isTypeAllowed = types.includes(userType) || types.includes(UserType.All);
+                    const isPhaseAllowed = commandPhase === Phase.DEFAULT || commandPhase === phase;
+
+                    // спец. условие: если фаза команды TOUR_REGISTRATION, stage SHOW_MATCH и не капитан — исключаем
+                    const isTourRegDuringShowMatch =
+                        commandPhase === Phase.TOUR_REGISTRATION &&
+                        stage === StageType.SHOW_MATCH &&
+                        !isUserCapitan;
+
+                    return isTypeAllowed && isPhaseAllowed && !isTourRegDuringShowMatch;
+                })
+                .map(([command]) => command)
+        );
+    }
 
     //TEST
     async onUnreg(ctx: Context) {
