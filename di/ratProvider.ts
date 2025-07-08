@@ -17,6 +17,8 @@ import {DBSeriesRepository} from "../repositories/series/DBSeriesRepository";
 import {ViewerDB} from "../utils/viewerDB";
 import {TeamDB} from "../utils/teamDB";
 import {DBTeamRepository} from "../repositories/team/DBTeamRepository";
+import {PhaseDB} from "../utils/phaseDB";
+import {DBPhaseRepository} from "../repositories/DBPhaseRepository";
 
 export const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
 export const userRepository = new DBUserRepository();
@@ -34,3 +36,5 @@ export const seriesRepository= new DBSeriesRepository();
 export const viewerDB = new ViewerDB();
 export const teamDB = new TeamDB();
 export const teamRepository= new DBTeamRepository();
+export const phaseDB = new PhaseDB();
+export const phaseRepository= new DBPhaseRepository();

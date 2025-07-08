@@ -1,5 +1,5 @@
 import {Context, Markup, Telegraf} from "telegraf";
-import {playerRepository, seriesRepository, teamRepository, userRepository} from "../di/ratProvider";
+import {phaseRepository, playerRepository, seriesRepository, teamRepository, userRepository} from "../di/ratProvider";
 import {UserType} from "../models/userType";
 import {List} from "immutable";
 import {AdminCommand} from "../models/admin/adminCommand";
@@ -9,6 +9,7 @@ import {deleteMessage} from "../utils/deleteMessage";
 import {Player} from "../models/player/player";
 import {chunk, formatInColumns} from "../utils/util";
 import {StageType} from "../models/player/stageType";
+import {Phase} from "../models/admin/phase";
 
 const NUMBER_OF_COLUMNS = 3;
 
@@ -220,6 +221,38 @@ export class AdminManager {
             // Отправляем сообщение о том, что серия обновлена
             await ctx.reply(`Текущая серия обновлена на: ${seriaDate}`);
         });
+    }
+
+    async updatePhase(ctx: Context) {
+
+        const allPhases: Phase[] = Object.values(Phase);
+
+        const updatePhaseButtons = allPhases.map(phase =>
+            Markup.button.callback(phase, `update_phase:${phase}`)
+        );
+
+         await ctx.reply("Выбери фазу:", {
+            parse_mode: "HTML",
+            reply_markup: Markup.inlineKeyboard(updatePhaseButtons, {columns: 1}).reply_markup,
+        });
+
+        this.bot.action(/^update_phase:(.*)$/, async (ctx) => {
+            const chatId = ctx.chat?.id as number;
+            const messageId = ctx.callbackQuery?.message?.message_id as number;
+            await ctx.telegram.deleteMessage(chatId, messageId);
+
+            const selectedPhase = ctx.match[1];
+
+            phaseRepository.setPhase(selectedPhase as Phase);
+
+            // Отправляем сообщение о том, что серия обновлена
+            await ctx.reply(`Текущая фаза обновлена на: ${phaseRepository.getPhase()}`);
+        });
+    }
+
+
+    async showPhase(ctx: Context) {
+        await ctx.reply(`Текущая фаза:\n\n ${phaseRepository.getPhase()}`);
     }
 
     async sendCurrentSeria(ctx: Context) {

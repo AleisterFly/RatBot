@@ -2,12 +2,9 @@ import {Context} from "telegraf";
 import {
     bot,
     userManager,
-    adminManager,
-    viewerManager,
     dbManager,
-    seriesDB, voteManager, userRepository, playerManager, seriesRepository, viewerDB, teamDB
+    seriesDB, userRepository,  viewerDB, teamDB, phaseDB
 } from "./di/ratProvider";
-import {List} from "immutable";
 
 
 
@@ -46,7 +43,8 @@ bot.launch();
 console.log("Bot is started!");
 seriesDB.createTables();
 viewerDB.createTables();
-teamDB.createTables()
+teamDB.createTables();
+phaseDB.createTables();
 dbManager.createTables();
 userRepository.saveUnregUsers();
 seriesDB.initSeries();

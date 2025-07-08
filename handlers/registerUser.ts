@@ -1,7 +1,7 @@
 import {Context, Markup, Telegraf} from "telegraf";
 import {
     adminManager,
-    dbManager,
+    dbManager, phaseDB, phaseRepository,
     playerManager,
     playerRepository,
     userManager,
@@ -13,6 +13,7 @@ import {List} from "immutable";
 import {UserType} from "../models/userType";
 import {chunk, isSpecialNickname} from "../utils/util";
 import {BotCommandAccess} from "../models/allBotCommands";
+import {Phase} from "../models/admin/phase";
 
 enum ConfirmationType {
     YES = "Да",
@@ -38,25 +39,19 @@ export class UserManager {
     async onShowCommands(ctx: Context) {
         let user = userRepository.getRegUser(ctx.chat?.id);
         if (user) {
-            const allowedCommands = this.getAllowedCommands(user.userType);
             // const formattedCommands = allowedCommands.toArray().join('\n');
 
             console.log(user.userType);
 
-            let buttons = chunk(
-                allowedCommands
-                    .sort((a, b) => a.localeCompare(b))
-                    .map((name) => Markup.button.callback(name, `on_choose:${name}`))
-                    .toArray(), // <-- ключ!
-                NUMBER_OF_COLUMNS_COMMAND
-            );
+            let phase = phaseRepository.getPhase();
 
-
-            const playerCommands = this.getAllowedCommands(UserType.Player);
-            let ratCommands = this.getAllowedCommands(UserType.Rat);
+            if (!phase) return;
+            const allowedCommands = this.getAllowedCommands(user.userType, phase);
+            const playerCommands = this.getAllowedCommands(UserType.Player, phase);
+            let ratCommands = this.getAllowedCommands(UserType.Rat, phase);
             ratCommands = ratCommands.filter(cmd => !playerCommands.includes(cmd));
 
-            if (user.userType == UserType.Rat) {
+            if (user.userType == UserType.Rat && ratCommands.size > 0) {
                 const playerMessage = await ctx.reply("Команды игрока:", {
                     parse_mode: "HTML",
                     reply_markup: Markup.inlineKeyboard(
@@ -81,7 +76,7 @@ export class UserManager {
 
                 this.commandMessageMap.set(ctx.chat?.id!, [playerMessage.message_id, ratMessage.message_id]);
             } else {
-                const singleMessage = await ctx.reply("Доступные команды:", {
+                const singleMessage = await ctx.reply("Команды игрока:", {
                     parse_mode: "HTML",
                     reply_markup: Markup.inlineKeyboard(
                         allowedCommands
@@ -176,14 +171,23 @@ export class UserManager {
                     case 'КРЫСО-ИГРЫ':
                         await adminManager.showRatSelectGames(ctx);
                         break;
+                    case 'ПОМЕНЯТь ФАЗУ':
+                        await adminManager.updatePhase(ctx);
+                        break;
+                    case 'ПОКАЗАТЬ ФАЗУ':
+                        await adminManager.showPhase(ctx);
+                        break;
                 }
             });
         }
     }
 
-    private getAllowedCommands(userType: UserType): List<string> {
+    private getAllowedCommands(userType: UserType, phase: Phase): List<string> {
+        console.log(phase);
         return List(Object.entries(BotCommandAccess)
-            .filter(([_, types]) => types.includes(userType) || types.includes(UserType.All))
+            .filter(([_, [types, commandPhase]]) => (types.includes(userType) || types.includes(UserType.All))
+                &&
+                (commandPhase === Phase.DEFAULT || commandPhase === phase))
             .map(([command, _]) => command));
     }
 

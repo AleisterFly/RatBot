@@ -1,7 +1,7 @@
 import {UserType} from "./userType";
-import {adminManager} from "../di/ratProvider";
+import {Phase} from "./admin/phase";
 
-enum BotCommand {
+export enum BotCommand {
     START = 'start',
     // REGISTER = 'РЕГИСТРАЦИЯ ИГРОКА',
     // BETTING_REGISTRATION = 'РЕГИСТРАЦИЯ В КОНКУРСЕ',
@@ -25,6 +25,8 @@ enum BotCommand {
     SHOW_RATS_DONE_TASK = 'ВЫПОЛНЕННЫЕ КРЫСОЗАДАНИЯ',
     SHOW_RATS_SELECT_GAMES = 'КРЫСО-ИГРЫ',
     ADD_PLAYER_TO_TEAM = 'ИГРОК В КОМАНДУ',
+    SET_PHASE = 'ПОМЕНЯТь ФАЗУ',
+    SHOW_PHASE = 'ПОКАЗАТЬ ФАЗУ',
 
     //TEST
     UNREG = 'unreg',
@@ -32,35 +34,41 @@ enum BotCommand {
     MAKE_ALL_PLAYER = 'make_all_player',
 }
 
-export const BotCommandAccess: Record<BotCommand, UserType[]> = {
+
+export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     // [BotCommand.SHOW_COMMANDS]: [UserType.All],
-    [BotCommand.START]: [UserType.All],
     // [BotCommand.REGISTER]: [UserType.UnregPlayer, UserType.Viewer],
     // [BotCommand.BETTING_REGISTRATION]: [UserType.Viewer],
-    [BotCommand.GUESS_RAT]: [UserType.Viewer],
-    [BotCommand.GUESS_RAT_TOUR]: [UserType.Viewer],
-    [BotCommand.REG_SERIA]: [UserType.Player, UserType.Rat],
-    [BotCommand.SHOW_REG_SERIA]: [UserType.Player, UserType.Rat],
-    [BotCommand.CANCEL_REG_SERIA]: [UserType.Player, UserType.Rat],
-    [BotCommand.PLAYER_VOTING]: [UserType.Player, UserType.Rat],
+    [BotCommand.START]: [[UserType.All], Phase.DEFAULT],
 
-    [BotCommand.RAT_SELECT_GAMES]: [UserType.Rat],
-    [BotCommand.RAT_DONE_TASK]: [UserType.Rat],
+    [BotCommand.GUESS_RAT]: [[UserType.Viewer], Phase.RAT_SERIA_VOTING],
+    [BotCommand.GUESS_RAT_TOUR]: [[UserType.Viewer], Phase.RAT_TOUR_VOTING],
 
-    [BotCommand.SHOW_VOTING]: [UserType.Admin, UserType.SuperAdmin],
-    [BotCommand.SHOW_PLAYERS]: [UserType.Admin, UserType.SuperAdmin],
-    [BotCommand.SELECT_PLAYER]: [UserType.Admin, UserType.SuperAdmin],
-    [BotCommand.UPDATE_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
-    [BotCommand.GET_CURRENT]: [UserType.Admin, UserType.SuperAdmin],
-    [BotCommand.ADD_TEAM]: [UserType.Admin, UserType.SuperAdmin],
-    [BotCommand.ADD_PLAYER_TO_TEAM]: [UserType.Admin, UserType.SuperAdmin],
-    [BotCommand.ADD_PLAYER_TO_SERIA]: [UserType.Admin, UserType.SuperAdmin],
+    [BotCommand.REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],
+    [BotCommand.SHOW_REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],
+    [BotCommand.CANCEL_REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],
 
-    [BotCommand.SHOW_PLAYERS_SUPER]: [UserType.SuperAdmin],
-    [BotCommand.SHOW_RATS_DONE_TASK]: [UserType.SuperAdmin],
-    [BotCommand.SHOW_RATS_SELECT_GAMES]: [UserType.SuperAdmin],
+    [BotCommand.PLAYER_VOTING]: [[UserType.Player, UserType.Rat], Phase.TEAM_VOTING],
 
-    //TEST
-    [BotCommand.UNREG]: [UserType.All],
-    [BotCommand.MAKE_ALL_PLAYER]: [UserType.All],
+    [BotCommand.RAT_SELECT_GAMES]: [[UserType.Rat], Phase.TOUR_REGISTRATION],
+    [BotCommand.RAT_DONE_TASK]: [[UserType.Rat], Phase.DEFAULT],
+
+    [BotCommand.SHOW_VOTING]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SHOW_PLAYERS]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SELECT_PLAYER]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.UPDATE_CURRENT]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.GET_CURRENT]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.ADD_TEAM]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.ADD_PLAYER_TO_TEAM]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.ADD_PLAYER_TO_SERIA]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SET_PHASE]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SHOW_PHASE]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+
+    [BotCommand.SHOW_PLAYERS_SUPER]: [[UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SHOW_RATS_DONE_TASK]: [[UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SHOW_RATS_SELECT_GAMES]: [[UserType.SuperAdmin], Phase.DEFAULT],
+
+    // TEST
+    [BotCommand.UNREG]: [[UserType.All], Phase.DEFAULT],
+    [BotCommand.MAKE_ALL_PLAYER]: [[UserType.All], Phase.DEFAULT],
 }
