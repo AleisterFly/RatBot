@@ -29,10 +29,10 @@ export class NotificationManager {
             case UserType.Rat:
                 let nicknames = this.playerRepository.getAllPlayersNicknames(type);
                 for (const nickname of nicknames) {
-                  let user = this.repository.getUser(nickname);
-                  if (user?.chatId) {
-                    ids.push(user.chatId)
-                  }
+                    let user = this.repository.getUser(nickname);
+                    if (user?.chatId) {
+                        ids.push(user.chatId)
+                    }
                 }
                 break;
             default:
@@ -67,4 +67,45 @@ export class NotificationManager {
             await this.bot.telegram.sendPhoto(id, photoUrl, {caption: message});
         }
     }
+
+    async sendStartPlayerVoting(message: string) {
+
+    }
+
+    async sendStartRatSeriaVoting(message: string) {
+
+    }
+
+    async sendStartRatTourVoting(message: string) {
+
+    }
+
+    async sendVotedOutMessage(message: string) {
+
+    }
+
+    async sendWelcomeTeamMessage(message: string) {
+
+    }
+
+    async sendCapitanRegSeriaMessage(message: string) {
+
+    }
+
+    async sendRegistrationFirstTourMessage(message: string) {
+
+    }
+
+    async sendRegistrationSecondTourMessage(message: string) {
+
+    }
+
+    async sendRegistrationFinalMessage(message: string) {
+
+    }
+
+    async sendRatBonusMessage(message: string) {
+
+    }
 }
+
