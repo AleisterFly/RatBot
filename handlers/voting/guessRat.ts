@@ -1,8 +1,9 @@
 import { Context, Markup, Telegraf } from "telegraf";
 import { IViewerRepository } from "../../repositories/viewerRepository";
 import { deleteMessage } from "../../utils/deleteMessage";
-import { dbManager, playerRepository, seriesRepository } from "../../di/ratProvider";
+import {dbManager, playerRepository, seriesRepository, userRepository, viewerRepository} from "../../di/ratProvider";
 import { chunk } from "../../utils/util";
+import {List} from "immutable";
 
 type VoteStep = "select_rat" | "confirm_vote";
 
@@ -18,7 +19,6 @@ export class GuessRat {
     private voteSessions = new Map<number, VoteSession>();
 
     constructor(
-        private viewerRepository: IViewerRepository,
         private bot: Telegraf
     ) {
         this.registerActions();
@@ -31,6 +31,19 @@ export class GuessRat {
         if (this.voteSessions.has(chatId)) {
             await ctx.reply("Вы уже голосуете. Завершите голосование.");
             return;
+        }
+
+        const user = userRepository.getRegUser(chatId);
+        if (!user) return;
+
+        const viewer = viewerRepository.getByNickname(user?.nickname);
+        const currentSeria = seriesRepository.getCurrentSeria();
+
+        if(viewer && currentSeria) {
+            if(viewer.seriaVoting.has(currentSeria.date)){
+                await ctx.reply("Вы уже проголосовали в этой серии!");
+                return;
+            }
         }
 
         this.voteSessions.set(chatId, { step: "select_rat", votedNicknames: [], noRats: false });
@@ -52,6 +65,8 @@ export class GuessRat {
 
             if (votedName === "NO_RATS") {
                 session.noRats = !session.noRats;
+                session.votedNicknames.push("НЕТ КРЫС");
+
             } else {
                 const idx = session.votedNicknames.indexOf(votedName);
                 if (idx === -1) {
@@ -83,7 +98,7 @@ export class GuessRat {
 
             const noRatsText = session.noRats ? "НЕТ КРЫС выбрано" : "";
 
-            const summary = `Ваш выбор: ${selected}${session.noRats ? ` + ${noRatsText}` : ""}.\nВы уверены?`;
+            const summary = `Ваш выбор: ${selected}.\nВы уверены?`;
 
             const markup = Markup.inlineKeyboard([
                 [Markup.button.callback("✅ ДА", "final_confirm")],
@@ -113,7 +128,7 @@ export class GuessRat {
                     if (player.isRat) {
                         scores++;
                     } else {
-                        scores--;
+                        scores -= 0.5;
                     }
                 }
             }
@@ -130,14 +145,28 @@ export class GuessRat {
                         }
                     }
                     if (noRats) {
-                        scores++;
+                        scores += 3;
                     } else {
-                        scores--;
+                        scores -= 1;
                     }
                 }
             }
 
-            console.log(`Ваши баллы: ${scores}`);
+            const user = userRepository.getRegUser(chatId);
+            if (!user) return;
+
+            const viewer = viewerRepository.getByNickname(user?.nickname);
+            const currentSeria = seriesRepository.getCurrentSeria();
+
+            if(viewer && currentSeria) {
+                viewer.seriaVoting = viewer.seriaVoting.set(currentSeria.date, List(session.votedNicknames));
+                viewer.seriaScores = viewer.seriaScores.set(currentSeria.date, scores);
+
+                viewer.totalScores = viewer.totalScores + scores;
+
+                viewerRepository.updateViewer(viewer);
+            }
+
             await ctx.reply(`Ваши голоса были приняты!`);
             this.voteSessions.delete(chatId);
         });

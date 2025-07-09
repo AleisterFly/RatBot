@@ -16,7 +16,7 @@ export class DBTeamRepository implements ITeamRepository {
 
     getCapitans(): List<string> | undefined {
         const teams = this.getTeams();
-        return List(teams.map(team => team.capitan).filter(capitan => capitan !== ''));
+        return List(teams.map(team => team.captain).filter(capitan => capitan !== ''));
     }
 
     getKickedNicknames(title: string): Immutable.List<string> | undefined {

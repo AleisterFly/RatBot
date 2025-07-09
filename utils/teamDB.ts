@@ -161,7 +161,7 @@ export class TeamDB {
             team.bonusScore,
             team.totalScore,
             team.ratPlayer,
-            team.capitan
+            team.captain
         );
     }
 
@@ -187,7 +187,7 @@ export class TeamDB {
             team.bonusScore,
             team.totalScore,
             team.ratPlayer,
-            team.capitan,
+            team.captain,
             team.id
         );
     }

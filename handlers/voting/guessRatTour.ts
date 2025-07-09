@@ -1,7 +1,15 @@
 import { Context, Markup, Telegraf } from "telegraf";
 import { IViewerRepository } from "../../repositories/viewerRepository";
-import { dbManager, playerRepository, seriesRepository, teamRepository } from "../../di/ratProvider";
+import {
+    dbManager,
+    playerRepository,
+    seriesRepository,
+    teamRepository,
+    userRepository,
+    viewerRepository
+} from "../../di/ratProvider";
 import { chunk } from "../../utils/util";
+import {List} from "immutable";
 
 type VoteSessionTour = {
     selected: Map<string, string>; // ключ — команда, значение — ник игрока
@@ -13,7 +21,6 @@ export class GuessRatTour {
     private voteSessions = new Map<number, VoteSessionTour>();
 
     constructor(
-        private viewerRepository: IViewerRepository,
         private bot: Telegraf
     ) {
         this.registerActions();
@@ -26,6 +33,19 @@ export class GuessRatTour {
         if (this.voteSessions.has(chatId)) {
             await ctx.reply("Вы уже голосуете. Завершите голосование.");
             return;
+        }
+
+        const user = userRepository.getRegUser(chatId);
+        if (!user) return;
+
+        const viewer = viewerRepository.getByNickname(user?.nickname);
+        const currentStage = seriesRepository.getCurrentSeria()?.stageType;
+
+        if(viewer && currentStage) {
+            if(viewer.tourVoting.has(currentStage)){
+                await ctx.reply("Вы уже проголосовали в этом туре!");
+                return;
+            }
         }
 
         this.voteSessions.set(chatId, { selected: new Map() });
@@ -112,20 +132,36 @@ export class GuessRatTour {
                 ctx.callbackQuery?.message?.message_id as number
             );
 
-            let score = 0;
+            let scores = 0;
 
+            let selectedNicknames = List<string>();
             for (const [_, selectedPlayer] of session.selected) {
                 const player = playerRepository.getByNickname(selectedPlayer);
                 if (player) {
+                    selectedNicknames = selectedNicknames.push(selectedPlayer);
                     if (player.isRat) {
-                        score++;
+                        scores++;
                     } else {
-                        score--;
+                        scores -= 0;
                     }
                 }
             }
 
-            console.log(`Ваши баллы: ${score}`)
+            const user = userRepository.getRegUser(chatId);
+            if (!user) return;
+
+            const viewer = viewerRepository.getByNickname(user?.nickname);
+            const currentStage = seriesRepository.getCurrentSeria()?.stageType;
+
+            if(viewer && currentStage) {
+                viewer.tourVoting = viewer.tourVoting.set(currentStage, selectedNicknames);
+                viewer.tourScores = viewer.tourScores.set(currentStage, scores);
+
+                viewer.totalScores = viewer.totalScores + scores;
+
+                viewerRepository.updateViewer(viewer);
+            }
+
             await ctx.reply(`Ваши голоса были приняты!`);
             this.voteSessions.delete(chatId);
         });

@@ -1,24 +1,12 @@
 import {Context, Markup, Telegraf} from "telegraf";
 import {
-    adminManager,
     dbManager,
-    phaseRepository,
-    playerManager,
     playerRepository,
-    seriesRepository,
-    teamRepository,
-    userManager,
     userRepository,
     viewerManager,
-    voteManager
 } from "../di/ratProvider";
-import {List} from "immutable";
 import {UserType} from "../models/userType";
 import {chunk, isSpecialNickname} from "../utils/util";
-import {BotCommandAccess} from "../models/allBotCommands";
-import {Phase} from "../models/admin/phase";
-import {StageType} from "../models/player/stageType";
-import {Team} from "../models/player/team";
 
 enum ConfirmationType {
     YES = "Да",
@@ -26,7 +14,6 @@ enum ConfirmationType {
 }
 
 const NUMBER_OF_COLUMNS = 5;
-const NUMBER_OF_COLUMNS_COMMAND = 1;
 
 const selectConfirmation: string[] = [
     ConfirmationType.YES,
@@ -35,196 +22,9 @@ const selectConfirmation: string[] = [
 
 export class UserManager {
     bot: Telegraf;
-    commandMessageMap: Map<number, number[]> = new Map();
 
     constructor(bot: Telegraf) {
         this.bot = bot;
-    }
-
-    async onShowCommands(ctx: Context) {
-        let user = userRepository.getRegUser(ctx.chat?.id);
-        if (user) {
-            // const formattedCommands = allowedCommands.toArray().join('\n');
-
-            console.log(user.userType);
-
-            let phase = phaseRepository.getPhase();
-            let stage = seriesRepository.getCurrentSeria()?.stageType;
-            let teams = teamRepository.getTeams();
-
-
-            if (!phase || !stage) return;
-            const allowedCommands = this.getAllowedCommands(user.userType, user.nickname, phase, stage, teams);
-            const playerCommands = this.getAllowedCommands(UserType.Player, user.nickname, phase, stage, teams);
-            let ratCommands = this.getAllowedCommands(UserType.Rat, user.nickname, phase, stage, teams);
-            ratCommands = ratCommands.filter(cmd => !playerCommands.includes(cmd));
-
-            if (user.userType == UserType.Rat && ratCommands.size > 0) {
-                const playerMessage = await ctx.reply("Команды игрока:", {
-                    parse_mode: "HTML",
-                    reply_markup: Markup.inlineKeyboard(
-                        playerCommands
-                            .sort((a, b) => a.localeCompare(b))
-                            .map(name => Markup.button.callback(name, `on_choose:${name}`))
-                            .toArray(),
-                        { columns: NUMBER_OF_COLUMNS_COMMAND }
-                    ).reply_markup,
-                });
-
-                const ratMessage = await ctx.reply("Крысокоманды:", {
-                    parse_mode: "HTML",
-                    reply_markup: Markup.inlineKeyboard(
-                        ratCommands
-                            .sort((a, b) => a.localeCompare(b))
-                            .map(name => Markup.button.callback(name, `on_choose:${name}`))
-                            .toArray(),
-                        { columns: NUMBER_OF_COLUMNS_COMMAND }
-                    ).reply_markup,
-                });
-
-                this.commandMessageMap.set(ctx.chat?.id!, [playerMessage.message_id, ratMessage.message_id]);
-            } else {
-                const singleMessage = await ctx.reply("Команды игрока:", {
-                    parse_mode: "HTML",
-                    reply_markup: Markup.inlineKeyboard(
-                        allowedCommands
-                            .sort((a, b) => a.localeCompare(b))
-                            .map(name => Markup.button.callback(name, `on_choose:${name}`))
-                            .toArray(),
-                        { columns: NUMBER_OF_COLUMNS_COMMAND }
-                    ).reply_markup,
-                });
-
-                this.commandMessageMap.set(ctx.chat?.id!, [singleMessage.message_id]);
-            }
-
-            this.bot.action(/^on_choose:(.*)$/, async (ctx) => {
-                const chatId = ctx.chat?.id as number;
-
-                const ids = this.commandMessageMap.get(chatId) || [];
-                for (const id of ids) {
-                    try {
-                        await ctx.telegram.deleteMessage(chatId, id);
-                    } catch (e) {
-                        console.error(e);
-                    }
-                }
-                this.commandMessageMap.delete(chatId);
-
-                const command = ctx.match[1];
-                switch (command) {
-                    case 'ПОКАЗАТЬ ИГРОКОВ':
-                        await adminManager.onShowPlayers(ctx);
-                        break;
-                    case 'КРЫСА / УДАЛИТЬ':
-                        await adminManager.onSelectPlayer(ctx);
-                        break;
-                    case 'ЗАДАТЬ ТЕКУЩУЮ СЕРИЮ':
-                        await adminManager.updateCurrentSeria(ctx);
-                        break;
-                    case 'ПОКАЗАТЬ ТЕКУЩУЮ СЕРИЮ':
-                        await adminManager.sendCurrentSeria(ctx);
-                        break;
-                    case 'ЗАПИСАТЬСЯ НА СЕРИЮ':
-                        await playerManager.registerToSeria(ctx);
-                        break;
-                    case 'ПОКАЗАТЬ РЕГ СЕРИЮ':
-                        await playerManager.getRegisterSeries(ctx);
-                        break;
-                    case 'ОТМЕНИТЬ РЕГ СЕРИЮ':
-                        await playerManager.cancelRegistrationToSeria(ctx);
-                        break;
-                    case 'РЕГИСТРАЦИЯ В КОНКУРСЕ':
-                        await viewerManager.onRegister(ctx);
-                        break;
-                    case 'УГАДАТЬ КРЫС В СЕРИИ':
-                        await voteManager.guessRatVote(ctx);
-                        break;
-                    case 'УГАДАТЬ КРЫС В ТУРЕ':
-                        await voteManager.guessRatTourVote(ctx);
-                        break;
-                    case '(супер) ПОКАЗАТЬ ИГРОКОВ':
-                        await adminManager.onSuperShowPlayers(ctx);
-                        break;
-                    case 'ДОБАВИТЬ КОМАНДУ':
-                        await adminManager.addTeam(ctx);
-                        break;
-                    case 'ИГРОК В КОМАНДУ':
-                        await adminManager.addPlayerToTeam(ctx);
-                        break;
-                    case 'ИГРОК В СЕРИЮ':
-                        await adminManager.onAddPlayerToSeria(ctx);
-                        break;
-                    case 'unreg':
-                        await userManager.onUnreg(ctx);
-                        break;
-                    case 'make_all_player':
-                        await userManager.onMakeAllPlayer(ctx);
-                        break;
-                    case 'ГОЛОСОВАНИЕ':
-                        await playerManager.voting(ctx);
-                        break;
-                    case 'ПОКАЗАТЬ ГОЛОСОВАНИЕ':
-                        await adminManager.showVoting(ctx);
-                        break;
-                    case 'ВЫБРАТЬ КРЫСОИГРЫ':
-                        await playerManager.startRatGameSelection(ctx);
-                        break;
-                    case 'ЗАДАНИЕ ВЫПОЛНЕНО!':
-                        await playerManager.ratDoneTask(ctx);
-                        break;
-                    case 'ВЫПОЛНЕННЫЕ КРЫСОЗАДАНИЯ':
-                        await adminManager.showRatDoneTasks(ctx);
-                        break;
-                    case 'КРЫСО-ИГРЫ':
-                        await adminManager.showRatSelectGames(ctx);
-                        break;
-                    case 'ПОМЕНЯТь ФАЗУ':
-                        await adminManager.updatePhase(ctx);
-                        break;
-                    case 'ПОКАЗАТЬ ФАЗУ':
-                        await adminManager.showPhase(ctx);
-                        break;
-                }
-            });
-        }
-    }
-
-    // private getAllowedCommands(userType: UserType, phase: Phase): List<string> {
-    //     console.log(phase);
-    //     return List(Object.entries(BotCommandAccess)
-    //         .filter(([_, [types, commandPhase]]) => (types.includes(userType) || types.includes(UserType.All))
-    //             &&
-    //             (commandPhase === Phase.DEFAULT || commandPhase === phase))
-    //         .map(([command, _]) => command));
-    // }
-
-
-    private getAllowedCommands(
-        userType: UserType,
-        userNickname: string,
-        phase: Phase,
-        stage: StageType,
-        teams: List<Team>
-    ): List<string> {
-        const isUserCapitan = teams.some(team => team.capitan === userNickname);
-
-        return List(
-            Object.entries(BotCommandAccess)
-                .filter(([_, [types, commandPhase]]) => {
-                    const isTypeAllowed = types.includes(userType) || types.includes(UserType.All);
-                    const isPhaseAllowed = commandPhase === Phase.DEFAULT || commandPhase === phase;
-
-                    // спец. условие: если фаза команды TOUR_REGISTRATION, stage SHOW_MATCH и не капитан — исключаем
-                    const isTourRegDuringShowMatch =
-                        commandPhase === Phase.TOUR_REGISTRATION &&
-                        stage === StageType.SHOW_MATCH &&
-                        !isUserCapitan;
-
-                    return isTypeAllowed && isPhaseAllowed && !isTourRegDuringShowMatch;
-                })
-                .map(([command]) => command)
-        );
     }
 
     //TEST

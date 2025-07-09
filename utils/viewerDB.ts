@@ -41,13 +41,8 @@ export class ViewerDB {
         );
     }
 
-    public updateViewerVoting(
-        nickname: string,
-        seriaVoting: Map<string, List<string>>,
-        seriaScores: Map<string, number>,
-        tourVoting: Map<StageType, List<string>>,
-        tourScores: Map<StageType, number>,
-        totalScores: number
+    public updateViewer(
+        viewer: Viewer
     ): void {
         const stmt = this.db.prepare(`
             UPDATE viewers 
@@ -55,12 +50,12 @@ export class ViewerDB {
             WHERE nickname = ?
         `);
         stmt.run(
-            JSON.stringify(seriaVoting.toJS()),
-            JSON.stringify(seriaScores.toJS()),
-            JSON.stringify(tourVoting.toJS()),
-            JSON.stringify(tourScores.toJS()),
-            totalScores,
-            nickname
+            JSON.stringify(viewer.seriaVoting.toJS()),
+            JSON.stringify(viewer.seriaScores.toJS()),
+            JSON.stringify(viewer.tourVoting.toJS()),
+            JSON.stringify(viewer.tourScores.toJS()),
+            viewer.totalScores,
+            viewer.nickname
         );
     }
 
@@ -123,4 +118,13 @@ export class ViewerDB {
             result.totalScores
         );
     }
+    
+    
+
+    public getAllNicknames(): List<string> {
+        const rows = this.db.prepare('SELECT nickname FROM viewers').all() as { nickname: string }[];
+        return List(rows.map(row => row.nickname));
+    }
+    
+    
 }

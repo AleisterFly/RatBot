@@ -3,44 +3,50 @@ import {List} from "immutable";
 import { viewerDB } from "../di/ratProvider";
 
 export interface IViewerRepository {
+    updateViewer(viewer: Viewer): void;
+
     createViewer(nickname: string): void;
 
     getByNickname(nickname: string): Viewer | undefined;
     getAllNicknames(): List<string>;
 
-    addVoteToSeria(nickname: string, seriaId: string, voteNicknames: List<string>): void;
+    addVoteToSeria(nickname: string, seriaDate: string, voteNicknames: List<string>): void;
 
-    removeVoteToSeria(nickname: string, seriaId: string, voteNicknames: List<string>): void;
+    removeVoteToSeria(nickname: string, seriaDate: string): void;
 }
 
-export class LocalViewerRepository implements IViewerRepository {
-    private readonly viewers: Map<string, Viewer> = new Map();
+export class DBViewerRepository implements IViewerRepository {
+
+    updateViewer(viewer: Viewer): void {
+        viewerDB.updateViewer(viewer);
+    }
 
     createViewer(nickname: string): void {
         const viewer = Viewer.createViewer(nickname);
         viewerDB.addViewer(viewer.nickname);
-        this.viewers.set(nickname, viewer);
     }
 
     getByNickname(nickname: string): Viewer | undefined {
-        return this.viewers.get(nickname);
+        return viewerDB.getViewer(nickname);
     }
 
     getAllNicknames(): List<string> {
-        return List(Array.from(this.viewers.keys()));
+        return viewerDB.getAllNicknames();
     }
 
-    addVoteToSeria(nickname: string, seriaId: string, voteNicknames: List<string>): void {
-        const viewer = this.viewers.get(nickname);
+    addVoteToSeria(nickname: string, seriaDate: string, voteNicknames: List<string>): void {
+        const viewer = this.getByNickname(nickname);
         if (viewer) {
-            viewer.seriaVoting.set(seriaId, voteNicknames);
+            viewer.seriaVoting = viewer.seriaVoting.set(seriaDate, voteNicknames);
+            this.updateViewer(viewer);
         }
     }
 
-    removeVoteToSeria(nickname: string, seriaId: string, voteNicknames: List<string>): void {
-        const viewer = this.viewers.get(nickname);
+    removeVoteToSeria(nickname: string, seriaDate: string): void {
+        const viewer = this.getByNickname(nickname);
         if (viewer) {
-            viewer.seriaVoting.delete(seriaId);
+            viewer.seriaVoting = viewer.seriaVoting.delete(seriaDate);
+            this.updateViewer(viewer);
         }
     }
 }

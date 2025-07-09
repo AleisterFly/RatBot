@@ -11,6 +11,6 @@ export class Team {
         public bonusScore: number,
         public totalScore: number,
         public ratPlayer: string,
-        public capitan: string,
+        public captain: string,
     ) {}
 }

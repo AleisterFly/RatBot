@@ -524,4 +524,81 @@ export class AdminManager {
 
         await ctx.reply(messageText || 'Нет данных о выполненных заданиях ✅');
     }
+
+    async defineCaptain(ctx: Context) {
+        const chatId = ctx.chat?.id as number;
+
+        // Создаём или очищаем сессию для выбора капитана
+        this.addTeamSessions ??= new Map();
+        this.addTeamSessions.set(chatId, true);
+
+        // Показываем список команд
+        const teams = teamRepository.getTeams();
+        const teamButtons = teams
+            .map((team) =>
+                Markup.button.callback(team.title, `sel_team:${team.title}`)
+            );
+
+        await ctx.reply("Выбери команду:", {
+            parse_mode: "HTML",
+            reply_markup: Markup.inlineKeyboard(teamButtons.toArray(), { columns: 2 }).reply_markup,
+        });
+
+        // Выбор команды
+        this.bot.action(/^sel_team:(.*)$/, async (ctx) => {
+            const chatId = ctx.chat?.id as number;
+            const messageId = ctx.callbackQuery?.message?.message_id as number;
+
+            await deleteMessage(ctx);
+
+            const teamTitle = ctx.match[1];
+            const team = teamRepository.getTeam(teamTitle);
+
+            if (!team) {
+                await ctx.reply("Команда не найдена");
+                return;
+            }
+
+            const teamPlayers = team.players;
+
+            if (teamPlayers.size === 0) {
+                await ctx.reply(`В команде "${teamTitle}" нет игроков.`);
+                return;
+            }
+
+            const playerButtons = teamPlayers
+                .sort((a, b) => a.localeCompare(b))
+                .map((nickname) =>
+                    Markup.button.callback(nickname, `sel_captain:${teamTitle}|${nickname}`)
+                );
+
+            await ctx.reply(`Выбери капитана для команды "${teamTitle}":`, {
+                parse_mode: "HTML",
+                reply_markup: Markup.inlineKeyboard(playerButtons.toArray(), { columns: 2 }).reply_markup,
+            });
+        });
+
+        // Выбор капитана
+        this.bot.action(/^sel_captain:(.*)$/, async (ctx) => {
+            const chatId = ctx.chat?.id as number;
+            const messageId = ctx.callbackQuery?.message?.message_id as number;
+
+            await deleteMessage(ctx);
+
+            const data = ctx.match[1];
+            const [teamTitle, playerNickname] = data.split("|");
+
+            const team = teamRepository.getTeam(teamTitle);
+            if (!team) {
+                await ctx.reply("Команда не найдена");
+                return;
+            }
+
+            // Запись в базу
+            team.captain = playerNickname;
+            teamRepository.updateTeam(team);
+
+            await ctx.reply(`Вы выбрали капитаном: ${playerNickname} для команды "${teamTitle}"`);
+        });
+    }
 }

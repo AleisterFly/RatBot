@@ -312,10 +312,13 @@ export class PlayerManager {
             }
 
             const idx = session.selectedGames.indexOf(gameNum);
+            const currentStage = seriesRepository.getCurrentSeria()?.stageType;
+
+            const limitGamesNumber = numberRatGames(currentStage!);
 
             if (idx === -1) {
-                if (session.selectedGames.length >= 3) {
-                    await ctx.answerCbQuery("Нельзя выбрать больше 3 игр!", { show_alert: true });
+                if (session.selectedGames.length >= limitGamesNumber) {
+                    await ctx.answerCbQuery(`Нельзя выбрать больше ${limitGamesNumber} игр!`, { show_alert: true });
                     return;
                 }
                 session.selectedGames.push(gameNum);
@@ -369,7 +372,6 @@ export class PlayerManager {
                 if (player) {
                     player.ratGames = player.ratGames.set(currentStage, List(session.selectedGames));
 
-                    console.log("FUCK");
                     console.log(player.ratGames);
                     playerRepository.updatePlayer(player);
 

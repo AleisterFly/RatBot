@@ -8,11 +8,10 @@ export class VoteManager {
     private guessRatTour: GuessRatTour
 
     constructor(
-        private viewerRepository: IViewerRepository,
         private bot: Telegraf,
     ) {
-        this.guessRat = new GuessRat(this.viewerRepository, this.bot);
-        this.guessRatTour = new GuessRatTour(this.viewerRepository, this.bot);
+        this.guessRat = new GuessRat(this.bot);
+        this.guessRatTour = new GuessRatTour(this.bot);
     }
 
     async guessRatVote(ctx: Context){

@@ -2,13 +2,14 @@ import {Context} from "telegraf";
 import {
     bot,
     userManager,
+    commandManager,
     dbManager,
     seriesDB, userRepository,  viewerDB, teamDB, phaseDB
 } from "./di/ratProvider";
 
 
 
-bot.command("show_commands", userManager.onShowCommands.bind(userManager));
+bot.command("show_commands", commandManager.onShowCommands.bind(commandManager));
 
 bot.command("start", onStart);
 bot.command("register", userManager.onRegister.bind(userManager));
