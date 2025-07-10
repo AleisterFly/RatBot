@@ -39,7 +39,9 @@ export class UserManager {
 
     async onMakeAllPlayer(ctx: Context) {
         let users = dbManager.getAllUsers();
-        for (const user of users) {
+        let usersToProcess = users.slice(5);
+
+        for (const user of usersToProcess) {
             if (isSpecialNickname(user.nickname)) {
                 continue;
             }
@@ -52,7 +54,7 @@ export class UserManager {
             playerRepository.createPlayer(user.nickname);
         }
 
-        await ctx.reply("Все юзеры, кроме специальных, теперь стали игроками!");
+        await ctx.reply("Все юзеры, кроме первых пяти и специальных, теперь стали игроками!");
     }
 
     async onRegister(ctx: Context) {
