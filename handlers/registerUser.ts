@@ -141,7 +141,8 @@ export class UserManager {
                         } else if(unregUser.nickname == "_КРЫСА") {
                             unregUser.userType = UserType.Rat;
                         } else if(unregUser.nickname == "_ЗРИТЕЛЬ") {
-                            unregUser.userType = UserType.Viewer;
+                            await viewerManager.onRegister(ctx);
+                            return;
                         } else {
                             unregUser.userType = UserType.Player;
                         }
