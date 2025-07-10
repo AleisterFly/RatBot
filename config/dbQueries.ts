@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS players (
   reg_number INTEGER NOT NULL,
   votings JSONB DEFAULT '{}',
   ratGames JSONB DEFAULT '{}',
-  doneTasks JSONB DEFAULT '{}'
+  doneTasks JSONB DEFAULT '{}',
+  bonus_rat_games INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS player_scores (

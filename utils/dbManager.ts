@@ -53,6 +53,7 @@ export class DBManager {
         votings: object = {},
         ratGames: object = {},
         doneTasks: object = {},
+        bonusRatGames: number = 0,
     ): void {
         const penaltiesStr = JSON.stringify(penalties.toArray());
         const votingsStr = JSON.stringify(votings);
@@ -60,9 +61,9 @@ export class DBManager {
         const doneTasksStr = JSON.stringify(doneTasks);
         this.db.prepare(`
             INSERT
-            OR REPLACE INTO players (nickname, team_name, game_scores, rat_scores, penalties, is_rat, reg_number, votings, ratGames, doneTasks)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(nickname, teamName, gameScores, ratScores, penaltiesStr, isRat ? 1 : 0, regNumber, votingsStr, ratGamesStr, doneTasksStr);
+            OR REPLACE INTO players (nickname, team_name, game_scores, rat_scores, penalties, is_rat, reg_number, votings, ratGames, doneTasks, bonus_rat_games)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(nickname, teamName, gameScores, ratScores, penaltiesStr, isRat ? 1 : 0, regNumber, votingsStr, ratGamesStr, doneTasksStr, bonusRatGames);
     }
 
 
@@ -207,6 +208,7 @@ export class DBManager {
             votings: string;
             ratGames: string;
             doneTasks: string;
+            bonus_rat_games: number;
         };
 
         if (!row) return undefined;
@@ -222,6 +224,7 @@ export class DBManager {
             new Map(Object.entries(JSON.parse(row.votings))),
             new Map(Object.entries(JSON.parse(row.ratGames))),
             new Map(Object.entries(JSON.parse(row.doneTasks))),
+            row.bonus_rat_games,
             // new Map(Object.entries(JSON.parse(row.votings)))
         );
     }
@@ -320,10 +323,11 @@ export class DBManager {
             votings: string;
             ratGames: string;
             doneTasks: string;
+            bonus_rat_games: number;
         }[];
         return List(rows.map(row => {
             return new Player(row.nickname, row.team_name, row.game_scores, row.rat_scores, List(JSON.parse(row.penalties)), row.is_rat, row.reg_number,
-                JSON.parse(row.votings), JSON.parse(row.ratGames), JSON.parse(row.doneTasks));
+                JSON.parse(row.votings), JSON.parse(row.ratGames), JSON.parse(row.doneTasks), row.bonus_rat_games);
         }));
     }
 
@@ -367,7 +371,8 @@ export class DBManager {
                  reg_number  = ?,
                  votings     = ?,
                  ratGames    = ?,
-                 doneTasks   = ?
+                 doneTasks   = ?,
+                 bonus_rat_games = ?
                  WHERE nickname = ?`
         ).run(
             player.teamName,
@@ -379,6 +384,7 @@ export class DBManager {
             JSON.stringify(Object.fromEntries(player.votings)),
             JSON.stringify(Object.fromEntries(player.ratGames)),
             JSON.stringify(Object.fromEntries(player.doneTasks)),
+            player.bonusRatGames,
             player.nickname
         );
     }

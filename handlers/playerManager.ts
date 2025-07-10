@@ -313,8 +313,13 @@ export class PlayerManager {
 
             const idx = session.selectedGames.indexOf(gameNum);
             const currentStage = seriesRepository.getCurrentSeria()?.stageType;
+            const user = userRepository.getRegUser(chatId);
+            if (!user) return;
 
-            const limitGamesNumber = numberRatGames(currentStage!);
+            const player = playerRepository.getByNickname(user.nickname);
+            if (!player) return;
+
+            const limitGamesNumber = numberRatGames(currentStage!) + player.bonusRatGames;
 
             if (idx === -1) {
                 if (session.selectedGames.length >= limitGamesNumber) {

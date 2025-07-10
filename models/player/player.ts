@@ -12,6 +12,7 @@ export class Player {
     votings: Map<StageType, string>;
     ratGames: Map<StageType, List<number>>;
     doneTasks: Map<StageType, number>;
+    bonusRatGames: number;
 
     constructor(
         nickname = "",
@@ -24,6 +25,7 @@ export class Player {
         votings = new Map(),
         ratGames = new Map(),
         doneTasks = new Map(),
+        bonusRatGames = 0,
     ) {
         this.nickname = nickname;
         this.teamName = teamName;
@@ -35,6 +37,7 @@ export class Player {
         this.votings = votings;
         this.ratGames = ratGames;
         this.doneTasks = doneTasks;
+        this.bonusRatGames = bonusRatGames;
     }
 
     static createPlayer(nickname: string): Player {
