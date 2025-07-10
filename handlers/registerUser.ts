@@ -59,7 +59,7 @@ export class UserManager {
         console.log("onRegister");
 
         let players = playerRepository.getAllPlayersNicknames();
-        if (players.size >= 50){
+        if (players.size > 50){
             await viewerManager.onRegister(ctx);
             return;
         }
