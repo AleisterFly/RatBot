@@ -17,7 +17,7 @@ export enum BotCommand {
     SELECT_PLAYER = 'КРЫСА / УДАЛИТЬ',
     UPDATE_CURRENT = 'ТЕКУЩАЯ СЕРИЯ (задать)',
     GET_CURRENT = 'ТЕКУЩАЯ СЕРИЯ (показать)',
-    ADD_TEAM = 'ДОБАВИТЬ КОМАНДУ',
+    ADD_TEAM = 'ДОБАВИТЬ КОМАНДЫ',
     DEFINE_CAPTAIN = "НАЗНАЧИТЬ КАПИТАНА",
     ADD_PLAYER_TO_SERIA = 'ИГРОК В СЕРИЮ',
     PLAYER_VOTING = 'ГОЛОСОВАНИЕ',

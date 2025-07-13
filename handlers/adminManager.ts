@@ -10,6 +10,7 @@ import {Player} from "../models/player/player";
 import {chunk, formatInColumns} from "../utils/util";
 import {StageType} from "../models/player/stageType";
 import {Phase} from "../models/admin/phase";
+import {teamsMap} from "../config/teamsMap";
 
 const NUMBER_OF_COLUMNS = 3;
 
@@ -34,6 +35,18 @@ export class AdminManager {
                 await this.bot.telegram.sendMessage(user.chatId, message);
             }
         }
+    }
+
+    async addTeams(ctx: Context){
+        const chatId = ctx.chat?.id as number;
+        const teamsCount = teamRepository.getTeams().size;
+        if (teamsCount >= 10) { return; }
+
+        teamsMap.forEach(team => {teamRepository.createTeamUrl(team.teamName, team.logoUrl);})
+
+        await ctx.reply(`Команды были добавлены`);
+
+        this.addTeamSessions.delete(chatId);
     }
 
     async addTeam(ctx: Context) {

@@ -216,4 +216,20 @@ export class TeamDB {
         );
         this.saveTeam(team);
     }
+
+    createTeamUrl(title: string, emblemUrl: string): void {
+        const team = new Team(
+            Date.now(),
+            title,
+            emblemUrl,
+            List(),
+            new Map<StageType, string>(),
+            0,
+            0,
+            0,
+            '',
+            ''
+        );
+        this.saveTeam(team);
+    }
 }

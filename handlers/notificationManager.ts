@@ -20,6 +20,8 @@ import {
 } from "../config/constMessage";
 import {seriesRepository, teamRepository} from "../di/ratProvider";
 import {StageType} from "../models/player/stageType";
+import * as fs from "node:fs";
+import path from "path";
 
 export interface INotificationManager {
     sendMessageToAll(message: string, type?: UserType): void;
@@ -140,11 +142,31 @@ export class NotificationManager {
         await this.bot.telegram.sendMessage(chatAdminId, secondVotedOutMessage);
     }
 
-    async sendWelcomeTeamMessage(chatAdminId: number, teamName: string) {
-        const team = teamRepository.getTeam(teamName);
-        if (!team) return;
-        await this.sendMessagesForAll(team.players, welcomeTeamMessage);
-        await this.bot.telegram.sendMessage(chatAdminId, welcomeTeamMessage);
+    async sendWelcomeTeamsMessage(chatAdminId: number) {
+        const teams = teamRepository.getTeams();
+        if (!teams) return;
+        teams.forEach(team => {
+            this.sendMessagesForAllWithImage(team.players, welcomeTeamMessage, team.emblemUrl);
+        })
+
+        const emblemUrl = teams.get(0)?.emblemUrl;
+
+        if (emblemUrl) {
+
+            const absolutePath = path.isAbsolute(emblemUrl)
+                ? emblemUrl
+                : path.resolve(__dirname, '..', emblemUrl);
+
+            if (fs.existsSync(absolutePath)) {
+                await this.bot.telegram.sendPhoto(
+                    chatAdminId,
+                    {source: fs.createReadStream(absolutePath)},
+                    {caption: welcomeTeamMessage}
+                );
+            } else {
+                console.error('❌ Файл не найден:', absolutePath);
+            }
+        }
     }
 
     async sendRatWelcomeMessage(chatAdminId: number) {
@@ -229,6 +251,36 @@ export class NotificationManager {
             } catch (error) {
                 console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
             }
+        }
+    }
+
+
+    private async sendMessagesForAllWithImage(nicknames: Immutable.List<string>, message: string, imageUrl: string) {
+        for (const nickname of nicknames) {
+            const user = this.repository.getUser(nickname);
+
+            if (!user?.chatId) continue;
+
+            const absolutePath = path.isAbsolute(imageUrl)
+                ? imageUrl
+                : path.resolve(__dirname, '..', imageUrl);
+
+            console.log("sendMessagesForAllWithImage", user.nickname, absolutePath);
+
+            try {
+                if (fs.existsSync(absolutePath)) {
+                    await this.bot.telegram.sendPhoto(
+                        user.chatId,
+                        {source: fs.createReadStream(absolutePath)},
+                        {caption: message}
+                    );
+                } else {
+                    console.error('❌ Файл не найден:', absolutePath);
+                }
+            } catch (error) {
+                console.error(`💥 Не удалось отправить сообщение пользователю ${user.nickname}:`, error);
+            }
+
         }
     }
 }

@@ -11,6 +11,10 @@ export class DBTeamRepository implements ITeamRepository {
         teamDB.createTeam(title);
     }
 
+    createTeamUrl(title: string, emblemUrl: string): void {
+        teamDB.createTeamUrl(title, emblemUrl);
+    }
+
     getActivePlayersNicknames(title: string): Immutable.List<string> | undefined {
         return teamDB.getActivePlayersNicknames(title);
     }

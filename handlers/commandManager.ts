@@ -111,7 +111,7 @@ export class CommandManager {
             case "УГАДАТЬ КРЫС В СЕРИИ": await voteManager.guessRatVote(ctx); break;
             case "УГАДАТЬ КРЫС В ТУРЕ": await voteManager.guessRatTourVote(ctx); break;
             case "ПОКАЗАТЬ ИГРОКОВ (супер)": await adminManager.onSuperShowPlayers(ctx); break;
-            case "ДОБАВИТЬ КОМАНДУ": await adminManager.addTeam(ctx); break;
+            case "ДОБАВИТЬ КОМАНДЫ": await adminManager.addTeams(ctx); break;
             case "НАЗНАЧИТЬ КАПИТАНА": await adminManager.defineCaptain(ctx); break;
             case "ИГРОК В КОМАНДУ": await adminManager.addPlayerToTeam(ctx); break;
             case "ИГРОК В СЕРИЮ": await adminManager.onAddPlayerToSeria(ctx); break;

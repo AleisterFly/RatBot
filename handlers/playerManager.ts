@@ -7,6 +7,7 @@ import { Seria } from "../models/player/series";
 import {deleteMessage} from "../utils/deleteMessage";
 import {cameraMessage} from "../config/constMessage";
 import * as fs from "node:fs";
+import path from "path";
 
 const NUMBER_OF_COLUMNS = 3;
 
@@ -415,23 +416,28 @@ export class PlayerManager {
 
     async settingCamera(ctx: Context){
 
+        const fullImagePath1 = path.resolve(__dirname, '..', "media/cam1.jpg");
+        const fullImagePath2 = path.resolve(__dirname, '..', "media/cam2.jpg");
+        const fullImagePath3 = path.resolve(__dirname, '..', "media/cam3.jpg");
+        const fullImagePath4 = path.resolve(__dirname, '..', "media/cam4.jpg");
+
         await ctx.replyWithMediaGroup([
             {
                 type: 'photo',
-                media: { source: fs.createReadStream('./media/cam1.jpg') },
+                media: { source: fs.createReadStream(fullImagePath1) },
                 caption: cameraMessage
             },
             {
                 type: 'photo',
-                media: { source: fs.createReadStream('./media/cam2.jpg') }
+                media: { source: fs.createReadStream(fullImagePath2) }
             },
             {
                 type: 'photo',
-                media: { source: fs.createReadStream('./media/cam3.jpg') }
+                media: { source: fs.createReadStream(fullImagePath3) }
             },
             {
                 type: 'photo',
-                media: { source: fs.createReadStream('./media/cam4.jpg') }
+                media: { source: fs.createReadStream(fullImagePath4) }
             }
         ]);
     }

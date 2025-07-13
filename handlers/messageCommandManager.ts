@@ -72,7 +72,7 @@ export class MessageCommandManager {
                 await notificationManager.sendVotedOutSecondMessage(chatId);
                 break;
             case messageCommand.WELCOME_TEAM:
-                await notificationManager.sendWelcomeTeamMessage(chatId,"TeamName"); // ← заменить на ввод названия
+                await notificationManager.sendWelcomeTeamsMessage(chatId); // ← заменить на ввод названия
                 break;
             case messageCommand.RAT_WELCOME:
                 await notificationManager.sendRatWelcomeMessage(chatId);
