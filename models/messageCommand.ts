@@ -1,0 +1,17 @@
+export enum MassageCommand {
+    START_PLAYER_VOTING = 'НАЧАЛО ГОЛОС',
+    START_FINAL_PLAYER_VOTING = 'НАЧАЛО ГОЛОС (финал)',
+    VIEWER_RAT_SERIA_VOTING = 'КРЫСОЛОВЫ (серия)',
+    VIEWER_RAT_TOUR_VOTING = 'КРЫСОЛОВЫ (тур)',
+    VOTED_OUT_FIRST= 'ЗАГОЛОСОВАН (1тур)',
+    VOTED_OUT_SECOND = 'ЗАГОЛОСОВАН (2тур)',
+    WELCOME_TEAM = 'ПРИВЕТ В КОМАНДЕ',
+    RAT_WELCOME = 'КРЫСЫ ПРИВЕТ ',
+    NEW_RAT_WELCOME = 'КРЫСА (новая) ПРИВЕТ',
+    CAPTAIN_REG_SERIA = 'РЕГ КАПИТАНЫ',
+    REG_SECOND_TOUR = 'РЕГ (1тур)',
+    REG_FINAL_TOUR = 'РЕГ (2тур)',
+    RAT_BONUS_MESSAGE = "КРЫСА (бонус)",
+    TO_ALL_PLAYERS = 'ВСЕМ ИГРОКАМ',
+    TO_ALL_VIEWERS = 'ВСЕМ КРЫСОЛОВАМ',
+}
