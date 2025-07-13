@@ -29,6 +29,7 @@ export enum BotCommand {
     SET_PHASE = 'ФАЗА (изменить)',
     SHOW_PHASE = 'ФАЗА (показать)',
     VIEWER_RULES = 'ПРАВИЛА КРЫСОЛОВОВ',
+    SETTING_CAMERA = 'НАСТРОЙКИ БОКОВОЙ',
 
     //TEST
     UNREG = 'unreg',
@@ -48,6 +49,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     [BotCommand.VIEWER_RULES]: [[UserType.Viewer], Phase.DEFAULT],
 
     [BotCommand.REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],
+    [BotCommand.SETTING_CAMERA]: [[UserType.Player, UserType.Rat], Phase.DEFAULT],
     [BotCommand.SHOW_REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],
     [BotCommand.CANCEL_REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],
 

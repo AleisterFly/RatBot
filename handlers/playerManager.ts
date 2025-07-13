@@ -5,6 +5,7 @@ import { chunk, formatInColumns, numberRatGames } from "../utils/util";
 import { List } from "immutable";
 import { Seria } from "../models/player/series";
 import {deleteMessage} from "../utils/deleteMessage";
+import {cameraMessage} from "../config/constMessage";
 
 const NUMBER_OF_COLUMNS = 3;
 
@@ -408,5 +409,10 @@ export class PlayerManager {
             this.ratGameSessions.delete(chatId);
             await ctx.reply("Выбор отменён.");
         });
+    }
+
+
+    async settingCamera(ctx: Context){
+        await ctx.reply(cameraMessage);
     }
 }

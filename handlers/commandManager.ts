@@ -124,6 +124,7 @@ export class CommandManager {
             case "ФАЗА (изменить)": await adminManager.updatePhase(ctx); break;
             case "ФАЗА (показать)": await adminManager.showPhase(ctx); break;
             case "ПРАВИЛА КРЫСОЛОВОВ": await voteManager.viewerRules(ctx); break;
+            case "НАСТРОЙКИ БОКОВОЙ": await playerManager.settingCamera(ctx); break;
         }
     }
 

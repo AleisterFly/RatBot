@@ -2,7 +2,22 @@ import {Telegraf} from "telegraf";
 import {IUserRepository} from "../repositories/userRepository";
 import {UserType} from "../models/userType";
 import {IPlayerRepository} from "../repositories/playerRepository";
-import {List} from "immutable";
+import Immutable, {List} from "immutable";
+import {
+    captainMessage,
+    firstVotedOutMessage,
+    newRatMessage,
+    secondVotedOutMessage,
+    startFinalTourMessage,
+    startSecondTourMessage,
+    teamFinalVotingMessage,
+    teamVotingMessage,
+    viewerVotingSeriaMessage,
+    viewerVotingTourMessage,
+    welcomeRatMessage,
+    welcomeTeamMessage
+} from "../config/constMessage";
+import {teamRepository, userManager} from "../di/ratProvider";
 
 export interface INotificationManager {
     sendMessageToAll(message: string, type?: UserType): void;
@@ -17,7 +32,7 @@ export class NotificationManager {
         this.bot = bot;
     }
 
-    async sendMessageToAll(message: string, type: UserType = UserType.SuperAdmin) {
+    async sendMessageToAll(message: string, type: UserType = UserType.Admin) {
         let ids: List<number> = List<number>();
         switch (type) {
             case UserType.All:
@@ -68,44 +83,126 @@ export class NotificationManager {
         }
     }
 
-    async sendStartPlayerVoting(message: string) {
+    async sendStartPlayerVoting() {
+        const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
+        const allPlayers = players.concat(rats);
 
+        await this.sendMessagesForAll(allPlayers, teamVotingMessage);
     }
 
-    async sendStartRatSeriaVoting(message: string) {
+    async sendStartPlayerFinalVoting() {
+        const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
+        const allPlayers = players.concat(rats);
 
+        await this.sendMessagesForAll(allPlayers, teamFinalVotingMessage);
     }
 
-    async sendStartRatTourVoting(message: string) {
+    async sendStartRatSeriaVoting() {
+        const viewers = this.playerRepository.getAllPlayersNicknames(UserType.Viewer);
 
+        await this.sendMessagesForAll(viewers, viewerVotingSeriaMessage);
     }
 
-    async sendVotedOutMessage(message: string) {
+    async sendStartRatTourVoting() {
+        const viewers = this.playerRepository.getAllPlayersNicknames(UserType.Viewer);
 
+        await this.sendMessagesForAll(viewers, viewerVotingTourMessage);
     }
 
-    async sendWelcomeTeamMessage(message: string) {
+    async sendVotedOutFirstMessage(nickname: string) {
+        const user = this.repository.getUser(nickname);
 
+        if (!user?.chatId) return;
+
+        try {
+            await this.bot.telegram.sendMessage(user.chatId, firstVotedOutMessage);
+        } catch (error) {
+            console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
+        }
     }
 
-    async sendCapitanRegSeriaMessage(message: string) {
+    async sendVotedOutSecondMessage(nickname: string) {
+        const user = this.repository.getUser(nickname);
 
+        if (!user?.chatId) return;
+
+        try {
+            await this.bot.telegram.sendMessage(user.chatId, secondVotedOutMessage);
+        } catch (error) {
+            console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
+        }
     }
 
-    async sendRegistrationFirstTourMessage(message: string) {
-
+    async sendWelcomeTeamMessage(teamName: string) {
+        const team = teamRepository.getTeam(teamName);
+        if (!team) return;
+        await this.sendMessagesForAll(team.players, welcomeTeamMessage);
     }
 
-    async sendRegistrationSecondTourMessage(message: string) {
-
+    async sendRatWelcomeMessage() {
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
+        if (!rats) return;
+        await this.sendMessagesForAll(rats, welcomeRatMessage);
     }
 
-    async sendRegistrationFinalMessage(message: string) {
+    async sendNewRatMessage(nickname: string) {
+        const user = this.repository.getUser(nickname);
 
+        if (!user?.chatId) return;
+
+        try {
+            await this.bot.telegram.sendMessage(user.chatId, newRatMessage);
+        } catch (error) {
+            console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
+        }
+    }
+
+    async sendCaptainsRegSeriaMessage() {
+        const captains = teamRepository.getCapitans();
+        if (!captains) return;
+        await this.sendMessagesForAll(captains, captainMessage);
+    }
+
+    // async sendRegistrationFirstTourMessage(message: string) {
+    //
+    // }
+
+    async sendRegistrationSecondTourMessage() {
+        const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
+        const allPlayers = players.concat(rats);
+
+        await this.sendMessagesForAll(allPlayers, startSecondTourMessage);
+    }
+
+    async sendRegistrationFinalMessage() {
+        const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
+        const allPlayers = players.concat(rats);
+
+        await this.sendMessagesForAll(allPlayers, startFinalTourMessage);
     }
 
     async sendRatBonusMessage(message: string) {
 
     }
+
+    private async sendMessagesForAll(nicknames: Immutable.List<string>, message: string) {
+        for (const nickname of nicknames) {
+            const user = this.repository.getUser(nickname);
+
+            if (!user?.chatId) continue;
+
+            try {
+                await this.bot.telegram.sendMessage(user.chatId, message);
+            } catch (error) {
+                console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
+            }
+        }
+    }
+
+
 }
 
