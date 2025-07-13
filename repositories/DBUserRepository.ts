@@ -4,6 +4,7 @@ import {dbManager} from "../di/ratProvider";
 import {List} from "immutable";
 import {UserType} from "../models/userType";
 import {unregUsers} from "../config/unregUserMap";
+import {adminMap} from "../config/adminMap";
 
 export class DBUserRepository implements IUserRepository {
     createUser(user: User): User {
@@ -49,6 +50,12 @@ export class DBUserRepository implements IUserRepository {
             if (!exists) {
                 dbManager.addUser(unregUser.nickname, unregUser.telegramName, -1, UserType.UnregPlayer);
             }
+        }
+    }
+
+    saveAdmins(): void {
+        for (const admin of adminMap) {
+                dbManager.addUser(admin.nickname, admin.telegramName,  admin.chatId, admin.userType);
         }
     }
 

@@ -48,6 +48,7 @@ teamDB.createTables();
 phaseDB.createTables();
 dbManager.createTables();
 userRepository.saveUnregUsers();
+userRepository.saveAdmins()
 seriesDB.initSeries();
 
 // TODO: Приветствие
