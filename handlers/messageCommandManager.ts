@@ -92,12 +92,12 @@ export class MessageCommandManager {
             case messageCommand.RAT_BONUS_MESSAGE:
                 await notificationManager.sendRatBonusMessage(chatId,"nickname");
                 break;
-            case messageCommand.TO_ALL_PLAYERS:
-                await notificationManager.sendMessageToAll(chatId,"Введите сообщение...", UserType.Player);
-                break;
-            case messageCommand.TO_ALL_VIEWERS:
-                await notificationManager.sendMessageToAll(chatId,"Введите сообщение...", UserType.Viewer);
-                break;
+            // case messageCommand.TO_ALL_PLAYERS:
+            //     await notificationManager.sendMessageToAll(chatId,"Введите сообщение...", UserType.Player);
+            //     break;
+            // case messageCommand.TO_ALL_VIEWERS:
+            //     await notificationManager.sendMessageToAll(chatId,"Введите сообщение...", UserType.Viewer);
+            //     break;
         }
     }
 }
