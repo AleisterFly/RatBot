@@ -359,12 +359,17 @@ export class AdminManager {
             userRepository.updateUser(user);
 
             let team = teamRepository.getTeamByNickname(user.nickname)
-            if (team) {
+            let stage = seriesRepository.getCurrentSeria()?.stageType
+            if (team && stage) {
                 if (isVoted) {
                     team.players = team.players.filter(p => p !== user.nickname)
-                    team.kickedPlayers = team.kickedPlayers.push(user.nickname)
+                    team.kickedPlayers = team.kickedPlayers.set(stage, user.nickname)
                 } else {
-                    team.kickedPlayers = team.kickedPlayers.filter(p => p !== user.nickname)
+                    for (const [stage, nickname] of team.kickedPlayers.entries()) {
+                        if (nickname === user.nickname) {
+                            team.kickedPlayers.delete(stage);
+                        }
+                    }
                     team.players = team.players.push(user.nickname)
                 }
                 teamRepository.updateTeam(team);

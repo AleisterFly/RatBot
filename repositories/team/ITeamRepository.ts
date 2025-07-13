@@ -1,5 +1,6 @@
 import {List} from "immutable";
 import {Team} from "../../models/player/team";
+import {StageType} from "../../models/player/stageType";
 
 export interface ITeamRepository {
     getTeams(): List<Team>;
@@ -14,7 +15,7 @@ export interface ITeamRepository {
     setTeamScore(title: string, score: number): void;
     setTeamBonusScore(title: string, bonusScore: number): void;
     setTeamTotalScore(title: string, totalScore: number): void;
-    setTeamKickedPlayers(title: string, kickedPlayers: List<string>): void;
+    setTeamKickedPlayers(title: string, kickedPlayers: Map<StageType, string>): void;
     setTeamActivePlayers(title: string, activePlayers: List<string>): void;
     saveTeam(team: Team): void;
     updateTeam(team: Team): void;

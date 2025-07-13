@@ -2,6 +2,7 @@ import {ITeamRepository} from "./ITeamRepository";
 import Immutable, {List} from "immutable";
 import {Team} from "../../models/player/team";
 import {teamDB} from "../../di/ratProvider";
+import {StageType} from "../../models/player/stageType";
 
 export class DBTeamRepository implements ITeamRepository {
     constructor() {}
@@ -63,7 +64,7 @@ export class DBTeamRepository implements ITeamRepository {
         teamDB.setTeamEmblemUrl(title, emblemUrl);
     }
 
-    setTeamKickedPlayers(title: string, kickedPlayers: Immutable.List<string>): void {
+    setTeamKickedPlayers(title: string, kickedPlayers: Map<StageType, string>): void {
         teamDB.setTeamKickedPlayers(title, kickedPlayers);
     }
 

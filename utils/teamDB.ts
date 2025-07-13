@@ -1,7 +1,8 @@
-import Database, {type Database as DatabaseType} from 'better-sqlite3';
-import {List} from "immutable";
-import {Team} from "../models/player/team";
+import Database, { type Database as DatabaseType } from 'better-sqlite3';
+import { List} from "immutable";
+import { Team } from "../models/player/team";
 import path from "path";
+import {StageType} from "../models/player/stageType"; // Проверь путь к типу StageType
 
 export class TeamDB {
     private db: DatabaseType;
@@ -14,16 +15,16 @@ export class TeamDB {
         this.db.exec(`
             CREATE TABLE IF NOT EXISTS teams
             (
-                id                INTEGER                PRIMARY                KEY,
-                title                TEXT                UNIQUE,
-                emblemUrl                TEXT,
-                players                TEXT,
-                kickedPlayers                TEXT,
-                score                INTEGER,
-                bonusScore                INTEGER,
-                totalScore                INTEGER,
-                ratPlayer                TEXT,
-                capitan                TEXT
+                id            INTEGER PRIMARY KEY,
+                title         TEXT UNIQUE,
+                emblemUrl     TEXT,
+                players       TEXT,
+                kickedPlayers TEXT,
+                score         INTEGER,
+                bonusScore    INTEGER,
+                totalScore    INTEGER,
+                ratPlayer     TEXT,
+                capitan       TEXT
             )
         `);
     }
@@ -41,12 +42,13 @@ export class TeamDB {
             ratPlayer: string,
             capitan: string,
         }[];
+
         return List(teams.map(t => new Team(
             t.id,
             t.title,
             t.emblemUrl,
             List(JSON.parse(t.players)),
-            List(JSON.parse(t.kickedPlayers)),
+            new Map<StageType, string>(JSON.parse(t.kickedPlayers)),
             t.score,
             t.bonusScore,
             t.totalScore,
@@ -68,13 +70,15 @@ export class TeamDB {
             ratPlayer: string,
             capitan: string,
         };
+
         if (!team) return undefined;
+
         return new Team(
             team.id,
             team.title,
             team.emblemUrl,
             List(JSON.parse(team.players)),
-            List(JSON.parse(team.kickedPlayers)),
+            new Map(Object.entries(JSON.parse(team.kickedPlayers))),
             team.score,
             team.bonusScore,
             team.totalScore,
@@ -85,12 +89,15 @@ export class TeamDB {
 
     getTeamByNickname(nickname: string): Team | undefined {
         const teams = this.getTeams();
-        return teams.find(team => team.players.includes(nickname)  || team.kickedPlayers.includes(nickname));
+        return teams.find(team =>
+            team.players.includes(nickname) ||
+            [...team.kickedPlayers.values()].includes(nickname)
+        );
     }
 
     getKickedNicknames(title: string): List<string> | undefined {
         const team = this.getTeam(title);
-        return team?.kickedPlayers;
+        return team ? List([...team.kickedPlayers.values()]) : undefined;
     }
 
     getActivePlayersNicknames(title: string): List<string> | undefined {
@@ -136,9 +143,9 @@ export class TeamDB {
         this.db.prepare('UPDATE teams SET totalScore = ? WHERE title = ?').run(totalScore, title);
     }
 
-    setTeamKickedPlayers(title: string, kickedPlayers: List<string>): void {
+    setTeamKickedPlayers(title: string, kickedPlayers: Map<StageType, string>): void {
         this.db.prepare('UPDATE teams SET kickedPlayers = ? WHERE title = ?')
-            .run(JSON.stringify(kickedPlayers.toArray()), title);
+            .run(JSON.stringify(Object.fromEntries(kickedPlayers)), title);
     }
 
     setTeamActivePlayers(title: string, activePlayers: List<string>): void {
@@ -148,15 +155,14 @@ export class TeamDB {
 
     saveTeam(team: Team): void {
         this.db.prepare(`
-            INSERT INTO teams (id, title, emblemUrl, players, kickedPlayers, score, bonusScore, totalScore, ratPlayer,
-                               capitan)
+            INSERT INTO teams (id, title, emblemUrl, players, kickedPlayers, score, bonusScore, totalScore, ratPlayer, capitan)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
             team.id,
             team.title,
             team.emblemUrl,
             JSON.stringify(team.players.toArray()),
-            JSON.stringify(team.kickedPlayers.toArray()),
+            JSON.stringify(Object.fromEntries(team.kickedPlayers)),
             team.score,
             team.bonusScore,
             team.totalScore,
@@ -182,7 +188,7 @@ export class TeamDB {
             team.title,
             team.emblemUrl,
             JSON.stringify(team.players.toArray()),
-            JSON.stringify(team.kickedPlayers.toArray()),
+            JSON.stringify(Object.fromEntries(team.kickedPlayers)),
             team.score,
             team.bonusScore,
             team.totalScore,
@@ -198,7 +204,7 @@ export class TeamDB {
             title,
             '',
             List(),
-            List(),
+            new Map<StageType, string>(),
             0,
             0,
             0,
