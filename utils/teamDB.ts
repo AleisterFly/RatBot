@@ -48,7 +48,10 @@ export class TeamDB {
             t.title,
             t.emblemUrl,
             List(JSON.parse(t.players)),
-            new Map<StageType, string>(JSON.parse(t.kickedPlayers)),
+            new Map<StageType, string>(
+                Object.entries(JSON.parse(t.kickedPlayers))
+                    .map(([key, value]) => [key as StageType, value]) as [StageType, string][]
+            ),
             t.score,
             t.bonusScore,
             t.totalScore,

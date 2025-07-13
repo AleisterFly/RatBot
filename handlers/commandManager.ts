@@ -1,6 +1,7 @@
 import { Context, Markup, Telegraf } from "telegraf";
 import {
     adminManager,
+    messageCommandManager,
     phaseRepository,
     playerManager,
     seriesRepository,
@@ -98,6 +99,7 @@ export class CommandManager {
 
     private async executeCommand(command: string, ctx: Context) {
         switch (command) {
+            case "СООБЩЕНИЯ": await messageCommandManager.showMessageCommands(ctx); break;
             case "ПОКАЗАТЬ ИГРОКОВ": await adminManager.onShowPlayers(ctx); break;
             case "КРЫСА / УДАЛИТЬ": await adminManager.onSelectPlayer(ctx); break;
             case "ТЕКУЩАЯ СЕРИЯ (задать)": await adminManager.updateCurrentSeria(ctx); break;

@@ -99,6 +99,11 @@ export class UserManager {
             //   parse_mode: "HTML",
             // });
 
+            if (nickname === "_ЗРИТЕЛЬ") {
+                await viewerManager.onRegister(ctx);
+                return;
+            }
+
             const buttons = chunk(
                 selectConfirmation.map((select) =>
                     Markup.button.callback(select, `on_confirm:${select}|${nickname}`)

@@ -6,8 +6,9 @@ import Immutable, {List} from "immutable";
 import {
     captainMessage,
     firstVotedOutMessage,
-    newRatMessage, ratBonusMessage,
-    secondVotedOutMessage,
+    newRatMessage,
+    ratBonusMessage,
+    secondVotedOutMessage, seriaMessage,
     startFinalTourMessage,
     startSecondTourMessage,
     teamFinalVotingMessage,
@@ -17,7 +18,8 @@ import {
     welcomeRatMessage,
     welcomeTeamMessage
 } from "../config/constMessage";
-import {teamRepository, userManager} from "../di/ratProvider";
+import {seriesRepository, teamRepository} from "../di/ratProvider";
+import {StageType} from "../models/player/stageType";
 
 export interface INotificationManager {
     sendMessageToAll(message: string, type?: UserType): void;
@@ -32,7 +34,7 @@ export class NotificationManager {
         this.bot = bot;
     }
 
-    async sendMessageToAll(message: string, type: UserType = UserType.Admin) {
+    async sendMessageToAll(chatAdminId: number, message: string, type: UserType = UserType.Admin) {
         let ids: List<number> = List<number>();
         switch (type) {
             case UserType.All:
@@ -56,9 +58,10 @@ export class NotificationManager {
         for (const id of ids) {
             await this.bot.telegram.sendMessage(id, message);
         }
+        await this.bot.telegram.sendMessage(chatAdminId, message);
     }
 
-    async sendMessageWithPhotoToAll(photoUrl: string, message: string, type: UserType = UserType.Admin) {
+    async sendMessageWithPhotoToAll(chatAdminId: number, photoUrl: string, message: string, type: UserType = UserType.Admin) {
         let ids: List<number> = List<number>();
         switch (type) {
             case UserType.All:
@@ -81,117 +84,133 @@ export class NotificationManager {
         for (const id of ids) {
             await this.bot.telegram.sendPhoto(id, photoUrl, {caption: message});
         }
+        await this.bot.telegram.sendPhoto(chatAdminId, photoUrl, {caption: message});
     }
 
-    async sendStartPlayerVoting() {
+    async sendStartPlayerVoting(chatAdminId: number) {
         const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
         const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
         const allPlayers = players.concat(rats);
 
         await this.sendMessagesForAll(allPlayers, teamVotingMessage);
+
+        await this.bot.telegram.sendMessage(chatAdminId, teamVotingMessage)
     }
 
-    async sendStartPlayerFinalVoting() {
+    async sendStartPlayerFinalVoting(chatAdminId: number) {
         const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
         const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
         const allPlayers = players.concat(rats);
 
         await this.sendMessagesForAll(allPlayers, teamFinalVotingMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, teamFinalVotingMessage);
     }
 
-    async sendStartRatSeriaVoting() {
+    async sendStartRatSeriaVoting(chatAdminId: number) {
         const viewers = this.playerRepository.getAllPlayersNicknames(UserType.Viewer);
 
         await this.sendMessagesForAll(viewers, viewerVotingSeriaMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, viewerVotingSeriaMessage);
     }
 
-    async sendStartRatTourVoting() {
+    async sendStartRatTourVoting(chatAdminId: number) {
         const viewers = this.playerRepository.getAllPlayersNicknames(UserType.Viewer);
 
         await this.sendMessagesForAll(viewers, viewerVotingTourMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, viewerVotingTourMessage);
     }
 
-    async sendVotedOutFirstMessage(nickname: string) {
-        const user = this.repository.getUser(nickname);
+    async sendVotedOutFirstMessage(chatAdminId: number) {
+        const teams = teamRepository.getTeams();
+        const kickedNicknamesForStage = teams
+            .map(team => team.kickedPlayers.get(StageType.FIRST_TOUR))
+            .filter((nickname): nickname is string => Boolean(nickname));
 
-        if (!user?.chatId) return;
-
-        try {
-            await this.bot.telegram.sendMessage(user.chatId, firstVotedOutMessage);
-        } catch (error) {
-            console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
-        }
+        await this.sendMessagesForAll(kickedNicknamesForStage, firstVotedOutMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, firstVotedOutMessage);
     }
 
-    async sendVotedOutSecondMessage(nickname: string) {
-        const user = this.repository.getUser(nickname);
+    async sendVotedOutSecondMessage(chatAdminId: number) {
+        const teams = teamRepository.getTeams();
+        const kickedNicknamesForStage = teams
+            .map(team => team.kickedPlayers.get(StageType.FIRST_TOUR))
+            .filter((nickname): nickname is string => Boolean(nickname));
 
-        if (!user?.chatId) return;
-
-        try {
-            await this.bot.telegram.sendMessage(user.chatId, secondVotedOutMessage);
-        } catch (error) {
-            console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
-        }
+        await this.sendMessagesForAll(kickedNicknamesForStage, secondVotedOutMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, secondVotedOutMessage);
     }
 
-    async sendWelcomeTeamMessage(teamName: string) {
+    async sendWelcomeTeamMessage(chatAdminId: number, teamName: string) {
         const team = teamRepository.getTeam(teamName);
         if (!team) return;
         await this.sendMessagesForAll(team.players, welcomeTeamMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, welcomeTeamMessage);
     }
 
-    async sendRatWelcomeMessage() {
+    async sendRatWelcomeMessage(chatAdminId: number) {
         const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
         if (!rats) return;
         await this.sendMessagesForAll(rats, welcomeRatMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, welcomeRatMessage);
     }
 
-    async sendNewRatMessage(nickname: string) {
+    async sendNewRatMessage(chatAdminId: number, nickname: string) {
         const user = this.repository.getUser(nickname);
 
         if (!user?.chatId) return;
 
         try {
             await this.bot.telegram.sendMessage(user.chatId, newRatMessage);
+            await this.bot.telegram.sendMessage(chatAdminId, newRatMessage);
         } catch (error) {
             console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
         }
     }
 
-    async sendCaptainsRegSeriaMessage() {
+    async sendCaptainsRegSeriaMessage(chatAdminId: number) {
         const captains = teamRepository.getCapitans();
         if (!captains) return;
         await this.sendMessagesForAll(captains, captainMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, captainMessage);
+    }
+
+    async startSeriaMessage(chatAdminId: number) {
+        const regNicknames = seriesRepository.getCurrentSeria()?.regNicknames;
+        if (!regNicknames) return;
+        await this.sendMessagesForAll(regNicknames, seriaMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, seriaMessage);
     }
 
     // async sendRegistrationFirstTourMessage(message: string) {
     //
     // }
 
-    async sendRegistrationSecondTourMessage() {
+    async sendRegistrationSecondTourMessage(chatAdminId: number) {
         const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
         const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
         const allPlayers = players.concat(rats);
 
         await this.sendMessagesForAll(allPlayers, startSecondTourMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, startSecondTourMessage);
     }
 
-    async sendRegistrationFinalMessage() {
+    async sendRegistrationFinalMessage(chatAdminId: number) {
         const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
         const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
         const allPlayers = players.concat(rats);
 
         await this.sendMessagesForAll(allPlayers, startFinalTourMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, startFinalTourMessage);
     }
 
-    async sendRatBonusMessage(nickname: string) {
+    async sendRatBonusMessage(chatAdminId: number, nickname: string) {
         const user = this.repository.getUser(nickname);
 
         if (!user?.chatId) return;
 
         try {
             await this.bot.telegram.sendMessage(user.chatId, ratBonusMessage);
+            await this.bot.telegram.sendMessage(chatAdminId, ratBonusMessage);
         } catch (error) {
             console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
         }
@@ -202,6 +221,8 @@ export class NotificationManager {
             const user = this.repository.getUser(nickname);
 
             if (!user?.chatId) continue;
+
+            console.log("sendMessagesForAll " + nickname + " " + message + "");
 
             try {
                 await this.bot.telegram.sendMessage(user.chatId, message);

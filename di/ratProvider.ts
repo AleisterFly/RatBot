@@ -20,6 +20,7 @@ import {DBTeamRepository} from "../repositories/team/DBTeamRepository";
 import {PhaseDB} from "../utils/phaseDB";
 import {DBPhaseRepository} from "../repositories/DBPhaseRepository";
 import {CommandManager} from "../handlers/commandManager";
+import {MessageCommandManager} from "../handlers/messageCommandManager";
 
 export const bot = new Telegraf(TELEGRAM_BOT_TOKEN);
 export const userRepository = new DBUserRepository();
@@ -28,6 +29,7 @@ export const viewerRepository = new DBViewerRepository();
 export const playerManager = new PlayerManager(playerRepository, bot);
 export const userManager = new UserManager(bot);
 export const commandManager = new CommandManager(bot);
+export const messageCommandManager = new MessageCommandManager(bot);
 export const viewerManager = new ViewerManager(viewerRepository, bot);
 export const voteManager = new VoteManager(bot);
 export const notificationManager = new NotificationManager(userRepository, playerRepository, bot);

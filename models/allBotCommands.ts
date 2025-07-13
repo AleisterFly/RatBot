@@ -5,6 +5,7 @@ export enum BotCommand {
     START = 'start',
     // REGISTER = 'РЕГИСТРАЦИЯ ИГРОКА',
     // BETTING_REGISTRATION = 'РЕГИСТРАЦИЯ В КОНКУРСЕ',
+    SEND_MESSAGE = "СООБЩЕНИЯ",
     GUESS_RAT = 'УГАДАТЬ КРЫС В СЕРИИ',
     GUESS_RAT_TOUR = 'УГАДАТЬ КРЫС В ТУРЕ',
     REG_SERIA = 'ЗАПИСАТЬСЯ НА СЕРИЮ',
@@ -43,6 +44,8 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     // [BotCommand.REGISTER]: [UserType.UnregPlayer, UserType.Viewer],
     // [BotCommand.BETTING_REGISTRATION]: [UserType.Viewer],
     [BotCommand.START]: [[UserType.All], Phase.DEFAULT],
+
+    [BotCommand.SEND_MESSAGE]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
 
     [BotCommand.GUESS_RAT]: [[UserType.Viewer], Phase.RAT_SERIA_VOTING],
     [BotCommand.GUESS_RAT_TOUR]: [[UserType.Viewer], Phase.RAT_TOUR_VOTING],
