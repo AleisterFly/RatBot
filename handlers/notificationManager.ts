@@ -6,7 +6,7 @@ import Immutable, {List} from "immutable";
 import {
     captainMessage,
     firstVotedOutMessage,
-    newRatMessage,
+    newRatMessage, ratBonusMessage,
     secondVotedOutMessage,
     startFinalTourMessage,
     startSecondTourMessage,
@@ -185,8 +185,16 @@ export class NotificationManager {
         await this.sendMessagesForAll(allPlayers, startFinalTourMessage);
     }
 
-    async sendRatBonusMessage(message: string) {
+    async sendRatBonusMessage(nickname: string) {
+        const user = this.repository.getUser(nickname);
 
+        if (!user?.chatId) return;
+
+        try {
+            await this.bot.telegram.sendMessage(user.chatId, ratBonusMessage);
+        } catch (error) {
+            console.error(`Не удалось отправить сообщение пользователю ${nickname}:`, error);
+        }
     }
 
     private async sendMessagesForAll(nicknames: Immutable.List<string>, message: string) {
@@ -202,7 +210,5 @@ export class NotificationManager {
             }
         }
     }
-
-
 }
 
