@@ -6,6 +6,7 @@ import { List } from "immutable";
 import { Seria } from "../models/player/series";
 import {deleteMessage} from "../utils/deleteMessage";
 import {cameraMessage} from "../config/constMessage";
+import * as fs from "node:fs";
 
 const NUMBER_OF_COLUMNS = 3;
 
@@ -413,6 +414,25 @@ export class PlayerManager {
 
 
     async settingCamera(ctx: Context){
-        await ctx.reply(cameraMessage);
+
+        await ctx.replyWithMediaGroup([
+            {
+                type: 'photo',
+                media: { source: fs.createReadStream('./media/cam1.jpg') },
+                caption: cameraMessage
+            },
+            {
+                type: 'photo',
+                media: { source: fs.createReadStream('./media/cam2.jpg') }
+            },
+            {
+                type: 'photo',
+                media: { source: fs.createReadStream('./media/cam3.jpg') }
+            },
+            {
+                type: 'photo',
+                media: { source: fs.createReadStream('./media/cam4.jpg') }
+            }
+        ]);
     }
 }
