@@ -2,6 +2,7 @@ import { Context, Markup, Telegraf } from "telegraf";
 import { IViewerRepository } from "../../repositories/viewerRepository";
 import {GuessRat} from "./guessRat";
 import {GuessRatTour} from "./guessRatTour";
+import {viewerRulesMessage} from "../../config/constMessage";
 
 export class VoteManager {
     private guessRat: GuessRat
@@ -20,5 +21,9 @@ export class VoteManager {
 
     async guessRatTourVote(ctx: Context){
         await this.guessRatTour.onRatVote(ctx);
+    }
+
+    async viewerRules(ctx: Context){
+        await ctx.reply(viewerRulesMessage);
     }
 }

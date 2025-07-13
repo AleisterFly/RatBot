@@ -28,6 +28,7 @@ export enum BotCommand {
     ADD_PLAYER_TO_TEAM = 'ИГРОК В КОМАНДУ',
     SET_PHASE = 'ФАЗА (изменить)',
     SHOW_PHASE = 'ФАЗА (показать)',
+    VIEWER_RULES = 'ПРАВИЛА КРЫСОЛОВОВ',
 
     //TEST
     UNREG = 'unreg',
@@ -44,6 +45,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
 
     [BotCommand.GUESS_RAT]: [[UserType.Viewer], Phase.RAT_SERIA_VOTING],
     [BotCommand.GUESS_RAT_TOUR]: [[UserType.Viewer], Phase.RAT_TOUR_VOTING],
+    [BotCommand.VIEWER_RULES]: [[UserType.Viewer], Phase.DEFAULT],
 
     [BotCommand.REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],
     [BotCommand.SHOW_REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],

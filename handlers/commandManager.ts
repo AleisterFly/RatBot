@@ -123,6 +123,7 @@ export class CommandManager {
             case "КРЫСО-ИГРЫ": await adminManager.showRatSelectGames(ctx); break;
             case "ФАЗА (изменить)": await adminManager.updatePhase(ctx); break;
             case "ФАЗА (показать)": await adminManager.showPhase(ctx); break;
+            case "ПРАВИЛА КРЫСОЛОВОВ": await voteManager.viewerRules(ctx); break;
         }
     }
 
