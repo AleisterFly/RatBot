@@ -60,7 +60,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
 
     [BotCommand.SHOW_VOTING]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_PLAYERS]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
-    [BotCommand.SELECT_PLAYER]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SELECT_PLAYER]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.UPDATE_CURRENT]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.GET_CURRENT]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.ADD_TEAM]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
