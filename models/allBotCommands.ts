@@ -48,7 +48,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     [BotCommand.SEND_MESSAGE]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
 
     [BotCommand.GUESS_RAT]: [[UserType.Viewer], Phase.RAT_SERIA_VOTING],
-    [BotCommand.GUESS_RAT_TOUR]: [[UserType.Viewer], Phase.RAT_TOUR_VOTING],
+    [BotCommand.GUESS_RAT_TOUR]: [[UserType.Viewer], Phase.TEAM_VOTING],
     [BotCommand.VIEWER_RULES]: [[UserType.Viewer], Phase.DEFAULT],
 
     [BotCommand.REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],
