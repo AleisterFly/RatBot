@@ -25,6 +25,20 @@ export class AdminManager {
         this.registerActions();
     }
 
+    isInAddTeamSession(chatId: number) {
+        return this.addTeamSessions.has(chatId);
+    }
+
+    async handleText(ctx: Context) {
+        const chatId = ctx.chat?.id;
+        if (!chatId || !ctx.message || typeof ctx.message !== 'object' || !('text' in ctx.message)) return;
+
+        const teamName = ctx.message.text;
+        teamRepository.createTeam(teamName);
+        await ctx.reply(`Команда ${teamName} была добавлена`);
+        this.addTeamSessions.delete(chatId);
+    }
+
     async sendMessageToOnlyPlayers(message: string) {
         let nicknames = playerRepository.getAllPlayersNicknames(UserType.Player);
 
@@ -62,19 +76,6 @@ export class AdminManager {
 
         this.addTeamSessions ??= new Map();
         this.addTeamSessions.set(chatId, true);
-
-        this.bot.on('text', async (ctx) => {
-            const chatId = ctx.chat.id;
-
-            if (!this.addTeamSessions.get(chatId)) return;
-
-            const teamName = ctx.message.text;
-
-            teamRepository.createTeam(teamName);
-            await ctx.reply(`Команда ${teamName} была добавлена`);
-
-            this.addTeamSessions.delete(chatId);
-        });
     }
 
     async addPlayerToTeam(ctx: Context) {

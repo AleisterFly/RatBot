@@ -1,4 +1,4 @@
-import {Telegraf} from "telegraf";
+import {Context, Markup, Telegraf} from "telegraf";
 import {IUserRepository} from "../repositories/userRepository";
 import {UserType} from "../models/userType";
 import {IPlayerRepository} from "../repositories/playerRepository";
@@ -189,6 +189,19 @@ export class NotificationManager {
         }
     }
 
+    async showPlayerSelectionForNewRat(ctx: Context) {
+        const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
+
+        const keyboard = Markup.inlineKeyboard(
+            players
+                .map(nickname => Markup.button.callback(nickname, `newrat:${nickname}`))
+                .toArray(),
+            { columns: 1 }
+        );
+
+        await ctx.reply("Выберите игрока для сообщения 'Новая крыса':", keyboard);
+    }
+
     async sendCaptainsRegSeriaMessage(chatAdminId: number) {
         const captains = teamRepository.getCapitans();
         if (!captains) return;
@@ -238,12 +251,69 @@ export class NotificationManager {
         }
     }
 
+    async showRatSelectionForBonus(ctx: Context) {
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.All);
+
+        const keyboard = Markup.inlineKeyboard(
+            rats
+                .map(nickname => Markup.button.callback(nickname, `ratbonus:${nickname}`))
+                .toArray(),
+            { columns: 1 }
+        );
+
+        await ctx.reply("Выберите крысу для отправки бонуса:", keyboard);
+    }
+
+    async showPlayerSelectionForCustomMessage(ctx: Context) {
+        const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
+
+        const keyboard = Markup.inlineKeyboard(
+            players
+                .map(nickname => Markup.button.callback(nickname, `sendmsgto:${nickname}`))
+                .toArray(),
+            { columns: 1 }
+        );
+
+        await ctx.reply("Выберите игрока для отправки произвольного сообщения:", keyboard);
+    }
+
+    async sendMessageToAllRats(chatAdminId: number, message: string) {
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
+        await this.sendMessagesForAll(rats, message);
+        await this.bot.telegram.sendMessage(chatAdminId, message);
+    }
+
+    async sendMessageToAllPlayers(chatAdminId: number, message: string) {
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.Player);
+        await this.sendMessagesForAll(rats, message);
+        await this.bot.telegram.sendMessage(chatAdminId, message);
+    }
+
+    async sendMessageToAllViewers(chatAdminId: number, message: string) {
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.Viewer);
+        await this.sendMessagesForAll(rats, message);
+        await this.bot.telegram.sendMessage(chatAdminId, message);
+    }
+
+    async showRatSelectionForTask(ctx: Context) {
+        const players = this.playerRepository.getAllPlayersNicknames(UserType.All);
+
+        const keyboard = Markup.inlineKeyboard(
+            players
+                .map(nickname => Markup.button.callback(nickname, `select_task_target:${nickname}`))
+                .toArray(),
+            { columns: 1 }
+        );
+
+        await ctx.reply("Выберите игрока для задания:", keyboard);
+    }
+
+
     private async sendMessagesForAll(nicknames: Immutable.List<string>, message: string) {
         for (const nickname of nicknames) {
             const user = this.repository.getUser(nickname);
 
             if (!user?.chatId) continue;
-
             console.log("sendMessagesForAll " + nickname + " " + message + "");
 
             try {

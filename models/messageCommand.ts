@@ -13,6 +13,9 @@ export const messageCommand = {
     REG_SECOND_TOUR: 'РЕГ (2тур)',
     REG_FINAL_TOUR: 'РЕГ (финал)',
     RAT_BONUS_MESSAGE: "КРЫСА (бонус)",
-    TO_ALL_PLAYERS: 'ВСЕМ ИГРОКАМ',
-    TO_ALL_VIEWERS: 'ВСЕМ КРЫСОЛОВАМ',
+    SEND_TASK_TO_RAT: 'ОТПР. ЗАДАНИЕ КРЫСЕ',
+    SEND_TO_PLAYER: 'НАПИСАТЬ ИГРОКУ',
+    TO_ALL_RATS_MESSAGE: "ВСЕМ КРЫСАМ",
+    TO_ALL_PLAYERS_MESSAGE: "ВСЕМ ИГРОКАМ",
+    TO_ALL_VIEWERS_MESSAGE: "ВСЕМ КРЫСОЛОВАМ",
 } as const;

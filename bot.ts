@@ -4,8 +4,9 @@ import {
     userManager,
     commandManager,
     dbManager,
-    seriesDB, userRepository,  viewerDB, teamDB, phaseDB
+    seriesDB, userRepository, viewerDB, teamDB, phaseDB, viewerManager, messageCommandManager, adminManager
 } from "./di/ratProvider";
+import {message} from "telegraf/filters";
 
 
 
@@ -51,7 +52,27 @@ userRepository.saveUnregUsers();
 userRepository.saveAdmins()
 seriesDB.initSeries();
 
+bot.on(message("text"), async (ctx) => {
+    const chatId = ctx.chat?.id;
+    if (!chatId) return;
+
+    if (viewerManager.isInSession(chatId)) {
+        await viewerManager.handleText(ctx);
+        return;
+    }
+
+    if (messageCommandManager.isInSession(chatId)) {
+        await messageCommandManager.handleText(ctx);
+        return;
+    }
+
+    if (adminManager.isInAddTeamSession(chatId)) {
+        await adminManager.handleText(ctx);
+        return;
+    }
+});
+
 // TODO: Приветствие
 async function onStart(ctx: Context) {
-    ctx.reply("Добро пожаловать!");
+    await ctx.reply("Добро пожаловать!");
 }

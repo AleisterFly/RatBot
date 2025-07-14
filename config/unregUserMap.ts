@@ -53,8 +53,6 @@ export const unregUsers = [
     {nickname: "Дари", telegramName: "@dariazhadanova"},
     {nickname: "Мейзікін", telegramName: "@la_meizikin"},
     {nickname: "DiElectric", telegramName: "@Dmitry_Gibert"},
-    {nickname: "_СУПЕР АДМИН", telegramName: "ввввв"},
-    {nickname: "_АДМИН", telegramName: "АДМИН"},
     {nickname: "_ЗРИТЕЛЬ", telegramName: "_ЗРИТЕЛЬ"}
 ]
 
