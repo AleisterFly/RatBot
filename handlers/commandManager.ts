@@ -118,6 +118,7 @@ export class CommandManager {
             case "unreg": await userManager.onUnreg(ctx); break;
             case "make_all_player": await userManager.onMakeAllPlayer(ctx); break;
             case "ГОЛОСОВАНИЕ": await playerManager.voting(ctx); break;
+            case "ГОЛОСОВАНИЕ (финал)": await playerManager.voting(ctx); break;
             case "ПОКАЗАТЬ ГОЛОСОВАНИЕ": await adminManager.showVoting(ctx); break;
             case "ВЫБРАТЬ КРЫСОИГРЫ": await playerManager.startRatGameSelection(ctx); break;
             case "ЗАДАНИЕ ВЫПОЛНЕНО!": await playerManager.ratDoneTask(ctx); break;

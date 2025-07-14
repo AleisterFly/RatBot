@@ -20,6 +20,7 @@ export enum BotCommand {
     ADD_TEAM = 'ДОБАВИТЬ КОМАНДЫ',
     DEFINE_CAPTAIN = "НАЗНАЧИТЬ КАПИТАНА",
     ADD_PLAYER_TO_SERIA = 'ИГРОК В СЕРИЮ',
+    FINAL_PLAYER_VOTING = 'ГОЛОСОВАНИЕ (финал)',
     PLAYER_VOTING = 'ГОЛОСОВАНИЕ',
     SHOW_VOTING = 'ПОКАЗАТЬ ГОЛОСОВАНИЕ',
     RAT_SELECT_GAMES = 'ВЫБРАТЬ КРЫСОИГРЫ',
@@ -57,6 +58,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     [BotCommand.CANCEL_REG_SERIA]: [[UserType.Player, UserType.Rat], Phase.TOUR_REGISTRATION],
 
     [BotCommand.PLAYER_VOTING]: [[UserType.Player, UserType.Rat], Phase.TEAM_VOTING],
+    [BotCommand.FINAL_PLAYER_VOTING]: [[UserType.Player, UserType.Rat], Phase.FINAL_TEAM_VOTING],
 
     [BotCommand.RAT_SELECT_GAMES]: [[UserType.Rat], Phase.TOUR_REGISTRATION],
     [BotCommand.RAT_DONE_TASK]: [[UserType.Rat], Phase.DEFAULT],
