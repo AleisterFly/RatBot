@@ -7,18 +7,18 @@ import {deleteMessage} from "../utils/deleteMessage";
 
 const COLUMNS = 1;
 const awaitingMessageFromAdmin = new Map<number, string>();
-const tasksImages: Record<number, string> = {
-    1: 'media/cam1.jpg',
-    2: 'media/cam2.jpg',
-    3: 'media/cam3.jpg',
-};
 
 export class MessageCommandManager {
     private readonly bot: Telegraf;
+    private readonly tasksImages: Record<number, string> = {};
 
     constructor(bot: Telegraf) {
         this.bot = bot;
         this.messageHandler();
+
+        for (let i = 1; i <= 48; i++) {
+            this.tasksImages[i] = `media/Task ${i}.png`;
+        }
     }
 
     async showMessageCommands(ctx: Context) {
@@ -87,7 +87,7 @@ export class MessageCommandManager {
             const nickname = ctx.match[1];
 
             const keyboard = Markup.inlineKeyboard(
-                Object.keys(tasksImages).map(key =>
+                Object.keys(this.tasksImages).map(key =>
                     Markup.button.callback(`Задание ${key}`, `send_task_image:${nickname}:${key}`)
                 ),
                 { columns: 3 }
@@ -102,7 +102,7 @@ export class MessageCommandManager {
             const taskNumber = Number(ctx.match[2]);
 
             const user = userRepository.getUser(nickname);
-            const imagePath = tasksImages[taskNumber];
+            const imagePath = this.tasksImages[taskNumber];
 
             if (!user?.chatId || !imagePath) {
                 await ctx.reply("Не удалось отправить задание.");
