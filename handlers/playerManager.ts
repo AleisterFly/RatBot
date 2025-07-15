@@ -266,6 +266,8 @@ export class PlayerManager {
             player.votings = player.votings.set(currentStage, nickname);
             playerRepository.updatePlayer(player);
 
+            await ctx.reply("Вы проголосовали за: " + nickname + ". Вы думаете вы сделали правильный выбор?\nВремя покажет!");
+
             session.state = "idle";
         });
 

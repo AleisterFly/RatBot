@@ -9,7 +9,7 @@ import {
     newRatMessage,
     ratBonusMessage,
     secondVotedOutMessage, seriaMessage,
-    startFinalTourMessage,
+    startFinalTourMessage, startFirstTourMessage,
     startSecondTourMessage,
     teamFinalVotingMessage,
     teamVotingMessage,
@@ -196,7 +196,7 @@ export class NotificationManager {
             players
                 .map(nickname => Markup.button.callback(nickname, `newrat:${nickname}`))
                 .toArray(),
-            { columns: 1 }
+            {columns: 1}
         );
 
         await ctx.reply("Выберите игрока для сообщения 'Новая крыса':", keyboard);
@@ -219,6 +219,15 @@ export class NotificationManager {
     // async sendRegistrationFirstTourMessage(message: string) {
     //
     // }
+
+    async sendRegistrationFirstTourMessage(chatAdminId: number) {
+        const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
+        const rats = this.playerRepository.getAllPlayersNicknames(UserType.Rat);
+        const allPlayers = players.concat(rats);
+
+        await this.sendMessagesForAll(allPlayers, startFirstTourMessage);
+        await this.bot.telegram.sendMessage(chatAdminId, startFirstTourMessage);
+    }
 
     async sendRegistrationSecondTourMessage(chatAdminId: number) {
         const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
@@ -258,20 +267,20 @@ export class NotificationManager {
             rats
                 .map(nickname => Markup.button.callback(nickname, `ratbonus:${nickname}`))
                 .toArray(),
-            { columns: 1 }
+            {columns: 1}
         );
 
         await ctx.reply("Выберите крысу для отправки бонуса:", keyboard);
     }
 
     async showPlayerSelectionForCustomMessage(ctx: Context) {
-        const players = this.playerRepository.getAllPlayersNicknames(UserType.Player);
+        const players = this.playerRepository.getAllPlayersNicknames(UserType.All);
 
         const keyboard = Markup.inlineKeyboard(
             players
                 .map(nickname => Markup.button.callback(nickname, `sendmsgto:${nickname}`))
                 .toArray(),
-            { columns: 1 }
+            {columns: 1}
         );
 
         await ctx.reply("Выберите игрока для отправки произвольного сообщения:", keyboard);
@@ -302,7 +311,7 @@ export class NotificationManager {
             players
                 .map(nickname => Markup.button.callback(nickname, `select_task_target:${nickname}`))
                 .toArray(),
-            { columns: 1 }
+            {columns: 1}
         );
 
         await ctx.reply("Выберите игрока для задания:", keyboard);

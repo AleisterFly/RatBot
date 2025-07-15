@@ -17,7 +17,7 @@ export class MessageCommandManager {
         this.messageHandler();
 
         for (let i = 1; i <= 48; i++) {
-            this.tasksImages[i] = `media/Task ${i}.png`;
+            this.tasksImages[i] = `media/tasks/Task ${i}.png`;
         }
     }
 
@@ -98,6 +98,9 @@ export class MessageCommandManager {
 
         this.bot.action(/^send_task_image:(.+):(.+)$/, async (ctx) => {
             await deleteMessage(ctx);
+            const chatId = ctx.chat?.id;
+            if (!chatId) return;
+
             const nickname = ctx.match[1];
             const taskNumber = Number(ctx.match[2]);
 
@@ -109,10 +112,17 @@ export class MessageCommandManager {
                 return;
             }
 
+            console.log(imagePath);
+
             try {
                 await this.bot.telegram.sendPhoto(user.chatId, { source: imagePath }, {
                     caption: `Твое задание №${taskNumber}`
                 });
+
+                await this.bot.telegram.sendPhoto(chatId, { source: imagePath }, {
+                    caption: `Твое задание №${taskNumber}`
+                });
+
                 await ctx.reply(`Задание №${taskNumber} отправлено игроку ${nickname}`);
             } catch (err) {
                 await ctx.reply("Ошибка при отправке задания.");
@@ -158,6 +168,9 @@ export class MessageCommandManager {
                 break;
             case messageCommand.CAPTAIN_REG_SERIA:
                 await notificationManager.sendCaptainsRegSeriaMessage(chatId);
+                break;
+            case messageCommand.REG_FIRST_TOUR:
+                await notificationManager.sendRegistrationFirstTourMessage(chatId);
                 break;
             case messageCommand.REG_SECOND_TOUR:
                 await notificationManager.sendRegistrationSecondTourMessage(chatId);
