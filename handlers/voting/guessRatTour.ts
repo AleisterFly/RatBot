@@ -1,7 +1,5 @@
 import { Context, Markup, Telegraf } from "telegraf";
-import { IViewerRepository } from "../../repositories/viewerRepository";
 import {
-    dbManager,
     playerRepository,
     seriesRepository,
     teamRepository,
@@ -9,10 +7,11 @@ import {
     viewerRepository
 } from "../../di/ratProvider";
 import { chunk } from "../../utils/util";
-import {List} from "immutable";
+import { List } from "immutable";
 
 type VoteSessionTour = {
     selected: Map<string, string>; // ключ — команда, значение — ник игрока
+    messageIds: number[]; // ID сообщений с кнопками, чтобы удалить
 };
 
 const NUMBER_OF_COLUMNS = 5;
@@ -20,9 +19,7 @@ const NUMBER_OF_COLUMNS = 5;
 export class GuessRatTour {
     private voteSessions = new Map<number, VoteSessionTour>();
 
-    constructor(
-        private bot: Telegraf
-    ) {
+    constructor(private bot: Telegraf) {
         this.registerActions();
     }
 
@@ -30,10 +27,18 @@ export class GuessRatTour {
         const chatId = ctx.chat?.id;
         if (!chatId) return;
 
-        if (this.voteSessions.has(chatId)) {
-            await ctx.reply("Вы уже голосуете. Завершите голосование.");
-            return;
+        // Удалить старые сообщения, если были
+        const oldSession = this.voteSessions.get(chatId);
+        if (oldSession?.messageIds?.length) {
+            for (const msgId of oldSession.messageIds) {
+                try {
+                    await ctx.telegram.deleteMessage(chatId, msgId);
+                } catch (err) {
+                    console.warn("Не удалось удалить сообщение:", err);
+                }
+            }
         }
+        this.voteSessions.delete(chatId);
 
         const user = userRepository.getRegUser(chatId);
         if (!user) return;
@@ -41,14 +46,18 @@ export class GuessRatTour {
         const viewer = viewerRepository.getByNickname(user?.nickname);
         const currentStage = seriesRepository.getCurrentSeria()?.stageType;
 
-        if(viewer && currentStage) {
-            if(viewer.tourVoting.has(currentStage)){
+        if (viewer && currentStage) {
+            if (viewer.tourVoting.has(currentStage)) {
                 await ctx.reply("Вы уже проголосовали в этом туре!");
                 return;
             }
         }
 
-        this.voteSessions.set(chatId, { selected: new Map() });
+        const newSession: VoteSessionTour = {
+            selected: new Map(),
+            messageIds: []
+        };
+        this.voteSessions.set(chatId, newSession);
 
         await ctx.reply("Выберите по одному игроку в каждой команде, кого считаете крысой:");
 
@@ -69,10 +78,12 @@ export class GuessRatTour {
 
             const markup = Markup.inlineKeyboard(buttons).reply_markup;
 
-            await ctx.reply(`Команда: ${team.title}`, {
+            const sentMsg = await ctx.reply(`Команда: ${team.title}`, {
                 parse_mode: "HTML",
                 reply_markup: markup,
             });
+
+            newSession.messageIds.push(sentMsg.message_id);
         }
     }
 
@@ -87,7 +98,7 @@ export class GuessRatTour {
                 return;
             }
 
-            const data = ctx.match[1]; // "НазваниеКоманды|НикИгрока"
+            const data = ctx.match[1];
             const [teamTitle, playerName] = data.split("|");
 
             session.selected.set(teamTitle, playerName);
@@ -99,7 +110,6 @@ export class GuessRatTour {
 
             const teams = teamRepository.getTeams();
             if (session.selected.size >= teams.size) {
-                // Формируем краткое резюме
                 const choices = Array.from(session.selected.entries())
                     .map(([team, player]) => `${team}: ${player}`)
                     .join("\n");
@@ -109,10 +119,12 @@ export class GuessRatTour {
                     [Markup.button.callback("❌ НЕТ", "rat_tour_final_cancel")]
                 ]);
 
-                await ctx.reply(`Ваш выбор:\n${choices}\n\nПодтвердить?`, {
+                const msg = await ctx.reply(`Ваш выбор:\n${choices}\n\nПодтвердить?`, {
                     parse_mode: "HTML",
                     reply_markup: confirmMarkup.reply_markup,
                 });
+
+                session.messageIds.push(msg.message_id);
             }
         });
 
@@ -127,22 +139,17 @@ export class GuessRatTour {
             }
 
             await ctx.answerCbQuery();
-            await ctx.telegram.deleteMessage(
-                chatId,
-                ctx.callbackQuery?.message?.message_id as number
-            );
+            await ctx.telegram.deleteMessage(chatId, ctx.callbackQuery?.message?.message_id as number);
 
             let scores = 0;
-
             let selectedNicknames = List<string>();
+
             for (const [_, selectedPlayer] of session.selected) {
                 const player = playerRepository.getByNickname(selectedPlayer);
                 if (player) {
                     selectedNicknames = selectedNicknames.push(selectedPlayer);
                     if (player.isRat) {
                         scores++;
-                    } else {
-                        scores -= 0;
                     }
                 }
             }
@@ -150,15 +157,13 @@ export class GuessRatTour {
             const user = userRepository.getRegUser(chatId);
             if (!user) return;
 
-            const viewer = viewerRepository.getByNickname(user?.nickname);
+            const viewer = viewerRepository.getByNickname(user.nickname);
             const currentStage = seriesRepository.getCurrentSeria()?.stageType;
 
-            if(viewer && currentStage) {
+            if (viewer && currentStage) {
                 viewer.tourVoting = viewer.tourVoting.set(currentStage, selectedNicknames);
                 viewer.tourScores = viewer.tourScores.set(currentStage, scores);
-
-                viewer.totalScores = viewer.totalScores + scores;
-
+                viewer.totalScores += scores;
                 viewerRepository.updateViewer(viewer);
             }
 
@@ -171,12 +176,8 @@ export class GuessRatTour {
             if (!chatId) return;
 
             await ctx.answerCbQuery();
-            await ctx.telegram.deleteMessage(
-                chatId,
-                ctx.callbackQuery?.message?.message_id as number
-            );
+            await ctx.telegram.deleteMessage(chatId, ctx.callbackQuery?.message?.message_id as number);
 
-            // Начинаем всё заново
             this.voteSessions.delete(chatId);
             await this.onRatVote(ctx);
         });

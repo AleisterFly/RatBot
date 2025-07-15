@@ -1,9 +1,15 @@
 import { Context, Markup, Telegraf } from "telegraf";
 import { IViewerRepository } from "../../repositories/viewerRepository";
 import { deleteMessage } from "../../utils/deleteMessage";
-import {dbManager, playerRepository, seriesRepository, userRepository, viewerRepository} from "../../di/ratProvider";
+import {
+    dbManager,
+    playerRepository,
+    seriesRepository,
+    userRepository,
+    viewerRepository
+} from "../../di/ratProvider";
 import { chunk } from "../../utils/util";
-import {List} from "immutable";
+import { List } from "immutable";
 
 type VoteStep = "select_rat" | "confirm_vote";
 
@@ -11,6 +17,7 @@ type VoteSession = {
     step: VoteStep;
     votedNicknames: string[];
     noRats: boolean;
+    messageIds: number[]; // сообщения для удаления
 };
 
 const NUMBER_OF_COLUMNS = 5;
@@ -18,9 +25,7 @@ const NUMBER_OF_COLUMNS = 5;
 export class GuessRat {
     private voteSessions = new Map<number, VoteSession>();
 
-    constructor(
-        private bot: Telegraf
-    ) {
+    constructor(private bot: Telegraf) {
         this.registerActions();
     }
 
@@ -28,26 +33,42 @@ export class GuessRat {
         const chatId = ctx.chat?.id;
         if (!chatId) return;
 
-        if (this.voteSessions.has(chatId)) {
-            await ctx.reply("Вы уже голосуете. Завершите голосование.");
-            return;
+        // Очистка предыдущей сессии, если была
+        const oldSession = this.voteSessions.get(chatId);
+        if (oldSession?.messageIds?.length) {
+            for (const msgId of oldSession.messageIds) {
+                try {
+                    await ctx.telegram.deleteMessage(chatId, msgId);
+                } catch (err) {
+                    console.warn("Не удалось удалить сообщение:", err);
+                }
+            }
         }
+        this.voteSessions.delete(chatId);
 
         const user = userRepository.getRegUser(chatId);
         if (!user) return;
 
-        const viewer = viewerRepository.getByNickname(user?.nickname);
+        const viewer = viewerRepository.getByNickname(user.nickname);
         const currentSeria = seriesRepository.getCurrentSeria();
 
-        if(viewer && currentSeria) {
-            if(viewer.seriaVoting.has(currentSeria.date)){
+        if (viewer && currentSeria) {
+            if (viewer.seriaVoting.has(currentSeria.date)) {
                 await ctx.reply("Вы уже проголосовали в этой серии!");
                 return;
             }
         }
 
-        this.voteSessions.set(chatId, { step: "select_rat", votedNicknames: [], noRats: false });
-        await this.askNext(ctx, []);
+        const session: VoteSession = {
+            step: "select_rat",
+            votedNicknames: [],
+            noRats: false,
+            messageIds: []
+        };
+
+        this.voteSessions.set(chatId, session);
+
+        await this.askNext(ctx, [], false, false, session);
     }
 
     private registerActions() {
@@ -65,8 +86,11 @@ export class GuessRat {
 
             if (votedName === "NO_RATS") {
                 session.noRats = !session.noRats;
-                session.votedNicknames.push("НЕТ КРЫС");
-
+                if (!session.votedNicknames.includes("НЕТ КРЫС")) {
+                    session.votedNicknames.push("НЕТ КРЫС");
+                } else {
+                    session.votedNicknames = session.votedNicknames.filter(n => n !== "НЕТ КРЫС");
+                }
             } else {
                 const idx = session.votedNicknames.indexOf(votedName);
                 if (idx === -1) {
@@ -76,7 +100,7 @@ export class GuessRat {
                 }
             }
 
-            await this.askNext(ctx, session.votedNicknames, true, session.noRats);
+            await this.askNext(ctx, session.votedNicknames, true, session.noRats, session);
         });
 
         this.bot.action(/^confirm_vote$/, async (ctx) => {
@@ -96,8 +120,6 @@ export class GuessRat {
                 ? session.votedNicknames.join(", ")
                 : "никого";
 
-            const noRatsText = session.noRats ? "НЕТ КРЫС выбрано" : "";
-
             const summary = `Ваш выбор: ${selected}.\nВы уверены?`;
 
             const markup = Markup.inlineKeyboard([
@@ -105,7 +127,8 @@ export class GuessRat {
                 [Markup.button.callback("❌ НЕТ", "final_cancel")]
             ]);
 
-            await ctx.reply(summary, { reply_markup: markup.reply_markup });
+            const msg = await ctx.reply(summary, { reply_markup: markup.reply_markup });
+            session.messageIds.push(msg.message_id);
         });
 
         this.bot.action(/^final_confirm$/, async (ctx) => {
@@ -124,12 +147,10 @@ export class GuessRat {
 
             for (const name of session.votedNicknames) {
                 const player = playerRepository.getByNickname(name);
-                if (player) {
-                    if (player.isRat) {
-                        scores++;
-                    } else {
-                        scores -= 0.5;
-                    }
+                if (player && player.isRat) {
+                    scores++;
+                } else if (player) {
+                    scores -= 0.5;
                 }
             }
 
@@ -144,30 +165,25 @@ export class GuessRat {
                             break;
                         }
                     }
-                    if (noRats) {
-                        scores += 3;
-                    } else {
-                        scores -= 1;
-                    }
+                    scores += noRats ? 3 : -1;
                 }
             }
 
             const user = userRepository.getRegUser(chatId);
             if (!user) return;
 
-            const viewer = viewerRepository.getByNickname(user?.nickname);
+            const viewer = viewerRepository.getByNickname(user.nickname);
             const currentSeria = seriesRepository.getCurrentSeria();
 
-            if(viewer && currentSeria) {
+            if (viewer && currentSeria) {
                 viewer.seriaVoting = viewer.seriaVoting.set(currentSeria.date, List(session.votedNicknames));
                 viewer.seriaScores = viewer.seriaScores.set(currentSeria.date, scores);
-
-                viewer.totalScores = viewer.totalScores + scores;
+                viewer.totalScores += scores;
 
                 viewerRepository.updateViewer(viewer);
             }
 
-            await ctx.reply(`Ваши голоса были приняты!`);
+            await ctx.reply("Ваши голоса были приняты!");
             this.voteSessions.delete(chatId);
         });
 
@@ -184,11 +200,17 @@ export class GuessRat {
 
             session.step = "select_rat";
 
-            await this.askNext(ctx, session.votedNicknames, false, session.noRats);
+            await this.askNext(ctx, session.votedNicknames, false, session.noRats, session);
         });
     }
 
-    private async askNext(ctx: Context, alreadyVoted: string[], edit = false, noRats = false) {
+    private async askNext(
+        ctx: Context,
+        alreadyVoted: string[],
+        edit = false,
+        noRats = false,
+        session?: VoteSession
+    ) {
         const currentSeria = seriesRepository.getCurrentSeria();
         if (!currentSeria?.regNicknames) return;
 
@@ -208,7 +230,6 @@ export class GuessRat {
 
         const noRatsLabel = noRats ? `✅ НЕТ КРЫС` : "НЕТ КРЫС";
         buttons.push([Markup.button.callback(noRatsLabel, `toggle_vote:NO_RATS`)]);
-
         buttons.push([Markup.button.callback("✅ ПОДТВЕРДИТЬ", `confirm_vote`)]);
 
         const markup = Markup.inlineKeyboard(buttons).reply_markup;
@@ -218,10 +239,14 @@ export class GuessRat {
                 await ctx.editMessageReplyMarkup(markup);
             } catch (err) { }
         } else {
-            await ctx.reply("Выберите игроков или «НЕТ КРЫС» и подтвердите выбор:", {
+            const sentMsg = await ctx.reply("Выберите игроков или «НЕТ КРЫС» и подтвердите выбор:", {
                 parse_mode: "HTML",
                 reply_markup: markup,
             });
+
+            if (session) {
+                session.messageIds.push(sentMsg.message_id);
+            }
         }
     }
 }

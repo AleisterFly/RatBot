@@ -31,8 +31,9 @@ export class ViewerManager {
             return;
         }
 
+        // Если регистрация уже шла — просто завершаем сессию без вывода
         if (this.registerSessions.has(chatId)) {
-            await ctx.reply("Вы уже проходите регистрацию. Завершите её.");
+            this.registerSessions.delete(chatId);
             return;
         }
 
@@ -59,7 +60,7 @@ export class ViewerManager {
                 const nickname = text;
                 const telegramName = ctx.from?.username ?? 'no_username';
 
-                if(nickname.length > 12) {
+                if (nickname.length > 12) {
                     await ctx.reply("Этот ник слишком длинный. Зарегистрируйтесь заново.");
                     this.registerSessions.delete(chatId);
                     return;
