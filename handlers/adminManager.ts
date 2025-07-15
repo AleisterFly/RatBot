@@ -620,4 +620,7 @@ export class AdminManager {
             await ctx.reply(`Вы выбрали капитаном: ${playerNickname} для команды "${teamTitle}"`);
         });
     }
+
+    async setBonusRatGames(ctx: Context) {
+    }
 }

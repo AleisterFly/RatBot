@@ -32,6 +32,7 @@ export enum BotCommand {
     SHOW_PHASE = 'ФАЗА (показать)',
     VIEWER_RULES = 'ПРАВИЛА КРЫСОЛОВОВ',
     SETTING_CAMERA = 'НАСТРОЙКИ БОКОВОЙ',
+    SET_BONUS_RAT_GAMES = 'КРЫСО ИГРЫ (бонус)',
 
     //TEST
     UNREG = 'unreg',
@@ -66,6 +67,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     [BotCommand.SHOW_VOTING]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_PLAYERS]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SELECT_PLAYER]: [[UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SET_BONUS_RAT_GAMES]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.UPDATE_CURRENT]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.GET_CURRENT]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.ADD_TEAM]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
