@@ -23,6 +23,42 @@ export class AdminManager {
     constructor(bot: Telegraf) {
         this.bot = bot;
         this.registerActions();
+
+        this.bot.action(/^bonus:(.*)$/, async (ctx) => {
+            const nickname = ctx.match[1];
+            await deleteMessage(ctx);
+
+            const bonusButtons = [-3, -2, -1, 0, 1, 2, 3].map((value) =>
+                Markup.button.callback(`${value}`, `set_bonus:${nickname}|${value}`)
+            );
+
+            await ctx.reply(`Задай бонусное количество крысоигр для ${nickname}:`, {
+                parse_mode: "HTML",
+                reply_markup: Markup.inlineKeyboard(bonusButtons, { columns: 5 }).reply_markup,
+            });
+        });
+
+        this.bot.action(/^set_bonus:(.*)$/, async (ctx) => {
+            const chatId = ctx.chat?.id as number;
+            const messageId = ctx.callbackQuery?.message?.message_id as number;
+            await ctx.telegram.deleteMessage(chatId, messageId);
+
+            const [nickname, bonusValueRaw] = ctx.match[1].split("|");
+            const bonusValue = parseInt(bonusValueRaw, 7);
+
+            console.log(bonusValue);
+
+            const player = playerRepository.getByNickname(nickname);
+            if (!player) {
+                return;
+            }
+
+            player.bonusRatGames = bonusValue;
+            playerRepository.updatePlayer(player);
+
+            await ctx.reply(`Игроку ${nickname} установлен бонус: ${bonusValue}`);
+        });
+
     }
 
     isInAddTeamSession(chatId: number) {
@@ -622,5 +658,15 @@ export class AdminManager {
     }
 
     async setBonusRatGames(ctx: Context) {
+        const players = playerRepository.getAllPlayersNicknames(UserType.All);
+
+        const keyboard = Markup.inlineKeyboard(
+            players
+                .map(nickname => Markup.button.callback(nickname, `bonus:${nickname}`))
+                .toArray(),
+            { columns: 1 }
+        );
+
+        await ctx.reply("Выберите игрока для бонуса:", keyboard);
     }
 }

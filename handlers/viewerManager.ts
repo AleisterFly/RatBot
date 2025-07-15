@@ -59,9 +59,15 @@ export class ViewerManager {
                 const nickname = text;
                 const telegramName = ctx.from?.username ?? 'no_username';
 
+                if(nickname.length > 12) {
+                    await ctx.reply("Этот ник слишком длинный. Зарегистрируйтесь заново.");
+                    this.registerSessions.delete(chatId);
+                    return;
+                }
+
                 const foundExistedViewer = this.viewerRepository.getByNickname(nickname);
                 if (foundExistedViewer) {
-                    await ctx.reply("Этот ник уже занят. Попробуйте другой или /betting_registration заново.");
+                    await ctx.reply("Этот ник уже занят. Попробуйте зарегистрироваться заново с другим ником.");
                     this.registerSessions.delete(chatId);
                     return;
                 }
