@@ -33,8 +33,6 @@ bot.command("register", userManager.onRegister.bind(userManager));
 // bot.command("show_players_SUPER", adminManager.onSuperShowPlayers.bind(adminManager));
 // // bot.command("create_team", adminManager.sendCurrentSeria.bind(adminManager));
 //
-// //TEST
-// bot.command("unreg", userManager.onUnreg.bind(userManager));
 
 
 async function botTextHandler(ctx: Context) {
@@ -74,5 +72,5 @@ bot.on(message("text"), async (ctx) => {
 
 // TODO: Приветствие
 async function onStart(ctx: Context) {
-    await ctx.reply("Добро пожаловать!");
+    await ctx.reply("Добро пожаловать! Чтобы зарегистрироваться, вспользуйтесь командой /register");
 }

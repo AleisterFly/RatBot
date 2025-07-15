@@ -218,7 +218,7 @@ export class PlayerManager {
                     Markup.button.callback(number.toString(), `set_done_task:${number}`)
                 );
 
-                await ctx.reply(`Отметьте в какой игре по счету вы выполнили задание: \n\n`, {
+                await ctx.reply(`Отметьте в какой игре по счету вы выполнили задание:\n\nНе отмечайте, пока не выполните задание!!!`, {
                     parse_mode: "HTML",
                     reply_markup: Markup.inlineKeyboard(buttons.toArray(), { columns: 1 }).reply_markup,
                 });

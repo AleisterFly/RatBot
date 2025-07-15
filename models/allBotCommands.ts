@@ -2,9 +2,6 @@ import {UserType} from "./userType";
 import {Phase} from "./admin/phase";
 
 export enum BotCommand {
-    START = 'start',
-    // REGISTER = 'РЕГИСТРАЦИЯ ИГРОКА',
-    // BETTING_REGISTRATION = 'РЕГИСТРАЦИЯ В КОНКУРСЕ',
     SEND_MESSAGE = "СООБЩЕНИЯ",
     GUESS_RAT = 'УГАДАТЬ КРЫС В СЕРИИ',
     GUESS_RAT_TOUR = 'УГАДАТЬ КРЫС В ТУРЕ',
@@ -33,20 +30,10 @@ export enum BotCommand {
     VIEWER_RULES = 'ПРАВИЛА КРЫСОЛОВОВ',
     SETTING_CAMERA = 'НАСТРОЙКИ БОКОВОЙ',
     SET_BONUS_RAT_GAMES = 'КРЫСО ИГРЫ (бонус)',
-
-    //TEST
-    UNREG = 'unreg',
-
-    MAKE_ALL_PLAYER = 'make_all_player',
 }
 
 
 export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
-    // [BotCommand.SHOW_COMMANDS]: [UserType.All],
-    // [BotCommand.REGISTER]: [UserType.UnregPlayer, UserType.Viewer],
-    // [BotCommand.BETTING_REGISTRATION]: [UserType.Viewer],
-    [BotCommand.START]: [[UserType.All], Phase.DEFAULT],
-
     [BotCommand.SEND_MESSAGE]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
 
     [BotCommand.GUESS_RAT]: [[UserType.Viewer], Phase.RAT_SERIA_VOTING],
@@ -81,8 +68,4 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     [BotCommand.SHOW_RATS_SELECT_GAMES]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SELECT_PLAYER]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SET_BONUS_RAT_GAMES]: [[UserType.SuperAdmin], Phase.DEFAULT],
-
-    // TEST
-    [BotCommand.UNREG]: [[UserType.All], Phase.DEFAULT],
-    [BotCommand.MAKE_ALL_PLAYER]: [[UserType.All], Phase.DEFAULT],
 }

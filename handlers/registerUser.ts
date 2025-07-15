@@ -37,26 +37,6 @@ export class UserManager {
         }
     }
 
-    async onMakeAllPlayer(ctx: Context) {
-        let users = dbManager.getAllUsers();
-        let usersToProcess = users.slice(5);
-
-        for (const user of usersToProcess) {
-            if (isSpecialNickname(user.nickname)) {
-                continue;
-            }
-
-            console.log(user.nickname);
-
-            user.chatId = Math.floor(10000000 + Math.random() * 90000000);
-            user.userType = UserType.Player;
-            userRepository.updateUser(user);
-            playerRepository.createPlayer(user.nickname);
-        }
-
-        await ctx.reply("Все юзеры, кроме первых пяти и специальных, теперь стали игроками!");
-    }
-
     async onRegister(ctx: Context) {
         console.log("onRegister");
 
