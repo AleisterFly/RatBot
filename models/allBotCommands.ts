@@ -66,8 +66,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
 
     [BotCommand.SHOW_VOTING]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_PLAYERS]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
-    [BotCommand.SELECT_PLAYER]: [[UserType.SuperAdmin], Phase.DEFAULT],
-    [BotCommand.SET_BONUS_RAT_GAMES]: [[UserType.SuperAdmin], Phase.DEFAULT],
+
     [BotCommand.UPDATE_CURRENT]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.GET_CURRENT]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.ADD_TEAM]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
@@ -80,6 +79,8 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     [BotCommand.SHOW_PLAYERS_SUPER]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_RATS_DONE_TASK]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_RATS_SELECT_GAMES]: [[UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SELECT_PLAYER]: [[UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SET_BONUS_RAT_GAMES]: [[UserType.SuperAdmin], Phase.DEFAULT],
 
     // TEST
     [BotCommand.UNREG]: [[UserType.All], Phase.DEFAULT],
