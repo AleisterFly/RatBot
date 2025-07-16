@@ -30,6 +30,7 @@ export enum BotCommand {
     SETTING_CAMERA = 'НАСТРОЙКИ БОКОВОЙ',
     SET_BONUS_RAT_GAMES = 'КРЫСО ИГРЫ (бонус)',
     SEND_TASK_TO_RAT = 'КРЫСА (отправить задание)',
+    REPORT_GRAF = 'Жалоба на Графа',
 
 }
 
@@ -48,6 +49,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
 
     [BotCommand.PLAYER_VOTING]: [[UserType.Player, UserType.Rat], Phase.TEAM_VOTING],
     [BotCommand.FINAL_PLAYER_VOTING]: [[UserType.Player, UserType.Rat], Phase.FINAL_TEAM_VOTING],
+    [BotCommand.REPORT_GRAF]: [[UserType.Player, UserType.Rat], Phase.DEFAULT],
 
     [BotCommand.RAT_SELECT_GAMES]: [[UserType.Rat], Phase.TOUR_REGISTRATION],
     [BotCommand.RAT_DONE_TASK]: [[UserType.Rat], Phase.DEFAULT],

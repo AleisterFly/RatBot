@@ -448,6 +448,11 @@ export class PlayerManager {
         });
     }
 
+    async reportGraf(ctx: Context) {
+        await ctx.reply("Марина, успокойся!");
+
+    }
+
     async settingCamera(ctx: Context) {
         const fullImagePath1 = path.resolve(__dirname, '..', "media/cam1.jpg");
         const fullImagePath2 = path.resolve(__dirname, '..', "media/cam2.jpg");
