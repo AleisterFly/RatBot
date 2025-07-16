@@ -4,8 +4,8 @@ import { playerRepository, seriesRepository, teamRepository, userRepository } fr
 import { chunk, formatInColumns, numberRatGames } from "../utils/util";
 import { List } from "immutable";
 import { Seria } from "../models/player/series";
-import {deleteMessage} from "../utils/deleteMessage";
-import {cameraMessage} from "../config/constMessage";
+import { deleteMessage } from "../utils/deleteMessage";
+import { cameraMessage } from "../config/constMessage";
 import * as fs from "node:fs";
 import path from "path";
 
@@ -53,10 +53,8 @@ export class PlayerManager {
             return;
         }
 
-        if (this.ratGameSessions.has(chatId)) {
-            await ctx.reply("Вы уже выбираете игры. Завершите выбор.");
-            return;
-        }
+        // Молча сбрасываем предыдущую сессию, если была
+        this.ratGameSessions.delete(chatId);
 
         this.ratGameSessions.set(chatId, { selectedGames: [], step: "select" });
         await this.askNextRatGames(ctx, [], false);
@@ -92,6 +90,7 @@ export class PlayerManager {
         }
     }
 
+    // Вспомогательный метод
     private getSession(chatId: number): Session {
         if (!this.sessions.has(chatId)) {
             this.sessions.set(chatId, { state: "idle", data: {} });
@@ -415,9 +414,7 @@ export class PlayerManager {
         });
     }
 
-
-    async settingCamera(ctx: Context){
-
+    async settingCamera(ctx: Context) {
         const fullImagePath1 = path.resolve(__dirname, '..', "media/cam1.jpg");
         const fullImagePath2 = path.resolve(__dirname, '..', "media/cam2.jpg");
         const fullImagePath3 = path.resolve(__dirname, '..', "media/cam3.jpg");
