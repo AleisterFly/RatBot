@@ -27,6 +27,7 @@ interface Session {
 interface RatGameSession {
     selectedGames: number[];
     step: "select" | "confirm";
+    messageId?: number;
 }
 
 export class PlayerManager {
@@ -53,11 +54,36 @@ export class PlayerManager {
             return;
         }
 
-        // Молча сбрасываем предыдущую сессию, если была
+        const oldSession = this.ratGameSessions.get(chatId);
+        if (oldSession?.messageId) {
+            try {
+                await ctx.telegram.deleteMessage(chatId, oldSession.messageId);
+            } catch (err) {
+                console.warn("Не удалось удалить старое сообщение:", err);
+            }
+        }
+
         this.ratGameSessions.delete(chatId);
 
-        this.ratGameSessions.set(chatId, { selectedGames: [], step: "select" });
-        await this.askNextRatGames(ctx, [], false);
+        const numbers = [1, 2, 3, 4, 5, 6];
+        const buttons = chunk(
+            numbers.map((n) =>
+                Markup.button.callback(`${n}`, `toggle_rat_game:${n}`)
+            ),
+            NUMBER_OF_COLUMNS
+        );
+        buttons.push([Markup.button.callback("ПОДТВЕРДИТЬ", "confirm_rat_games")]);
+
+        const message = await ctx.reply("Выберите игры и подтвердите:", {
+            parse_mode: "HTML",
+            reply_markup: Markup.inlineKeyboard(buttons).reply_markup,
+        });
+
+        this.ratGameSessions.set(chatId, {
+            selectedGames: [],
+            step: "select",
+            messageId: message.message_id
+        });
     }
 
     private async askNextRatGames(ctx: Context, selectedGames: number[], edit = false) {
