@@ -72,5 +72,5 @@ bot.on(message("text"), async (ctx) => {
 
 // TODO: Приветствие
 async function onStart(ctx: Context) {
-    await ctx.reply("Добро пожаловать! Чтобы зарегистрироваться, вспользуйтесь командой /register");
+    await ctx.reply("Добро пожаловать!\nЧтобы зарегистрироваться, воспользуйтесь командой /register");
 }
