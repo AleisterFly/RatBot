@@ -135,7 +135,7 @@ export class NotificationManager {
     async sendVotedOutSecondMessage(chatAdminId: number) {
         const teams = teamRepository.getTeams();
         const kickedNicknamesForStage = teams
-            .map(team => team.kickedPlayers.get(StageType.FIRST_TOUR))
+            .map(team => team.kickedPlayers.get(StageType.SECOND_TOUR))
             .filter((nickname): nickname is string => Boolean(nickname));
 
         await this.sendMessagesForAll(kickedNicknamesForStage, secondVotedOutMessage);
