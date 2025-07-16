@@ -1,7 +1,7 @@
 import { Context, Markup, Telegraf } from "telegraf";
 import {
     adminManager,
-    messageCommandManager,
+    messageCommandManager, notificationManager,
     phaseRepository,
     playerManager,
     seriesRepository,
@@ -127,6 +127,7 @@ export class CommandManager {
             case "ПРАВИЛА КРЫСОЛОВОВ": await voteManager.viewerRules(ctx); break;
             case "НАСТРОЙКИ БОКОВОЙ": await playerManager.settingCamera(ctx); break;
             case "КРЫСО ИГРЫ (+бонус)": await adminManager.setBonusRatGames(ctx); break;
+            case "КРЫСА (отправить задание)": await notificationManager.showRatSelectionForTask(ctx); break;
         }
     }
 

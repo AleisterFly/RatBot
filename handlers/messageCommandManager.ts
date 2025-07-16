@@ -181,9 +181,6 @@ export class MessageCommandManager {
             case messageCommand.RAT_BONUS_MESSAGE:
                 await notificationManager.showRatSelectionForBonus(ctx);
                 break;
-            case messageCommand.SEND_TASK_TO_RAT:
-                await notificationManager.showRatSelectionForTask(ctx);
-                break;
             case messageCommand.SEND_TO_PLAYER:
                 await notificationManager.showPlayerSelectionForCustomMessage(ctx);
                 break;

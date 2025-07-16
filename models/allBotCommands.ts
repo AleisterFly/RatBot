@@ -8,7 +8,6 @@ export enum BotCommand {
     REG_SERIA = 'ЗАПИСАТЬСЯ НА СЕРИЮ',
     SHOW_REG_SERIA = 'ПОКАЗАТЬ РЕГ СЕРИЮ',
     CANCEL_REG_SERIA = 'ОТМЕНИТЬ РЕГ СЕРИЮ',
-    // SHOW_COMMANDS = 'ПОКАЗАТЬ КОМАНДЫ',
     SHOW_PLAYERS = 'ПОКАЗАТЬ ИГРОКОВ',
     SHOW_PLAYERS_SUPER = 'ПОКАЗАТЬ ИГРОКОВ (супер)',
     SELECT_PLAYER = 'КРЫСА / УДАЛИТЬ',
@@ -30,6 +29,8 @@ export enum BotCommand {
     VIEWER_RULES = 'ПРАВИЛА КРЫСОЛОВОВ',
     SETTING_CAMERA = 'НАСТРОЙКИ БОКОВОЙ',
     SET_BONUS_RAT_GAMES = 'КРЫСО ИГРЫ (бонус)',
+    SEND_TASK_TO_RAT = 'КРЫСА (отправить задание)',
+
 }
 
 
@@ -68,4 +69,6 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     [BotCommand.SHOW_RATS_SELECT_GAMES]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SELECT_PLAYER]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SET_BONUS_RAT_GAMES]: [[UserType.SuperAdmin], Phase.DEFAULT],
+
+    [BotCommand.SEND_TASK_TO_RAT]: [[UserType.SuperAdmin], Phase.DEFAULT],
 }
