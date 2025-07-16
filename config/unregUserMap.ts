@@ -53,7 +53,6 @@ export const unregUsers = [
     {nickname: "Дари", telegramName: "@dariazhadanova"},
     {nickname: "Мейзікін", telegramName: "@la_meizikin"},
     {nickname: "DiElectric", telegramName: "@Dmitry_Gibert"},
-    {nickname: "_ЗРИТЕЛЬ", telegramName: "_ЗРИТЕЛЬ"}
 ]
 
 export const unregUserMap: Map<string, User> = new Map([

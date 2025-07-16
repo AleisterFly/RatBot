@@ -126,7 +126,7 @@ export class CommandManager {
             case "ФАЗА (показать)": await adminManager.showPhase(ctx); break;
             case "ПРАВИЛА КРЫСОЛОВОВ": await voteManager.viewerRules(ctx); break;
             case "НАСТРОЙКИ БОКОВОЙ": await playerManager.settingCamera(ctx); break;
-            case "КРЫСО ИГРЫ (+бонус)": await adminManager.setBonusRatGames(ctx); break;
+            case "КРЫСО ИГРЫ (бонус)": await adminManager.setBonusRatGames(ctx); break;
             case "КРЫСА (отправить задание)": await notificationManager.showRatSelectionForTask(ctx); break;
         }
     }
