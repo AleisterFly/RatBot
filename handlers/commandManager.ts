@@ -101,7 +101,7 @@ export class CommandManager {
         switch (command) {
             case "СООБЩЕНИЯ": await messageCommandManager.showMessageCommands(ctx); break;
             case "ПОКАЗАТЬ ИГРОКОВ": await adminManager.onShowPlayers(ctx); break;
-            case "КРЫСА / ЗАГОЛОСОВАТь": await adminManager.onSelectPlayer(ctx); break;
+            case "КРЫСА / ЗАГОЛОСОВАТЬ": await adminManager.onSelectPlayer(ctx); break;
             case "ТЕКУЩАЯ СЕРИЯ (задать)": await adminManager.updateCurrentSeria(ctx); break;
             case "ТЕКУЩАЯ СЕРИЯ (показать)": await adminManager.sendCurrentSeria(ctx); break;
             case "ЗАПИСАТЬСЯ НА СЕРИЮ": await playerManager.registerToSeria(ctx); break;

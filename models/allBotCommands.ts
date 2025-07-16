@@ -10,7 +10,7 @@ export enum BotCommand {
     CANCEL_REG_SERIA = 'ОТМЕНИТЬ РЕГ СЕРИЮ',
     SHOW_PLAYERS = 'ПОКАЗАТЬ ИГРОКОВ',
     SHOW_PLAYERS_SUPER = 'ПОКАЗАТЬ ИГРОКОВ (супер)',
-    SELECT_PLAYER = 'КРЫСА / ЗАГОЛОСОВАТь',
+    SELECT_PLAYER = 'КРЫСА / ЗАГОЛОСОВАТЬ',
     UPDATE_CURRENT = 'ТЕКУЩАЯ СЕРИЯ (задать)',
     GET_CURRENT = 'ТЕКУЩАЯ СЕРИЯ (показать)',
     ADD_TEAM = 'ДОБАВИТЬ КОМАНДЫ',
