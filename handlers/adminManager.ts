@@ -310,6 +310,14 @@ export class AdminManager {
         await ctx.reply(`Текущая серия: ${currentSeria?.date}`);
     }
 
+    async showRegSeria(ctx: Context) {
+        const curSeria = seriesRepository.getCurrentSeria();
+        if (!curSeria) {
+            return;
+        }
+        await ctx.reply(`На серию ${curSeria?.date} зарегистрированы:\n\n ${formatInColumns(curSeria.regNicknames, 1)}`);
+    }
+
     async onSelectPlayer(ctx: Context) {
         const buttons = chunk(
             playerRepository

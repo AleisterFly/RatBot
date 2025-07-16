@@ -31,6 +31,7 @@ export enum BotCommand {
     SET_BONUS_RAT_GAMES = 'КРЫСО ИГРЫ (бонус)',
     SEND_TASK_TO_RAT = 'КРЫСА (отправить задание)',
     REPORT_GRAF = 'Жалоба на Графа',
+    SHOW_SERIA_REG = 'КТО РЕГ (серия)',
 
 }
 
@@ -65,6 +66,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     [BotCommand.ADD_PLAYER_TO_SERIA]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SET_PHASE]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_PHASE]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SHOW_SERIA_REG]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
 
     [BotCommand.SHOW_PLAYERS_SUPER]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_RATS_DONE_TASK]: [[UserType.SuperAdmin], Phase.DEFAULT],

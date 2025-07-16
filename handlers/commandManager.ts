@@ -129,6 +129,7 @@ export class CommandManager {
             case "КРЫСО ИГРЫ (бонус)": await adminManager.setBonusRatGames(ctx); break;
             case "КРЫСА (отправить задание)": await notificationManager.showRatSelectionForTask(ctx); break;
             case "Жалоба на Графа": await playerManager.reportGraf(ctx); break;
+            case "КТО РЕГ (серия)": await adminManager.showRegSeria(ctx); break;
         }
     }
 
