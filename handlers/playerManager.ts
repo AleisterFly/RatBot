@@ -1,3 +1,4 @@
+
 import { Context, Markup, Telegraf } from "telegraf";
 import { IPlayerRepository } from "../repositories/playerRepository";
 import { playerRepository, seriesRepository, teamRepository, userRepository } from "../di/ratProvider";
@@ -11,13 +12,7 @@ import path from "path";
 
 const NUMBER_OF_COLUMNS = 3;
 
-type State =
-    | "idle"
-    | "register"
-    | "voting"
-    | "rat_select_games"
-    | "rat_done_task"
-    | "cancel_registration";
+type State = "idle" | "register" | "voting" | "rat_select_games" | "rat_done_task" | "cancel_registration";
 
 interface Session {
     state: State;
@@ -28,6 +23,7 @@ interface RatGameSession {
     selectedGames: number[];
     step: "select" | "confirm";
     messageId?: number;
+    confirmMessageId?: number;
 }
 
 export class PlayerManager {
@@ -55,15 +51,25 @@ export class PlayerManager {
         }
 
         const oldSession = this.ratGameSessions.get(chatId);
-        if (oldSession?.messageId) {
-            try {
-                await ctx.telegram.deleteMessage(chatId, oldSession.messageId);
-            } catch (err) {
-                console.warn("Не удалось удалить старое сообщение:", err);
+        if (oldSession) {
+            if (oldSession.messageId) {
+                try {
+                    await ctx.telegram.deleteMessage(chatId, oldSession.messageId);
+                } catch (err) {
+                    console.warn("Не удалось удалить сообщение выбора игр:", err);
+                }
             }
-        }
 
-        this.ratGameSessions.delete(chatId);
+            if (oldSession.confirmMessageId) {
+                try {
+                    await ctx.telegram.deleteMessage(chatId, oldSession.confirmMessageId);
+                } catch (err) {
+                    console.warn("Не удалось удалить сообщение подтверждения:", err);
+                }
+            }
+
+            this.ratGameSessions.delete(chatId);
+        }
 
         const numbers = [1, 2, 3, 4, 5, 6];
         const buttons = chunk(
@@ -385,7 +391,9 @@ export class PlayerManager {
                 [Markup.button.callback("❌ НЕТ", "final_cancel_rat_games")]
             ]);
 
-            await ctx.reply(summary, { reply_markup: markup.reply_markup });
+            const message = await ctx.reply(summary, { reply_markup: markup.reply_markup });
+
+            session.confirmMessageId = message.message_id;
         });
 
         this.bot.action(/^final_confirm_rat_games$/, async (ctx) => {
