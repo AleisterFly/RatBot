@@ -128,7 +128,7 @@ export class CommandManager {
             case "НАСТРОЙКИ БОКОВОЙ": await playerManager.settingCamera(ctx); break;
             case "КРЫСО ИГРЫ (бонус)": await adminManager.setBonusRatGames(ctx); break;
             case "КРЫСА (отправить задание)": await notificationManager.showRatSelectionForTask(ctx); break;
-            case "Жалоба на Графа": await playerManager.reportGraf(ctx); break;
+            case "ЖАЛОБА НА ГРАФА": await playerManager.reportGraf(ctx); break;
             case "КТО РЕГ (серия)": await adminManager.showRegSeria(ctx); break;
         }
     }

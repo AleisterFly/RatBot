@@ -30,7 +30,7 @@ export enum BotCommand {
     SETTING_CAMERA = 'НАСТРОЙКИ БОКОВОЙ',
     SET_BONUS_RAT_GAMES = 'КРЫСО ИГРЫ (бонус)',
     SEND_TASK_TO_RAT = 'КРЫСА (отправить задание)',
-    REPORT_GRAF = 'Жалоба на Графа',
+    REPORT_GRAF = 'ЖАЛОБА НА ГРАФА',
     SHOW_SERIA_REG = 'КТО РЕГ (серия)',
 
 }

@@ -60,7 +60,7 @@ export class ViewerManager {
                 const nickname = text;
                 const telegramName = ctx.from?.username ?? 'no_username';
 
-                if (nickname.length > 12) {
+                if (nickname.length > 10) {
                     await ctx.reply("Этот ник слишком длинный. Зарегистрируйтесь заново.");
                     this.registerSessions.delete(chatId);
                     return;
