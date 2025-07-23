@@ -318,6 +318,25 @@ export class AdminManager {
         await ctx.reply(`На серию ${curSeria?.date} зарегистрированы:\n\n ${formatInColumns(curSeria.regNicknames, 1)}`);
     }
 
+    async showTourSeria(ctx: Context) {
+        const curTourSeries = seriesRepository.getCurrentTourSeries();
+        if (!curTourSeries) {
+            return;
+        }
+
+        const lines: string[] = [];
+
+        curTourSeries.forEach((seria, idx) => {
+            const header = `Серия ${idx + 1} — ${seria.date}:`;
+            const regs = seria.regNicknames.size > 0
+                ? formatInColumns(seria.regNicknames, 1)
+                : "(никто не зарегистрирован)";
+            lines.push(`${header}\n${regs}`);
+        });
+
+        await ctx.reply(`Регистрация на турнирную серию:\n\n${lines.join("\n\n")}`);
+    }
+
     async onSelectPlayer(ctx: Context) {
         const buttons = chunk(
             playerRepository

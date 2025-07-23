@@ -38,7 +38,7 @@ export class ViewerManager {
         }
 
         this.registerSessions.set(chatId, { step: "nickname" });
-        await ctx.reply("Введите ваш никнейм на Twitch");
+        await ctx.reply("Введите ваш никнейм на Twitch.\nЕсли никнейм не поместился (слишком длинный) - сократите его до 10 символов.");
     }
 
     isInSession(chatId: number): boolean {

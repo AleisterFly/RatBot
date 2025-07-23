@@ -130,6 +130,7 @@ export class CommandManager {
             case "КРЫСА (отправить задание)": await notificationManager.showRatSelectionForTask(ctx); break;
             case "ЖАЛОБА НА ГРАФА": await playerManager.reportGraf(ctx); break;
             case "КТО РЕГ (серия)": await adminManager.showRegSeria(ctx); break;
+            case "КТО РЕГ (тур)": await adminManager.showTourSeria(ctx); break;
         }
     }
 

@@ -32,6 +32,7 @@ export enum BotCommand {
     SEND_TASK_TO_RAT = 'КРЫСА (отправить задание)',
     REPORT_GRAF = 'ЖАЛОБА НА ГРАФА',
     SHOW_SERIA_REG = 'КТО РЕГ (серия)',
+    SHOW_TOUR_REG = 'КТО РЕГ (тур)',
 
 }
 
@@ -67,6 +68,7 @@ export const BotCommandAccess: Record<BotCommand, [UserType[], Phase]> = {
     [BotCommand.SET_PHASE]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_PHASE]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_SERIA_REG]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
+    [BotCommand.SHOW_TOUR_REG]: [[UserType.Admin, UserType.SuperAdmin], Phase.DEFAULT],
 
     [BotCommand.SHOW_PLAYERS_SUPER]: [[UserType.SuperAdmin], Phase.DEFAULT],
     [BotCommand.SHOW_RATS_DONE_TASK]: [[UserType.SuperAdmin], Phase.DEFAULT],

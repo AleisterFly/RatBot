@@ -1,4 +1,4 @@
 /node_modules
 .idea/
-db.sqlite
+utils/db.sqlite
 config/tokens.ts
